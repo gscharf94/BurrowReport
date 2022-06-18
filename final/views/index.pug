@@ -1,0 +1,12 @@
+extends layout.pug
+
+block style
+  link(rel="stylesheet", href="/stylesheets/index.css")
+
+block content
+  h1 Hello World
+  each job in jobs
+    li #{job.job_name}
+
+block scripts
+  script(src="/scripts/index.js")

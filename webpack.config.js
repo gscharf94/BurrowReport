@@ -2,7 +2,8 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    testing: __dirname + "/final/public/scripts/testing.js",
+    layout: __dirname + "/final/public/scripts/layout.js",
+    index: __dirname + "/final/public/scripts/index.js",
   },
   output: {
     path: __dirname + "/final/public/packed/"
