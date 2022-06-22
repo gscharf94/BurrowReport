@@ -10,7 +10,7 @@ const webScraping_js_1 = require("../helperFunctions/webScraping.js");
 const database_js_1 = require("../helperFunctions/database.js");
 const KENTUCKYPHONE = "5615018160";
 const KENTUCKYURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
-const HEADLESS = false;
+const HEADLESS = true;
 const GLOBALDELAY = 50;
 /**
  * takes in the info grabbed by web scraper
@@ -91,6 +91,7 @@ async function getTicketInfoKentucky(ticket) {
         responses: responses,
     };
     updateTicketInfo(ticketInfo);
+    browser.close();
 }
 function parseTicketTextKentucky(text) {
     let streetRegex = /Street  : (.*)/;
@@ -132,4 +133,6 @@ async function getTicketInfo(ticket, state) {
     }
 }
 exports.getTicketInfo = getTicketInfo;
-getTicketInfo('2206050138', 'Kentucky');
+let testTickets = ["2206050166", "2206050156"];
+getTicketInfo(testTickets[0], 'Kentucky');
+getTicketInfo(testTickets[1], 'Kentucky');

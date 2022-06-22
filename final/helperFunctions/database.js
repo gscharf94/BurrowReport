@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTicketRefresh = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = void 0;
+exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = void 0;
 const db_js_1 = require("../db.js");
 /**
  * psql accepts date in YYYY-MM-DD format
@@ -81,6 +81,26 @@ function formatCoordsToPsql(coords) {
 }
 exports.formatCoordsToPsql = formatCoordsToPsql;
 /**
+ * takes in string[] and makes it good to work in psql
+ * format: {"text", "text"}
+ *
+ * @param {string[]} tickets - string[] - the array of tickets
+ * @returns {string} - string to update with psql INSERT
+ */
+function formatOldTicketsToPsql(tickets) {
+    if (tickets.length == 0) {
+        return "{}";
+    }
+    let output = `{`;
+    for (const ticket of tickets) {
+        output += `"${ticket}",`;
+    }
+    output = output.slice(0, -1);
+    output += `}`;
+    return output;
+}
+exports.formatOldTicketsToPsql = formatOldTicketsToPsql;
+/**
  * takes in the old ticket number, places it in the old tickets array
  * and then puts the new ticket number in the ticket number
  *
@@ -89,8 +109,22 @@ exports.formatCoordsToPsql = formatCoordsToPsql;
  * @returns {void} - doesnt return anything just updates database
  */
 function updateTicketRefresh(oldTicket, newTicket) {
-    let query = `SELECT * FROM tickets WHERE ticket=number='${oldTicket}';`;
-    db_js_1.pool.query(query, (err, resp) => {
+    let query = `SELECT * FROM tickets WHERE ticket_number='${oldTicket}';`;
+    db_js_1.pool.query(query, (err, result) => {
+        if (err) {
+            console.log(`error pulling ticket: ${oldTicket}`);
+        }
+        let [id, oldTickets] = [result.rows[0].id, result.rows[0].old_tickets];
+        oldTickets.unshift(oldTicket);
+        let query = `
+      UPDATE tickets
+      SET
+      ticket_number='${newTicket}',
+      old_tickets='${formatOldTicketsToPsql(oldTickets)}'
+      WHERE
+      id=${id};
+    `;
+        db_js_1.pool.query(query);
     });
 }
 exports.updateTicketRefresh = updateTicketRefresh;

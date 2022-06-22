@@ -3,9 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.refreshTickets = void 0;
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const webScraping_js_1 = require("../helperFunctions/webScraping.js");
-const HEADLESS = false;
+const database_js_1 = require("../helperFunctions/database.js");
+const HEADLESS = true;
 const GLOBALDELAY = 50;
 const KENTUCKYLOGINURL = "https://811.kentucky811.org/login";
 const KENTUCKYTICKETURL = "https://811.kentucky811.org/tickets/dashboard";
@@ -14,13 +16,19 @@ const KENTUCKYPASSWORD = "UKRecW6YFX4ZYyg";
 async function refreshTicketsKentucky(tickets) {
     const [browser, page] = await loginKentucky(KENTUCKYUSERNAME, KENTUCKYPASSWORD);
     let newTickets = {};
+    let counter = 1;
     for (const ticket of tickets) {
+        console.log(`starting: refresh of ${tickets.length} tickets`);
+        console.log(`ticket ${counter++}/${tickets.length} OLD -- ${ticket}`);
         const newTicket = await refreshTicketKentucky(ticket, page);
+        console.log(`ticket ${counter}/${tickets.length} NEW -- ${newTicket}`);
         newTickets[ticket] = newTicket;
+        (0, database_js_1.updateTicketRefresh)(ticket, newTicket);
     }
-    setTimeout(() => {
-        browser.close();
-    }, 3000);
+    // setTimeout(() => {
+    //   browser.close();
+    // }, 3000);
+    browser.close();
     return newTickets;
 }
 async function refreshTicketKentucky(ticket, page) {
@@ -75,3 +83,14 @@ async function loginKentucky(username, password) {
 async function refreshTicketsFlorida(tickets) {
     return {};
 }
+let testTickets = ["2206050166", "2206050156"];
+async function refreshTickets(tickets, state) {
+    if (state == "Kentucky") {
+        return await refreshTicketsKentucky(tickets);
+    }
+    else if (state == "Florida") {
+        return await refreshTicketsFlorida(tickets);
+    }
+}
+exports.refreshTickets = refreshTickets;
+refreshTickets(testTickets, "Kentucky");

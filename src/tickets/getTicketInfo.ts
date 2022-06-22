@@ -7,7 +7,7 @@ import { formatResponsesToPsql, formatDateToPsql, formatTimestampToPsql } from '
 const KENTUCKYPHONE = "5615018160";
 const KENTUCKYURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
 
-const HEADLESS = false;
+const HEADLESS = true;
 const GLOBALDELAY = 50;
 
 /**
@@ -103,6 +103,7 @@ async function getTicketInfoKentucky(ticket : string) : Promise<void> {
   };
 
   updateTicketInfo(ticketInfo);
+  browser.close();
 }
 
 function parseTicketTextKentucky(text : string) : { city : string, street : string, cross_street : string, input_date : Date, expiration_date : Date, description : string } {
@@ -151,5 +152,8 @@ export async function getTicketInfo(ticket : string, state : States) : Promise<v
   }
 }
 
+let testTickets = ["2206050166", "2206050156"];
 
-getTicketInfo('2206050138', 'Kentucky');
+
+getTicketInfo(testTickets[0], 'Kentucky');
+getTicketInfo(testTickets[1], 'Kentucky');

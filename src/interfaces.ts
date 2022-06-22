@@ -30,4 +30,5 @@ export interface TicketInfo {
   coordinates ?: Coord[],
   active ?: boolean,
   state ?: States,
+  old_tickets ?: string[],
 }

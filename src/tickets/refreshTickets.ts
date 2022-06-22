@@ -1,8 +1,9 @@
 import puppeteer from 'puppeteer';
-import { RefreshedTickets } from '../interfaces';
+import { RefreshedTickets, States } from '../interfaces';
 import { typeAndWaitSelector, clickAndWaitSelector } from '../helperFunctions/webScraping.js';
+import { updateTicketRefresh } from '../helperFunctions/database.js';
 
-const HEADLESS = false;
+const HEADLESS = true;
 const GLOBALDELAY = 50;
 
 const KENTUCKYLOGINURL = "https://811.kentucky811.org/login";
@@ -16,14 +17,21 @@ async function refreshTicketsKentucky(tickets : string[]) : Promise<RefreshedTic
 
   let newTickets : RefreshedTickets = {};
 
+  let counter = 1;
   for (const ticket of tickets) {
+    console.log(`starting: refresh of ${tickets.length} tickets`);
+    console.log(`ticket ${counter++}/${tickets.length} OLD -- ${ticket}`);
     const newTicket = await refreshTicketKentucky(ticket, page);
+    console.log(`ticket ${counter}/${tickets.length} NEW -- ${newTicket}`);
     newTickets[ticket] = newTicket;
+    updateTicketRefresh(ticket, newTicket);
   }
 
-  setTimeout(() => {
-    browser.close();
-  }, 3000);
+  // setTimeout(() => {
+  //   browser.close();
+  // }, 3000);
+
+  browser.close();
   return newTickets;
 }
 
@@ -88,3 +96,15 @@ async function loginKentucky(username : string, password : string) : Promise<[pu
 async function refreshTicketsFlorida(tickets : string[]) : Promise<RefreshedTickets> {
   return {};
 }
+
+let testTickets = ["2206050166", "2206050156"];
+
+export async function refreshTickets(tickets : string[], state : States) : Promise<RefreshedTickets> {
+  if (state == "Kentucky") {
+    return await refreshTicketsKentucky(tickets);
+  } else if (state == "Florida") {
+    return await refreshTicketsFlorida(tickets);
+  }
+}
+
+refreshTickets(testTickets, "Kentucky");
