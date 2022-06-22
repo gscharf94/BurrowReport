@@ -30,7 +30,7 @@ function updateTicketInfo(info) {
     input_date='${(0, database_js_1.formatDateToPsql)(info.input_date)}',
     expiration_date='${(0, database_js_1.formatDateToPsql)(info.expiration_date)}',
     description='${info.description}',
-    last_update='${(0, database_js_1.formatDateToPsql)(new Date())}',
+    last_update='${(0, database_js_1.formatTimestampToPsql)(new Date())}',
     responses='${(0, database_js_1.formatResponsesToPsql)(info.responses)}'
     WHERE
     ticket_number='${info.ticket_number}';

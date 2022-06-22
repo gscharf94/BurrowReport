@@ -91,5 +91,5 @@ export function updateTicketRefresh(oldTicket : string, newTicket : string) : vo
   let query = `SELECT * FROM tickets WHERE ticket=number='${oldTicket}';`;
   pool.query(query, (err, resp) => {
 
-  })
+  });
 }

@@ -1,8 +1,8 @@
 import puppeteer from 'puppeteer';
 import { pool } from '../db.js';
 import { TicketInfo, TicketResponse, States } from '../interfaces';
-import { typeAndWaitSelector, clickAndWaitSelector, escapeSingleQuote, trimDescription } from '../helperFunctions/webScraping.js';
-import { formatResponsesToPsql, formatDateToPsql } from '../helperFunctions/database.js';
+import { typeAndWaitSelector, clickAndWaitSelector, trimDescription } from '../helperFunctions/webScraping.js';
+import { formatResponsesToPsql, formatDateToPsql, formatTimestampToPsql } from '../helperFunctions/database.js';
 
 const KENTUCKYPHONE = "5615018160";
 const KENTUCKYURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
@@ -28,7 +28,7 @@ function updateTicketInfo(info : TicketInfo) : void {
     input_date='${formatDateToPsql(info.input_date)}',
     expiration_date='${formatDateToPsql(info.expiration_date)}',
     description='${info.description}',
-    last_update='${formatDateToPsql(new Date())}',
+    last_update='${formatTimestampToPsql(new Date())}',
     responses='${formatResponsesToPsql(info.responses)}'
     WHERE
     ticket_number='${info.ticket_number}';
