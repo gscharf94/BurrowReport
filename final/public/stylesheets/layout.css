@@ -1,3 +1,65 @@
 html {
+  font-family: Roboto, sans-serif;
+}
+
+ul {
+  list-style-type: none;
+}
+
+nav h1 {
+  font-size: 4ch;
+  text-align: right;
+}
+
+nav h2 {
+  position: relative;
+  bottom: -70%;
+  font-size: 5ch;
+}
+
+li a {
+  display: block;
+  padding: 8px 16px;
+  text-decoration: none;
+  color: white;
   background-color: black;
+  font-size: 4ch;
+}
+
+li a.active {}
+
+.hide {
+  display: none;
+}
+
+.fullScreen {
+  margin-left: 0 !important;
+}
+
+#content {
+  margin-left: 25%;
+}
+
+.small {
+  display: block;
+  position: absolute;
+  bottom: -70%;
+  left: 0;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  overflow: auto;
+  background-color: gray;
+  align-items: center;
+
 }

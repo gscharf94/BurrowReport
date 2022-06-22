@@ -9,7 +9,23 @@ html
     block style
 
   body
-    block content
+    nav#navBar
+      h1 Burrow
+      ul
+        li
+          a(href="#") Jobs
+        li
+          a(href="#") Production
+        li
+          a(href="#") Locates
+        li
+          a(href="#") Logout
+      h2(id="toggleButton", onclick="window.toggleNavBar()") <
+
+
+
+    div#content
+      block content
 
     script(src="/scripts/layout.js")
     block scripts
