@@ -5,11 +5,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTicketInfo = void 0;
 const puppeteer_1 = __importDefault(require("puppeteer"));
+const db_js_1 = require("../db.js");
 const webScraping_js_1 = require("../helperFunctions/webScraping.js");
+const database_js_1 = require("../helperFunctions/database.js");
 const INDIANAPHONE = "5615018160";
 const INDIANAURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
 const HEADLESS = false;
 const GLOBALDELAY = 50;
+/**
+ * takes in the info grabbed by web scraper
+ * and then updates the ticket in the system with
+ * the appropriate data
+ *
+ * @param {TicketInfo} info - TicketInfo - the data for the ticket
+ * @returns {void} - doesnt return anything.. just sends sql query
+ */
+function updateTicketInfo(info) {
+    let query = `
+    UPDATE tickets
+    SET
+    city='${info.city}',
+    street='${info.street}',
+    cross_street='${info.cross_street}',
+    input_date='${(0, database_js_1.formatDateToPsql)(info.input_date)}',
+    expiration_date='${(0, database_js_1.formatDateToPsql)(info.expiration_date)}',
+    description='${info.description}',
+    last_update='${(0, database_js_1.formatDateToPsql)(new Date())}',
+    responses='${(0, database_js_1.formatResponsesToPsql)(info.responses)}'
+    WHERE
+    ticket_number='${info.ticket_number}';
+  `;
+    db_js_1.pool.query(query);
+}
 async function getTicketInfoFlorida(ticket) {
 }
 /**
@@ -35,7 +62,6 @@ async function getTicketInfoIndiana(ticket) {
     const ticketTextSelector = "ticket-details-printing-text-and-service-areas.ng-star-inserted > pre:nth-child(2)";
     await page.waitForSelector(ticketTextSelector);
     let ticketText = await page.$eval(ticketTextSelector, el => el.innerHTML);
-    console.log(parseTicketTextIndiana(ticketText));
     let responses = await page.evaluate(() => {
         let responses = [];
         const tableSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ng-component > div.page-content > div:nth-child(3) > ticket-anon-simple-view > div > ticket-details-printing-text-and-service-areas > iq-view-list > div.iq-list-items";
@@ -53,9 +79,18 @@ async function getTicketInfoIndiana(ticket) {
         }
         return responses;
     });
-    setTimeout(() => {
-        browser.close();
-    }, 1000000);
+    let parsedInfo = parseTicketTextIndiana(ticketText);
+    let ticketInfo = {
+        ticket_number: ticket,
+        city: parsedInfo.city,
+        street: parsedInfo.street,
+        cross_street: parsedInfo.cross_street,
+        input_date: parsedInfo.input_date,
+        expiration_date: parsedInfo.expiration_date,
+        description: parsedInfo.description,
+        responses: responses,
+    };
+    updateTicketInfo(ticketInfo);
 }
 function parseTicketTextIndiana(text) {
     let streetRegex = /Street  : (.*)/;
@@ -97,4 +132,4 @@ async function getTicketInfo(ticket, state) {
     }
 }
 exports.getTicketInfo = getTicketInfo;
-getTicketInfo('2206212483', 'Indiana');
+getTicketInfo('2206050138', 'Indiana');

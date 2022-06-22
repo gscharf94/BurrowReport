@@ -6,11 +6,11 @@ export type Coord = [number, number];
 
 export interface TicketResponse {
   utility_name : string,
-  utility_type ?: string,
+  utility_type : string,
+  response : string,
   contact ?: string,
   alternate_contact ?: string,
   emergency_contact ?: string,
-  response : string,
   notes ?: string,
 }
 
@@ -23,7 +23,7 @@ export interface TicketInfo {
   cross_street ?: string,
   input_date ?: Date,
   expiration_date ?: Date,
-  job_name : string,
+  job_name ?: string,
   description ?: string,
   responses ?: TicketResponse[],
   last_update ?: Date,

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { pool } from '../db.js';
 import { Coord, States } from '../interfaces';
+import { formatCoordsToPsql } from '../helperFunctions/database.js';
 
 /**
  * does a query to the database to figure out which state the
@@ -50,16 +51,9 @@ function parseCoords(text : string) : Coord[] {
 async function updateDatabase(ticket : string, coords : Coord[], jobName : string) : Promise<void> {
   let state = await getJobState(jobName);
 
-  let coordString = '{';
-  for (const coord of coords) {
-    coordString += `{${coord[0]}, ${coord[1]}},`;
-  }
-  coordString = coordString.slice(0, -1);
-  coordString += '}';
-
   let query = `
     INSERT INTO tickets(ticket_number, coordinates, job_name, state)
-    VALUES('${ticket}', '${coordString}', '${jobName}', '${state}');
+    VALUES('${ticket}', '${formatCoordsToPsql(coords)}', '${jobName}', '${state}');
   `
   pool.query(query);
 }

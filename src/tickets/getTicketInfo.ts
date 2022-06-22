@@ -2,12 +2,40 @@ import puppeteer from 'puppeteer';
 import { pool } from '../db.js';
 import { TicketInfo, TicketResponse, States } from '../interfaces';
 import { typeAndWaitSelector, clickAndWaitSelector, escapeSingleQuote, trimDescription } from '../helperFunctions/webScraping.js';
+import { formatResponsesToPsql, formatDateToPsql } from '../helperFunctions/database.js';
 
 const INDIANAPHONE = "5615018160";
 const INDIANAURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
 
 const HEADLESS = false;
 const GLOBALDELAY = 50;
+
+/**
+ * takes in the info grabbed by web scraper
+ * and then updates the ticket in the system with
+ * the appropriate data
+ *
+ * @param {TicketInfo} info - TicketInfo - the data for the ticket
+ * @returns {void} - doesnt return anything.. just sends sql query
+ */
+function updateTicketInfo(info : TicketInfo) : void {
+  let query = `
+    UPDATE tickets
+    SET
+    city='${info.city}',
+    street='${info.street}',
+    cross_street='${info.cross_street}',
+    input_date='${formatDateToPsql(info.input_date)}',
+    expiration_date='${formatDateToPsql(info.expiration_date)}',
+    description='${info.description}',
+    last_update='${formatDateToPsql(new Date())}',
+    responses='${formatResponsesToPsql(info.responses)}'
+    WHERE
+    ticket_number='${info.ticket_number}';
+  `;
+  pool.query(query);
+}
+
 
 
 
@@ -42,7 +70,6 @@ async function getTicketInfoIndiana(ticket : string) : Promise<void> {
   const ticketTextSelector = "ticket-details-printing-text-and-service-areas.ng-star-inserted > pre:nth-child(2)";
   await page.waitForSelector(ticketTextSelector);
   let ticketText = await page.$eval(ticketTextSelector, el => el.innerHTML);
-  console.log(parseTicketTextIndiana(ticketText));
 
   let responses : TicketResponse[] = await page.evaluate(() => {
     let responses : TicketResponse[] = [];
@@ -62,9 +89,20 @@ async function getTicketInfoIndiana(ticket : string) : Promise<void> {
     return responses;
   });
 
-  setTimeout(() => {
-    browser.close()
-  }, 1000000);
+  let parsedInfo = parseTicketTextIndiana(ticketText);
+
+  let ticketInfo : TicketInfo = {
+    ticket_number: ticket,
+    city: parsedInfo.city,
+    street: parsedInfo.street,
+    cross_street: parsedInfo.cross_street,
+    input_date: parsedInfo.input_date,
+    expiration_date: parsedInfo.expiration_date,
+    description: parsedInfo.description,
+    responses: responses,
+  };
+
+  updateTicketInfo(ticketInfo);
 }
 
 function parseTicketTextIndiana(text : string) : { city : string, street : string, cross_street : string, input_date : Date, expiration_date : Date, description : string } {
@@ -114,4 +152,4 @@ export async function getTicketInfo(ticket : string, state : States) : Promise<v
 }
 
 
-getTicketInfo('2206212483', 'Indiana');
+getTicketInfo('2206050138', 'Indiana');

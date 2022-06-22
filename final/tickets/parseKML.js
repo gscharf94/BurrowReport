@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const db_js_1 = require("../db.js");
+const database_js_1 = require("../helperFunctions/database.js");
 /**
  * does a query to the database to figure out which state the
  * job is associated with, so that we can add it to the tickets
@@ -46,15 +47,9 @@ function parseCoords(text) {
  */
 async function updateDatabase(ticket, coords, jobName) {
     let state = await getJobState(jobName);
-    let coordString = '{';
-    for (const coord of coords) {
-        coordString += `{${coord[0]}, ${coord[1]}},`;
-    }
-    coordString = coordString.slice(0, -1);
-    coordString += '}';
     let query = `
     INSERT INTO tickets(ticket_number, coordinates, job_name, state)
-    VALUES('${ticket}', '${coordString}', '${jobName}', '${state}');
+    VALUES('${ticket}', '${(0, database_js_1.formatCoordsToPsql)(coords)}', '${jobName}', '${state}');
   `;
     db_js_1.pool.query(query);
 }
