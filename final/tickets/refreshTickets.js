@@ -7,15 +7,15 @@ const puppeteer_1 = __importDefault(require("puppeteer"));
 const webScraping_js_1 = require("../helperFunctions/webScraping.js");
 const HEADLESS = false;
 const GLOBALDELAY = 50;
-const INDIANALOGINURL = "https://811.kentucky811.org/login";
-const INDIANATICKETURL = "https://811.kentucky811.org/tickets/dashboard";
-const INDIANAUSERNAME = "ecocraftgus@gmail.com";
-const INDIANAPASSWORD = "UKRecW6YFX4ZYyg";
-async function refreshTicketsIndiana(tickets) {
-    const [browser, page] = await loginIndiana(INDIANAUSERNAME, INDIANAPASSWORD);
+const KENTUCKYLOGINURL = "https://811.kentucky811.org/login";
+const KENTUCKYTICKETURL = "https://811.kentucky811.org/tickets/dashboard";
+const KENTUCKYUSERNAME = "ecocraftgus@gmail.com";
+const KENTUCKYPASSWORD = "UKRecW6YFX4ZYyg";
+async function refreshTicketsKentucky(tickets) {
+    const [browser, page] = await loginKentucky(KENTUCKYUSERNAME, KENTUCKYPASSWORD);
     let newTickets = {};
     for (const ticket of tickets) {
-        const newTicket = await refreshTicketIndiana(ticket, page);
+        const newTicket = await refreshTicketKentucky(ticket, page);
         newTickets[ticket] = newTicket;
     }
     setTimeout(() => {
@@ -23,8 +23,8 @@ async function refreshTicketsIndiana(tickets) {
     }, 3000);
     return newTickets;
 }
-async function refreshTicketIndiana(ticket, page) {
-    await page.goto(INDIANATICKETURL);
+async function refreshTicketKentucky(ticket, page) {
+    await page.goto(KENTUCKYTICKETURL);
     await page.waitForNavigation();
     const ticketNumberInputSelector = "#mat-input-0";
     const ticketMenuButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ticket-dashboard > div.page-header-background-color.page-content > web-user-ticket-dashboard > iq-detail-layout > div.iq-details-layout-center.ng-trigger.ng-trigger-enterTrigger > ticket-search > iq-view-list > div.iq-list-items > iq-list-item:nth-child(2) > div > div > div.iq-display-2 > button > span.mat-button-wrapper > mat-icon";
@@ -56,13 +56,13 @@ async function refreshTicketIndiana(ticket, page) {
     let newTicketNumber = headerText.slice(-10);
     return newTicketNumber;
 }
-async function loginIndiana(username, password) {
+async function loginKentucky(username, password) {
     const browser = await puppeteer_1.default.launch({
         headless: HEADLESS,
         slowMo: GLOBALDELAY,
     });
     const page = await browser.newPage();
-    await page.goto(INDIANALOGINURL);
+    await page.goto(KENTUCKYLOGINURL);
     const usernameInputSelector = "#mat-input-0";
     const passwordInputSelector = "#mat-input-1";
     const signInButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > load-user-info > div > mat-card:nth-child(1) > mat-card-content > div:nth-child(2) > iq-aws-cognito > iq-aws-cognito-sign-in > div > button";
@@ -75,4 +75,3 @@ async function loginIndiana(username, password) {
 async function refreshTicketsFlorida(tickets) {
     return {};
 }
-refreshTicketsIndiana(['2206050138', '2206050139']);

@@ -1,4 +1,5 @@
 import { TicketResponse, Coord } from '../interfaces';
+import { pool } from '../db.js';
 
 /**
  * psql accepts date in YYYY-MM-DD format
@@ -51,8 +52,11 @@ export function formatResponsesToPsql(responses : TicketResponse[]) : string {
  * @returns {string} - string to enter into postgres INSERT command
  */
 export function formatTimestampToPsql(date : Date = new Date()) : string {
-
-  return '';
+  let dateString = formatDateToPsql(date);
+  let hours = String(date.getHours()).padStart(2, "0");
+  let minutes = String(date.getMinutes()).padStart(2, "0");
+  let seconds = String(date.getSeconds()).padStart(2, "0");
+  return `${dateString} ${hours}:${minutes}:${seconds}`;
 }
 
 /**
@@ -73,4 +77,19 @@ export function formatCoordsToPsql(coords : Coord[]) : string {
   output = output.slice(0, -1);
   output += `}`;
   return output;
+}
+
+/**
+ * takes in the old ticket number, places it in the old tickets array
+ * and then puts the new ticket number in the ticket number
+ *
+ * @param {string} oldTicket - string - old ticket number
+ * @param {string} newTicket - string - new ticket number
+ * @returns {void} - doesnt return anything just updates database
+ */
+export function updateTicketRefresh(oldTicket : string, newTicket : string) : void {
+  let query = `SELECT * FROM tickets WHERE ticket=number='${oldTicket}';`;
+  pool.query(query, (err, resp) => {
+
+  })
 }

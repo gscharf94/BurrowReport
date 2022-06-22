@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = void 0;
+exports.updateTicketRefresh = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = void 0;
+const db_js_1 = require("../db.js");
 /**
  * psql accepts date in YYYY-MM-DD format
  * so this function takes in a javascript date object
@@ -52,7 +53,11 @@ exports.formatResponsesToPsql = formatResponsesToPsql;
  * @returns {string} - string to enter into postgres INSERT command
  */
 function formatTimestampToPsql(date = new Date()) {
-    return '';
+    let dateString = formatDateToPsql(date);
+    let hours = String(date.getHours()).padStart(2, "0");
+    let minutes = String(date.getMinutes()).padStart(2, "0");
+    let seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${dateString} ${hours}:${minutes}:${seconds}`;
 }
 exports.formatTimestampToPsql = formatTimestampToPsql;
 /**
@@ -75,3 +80,17 @@ function formatCoordsToPsql(coords) {
     return output;
 }
 exports.formatCoordsToPsql = formatCoordsToPsql;
+/**
+ * takes in the old ticket number, places it in the old tickets array
+ * and then puts the new ticket number in the ticket number
+ *
+ * @param {string} oldTicket - string - old ticket number
+ * @param {string} newTicket - string - new ticket number
+ * @returns {void} - doesnt return anything just updates database
+ */
+function updateTicketRefresh(oldTicket, newTicket) {
+    let query = `SELECT * FROM tickets WHERE ticket=number='${oldTicket}';`;
+    db_js_1.pool.query(query, (err, resp) => {
+    });
+}
+exports.updateTicketRefresh = updateTicketRefresh;

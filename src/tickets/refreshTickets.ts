@@ -5,19 +5,19 @@ import { typeAndWaitSelector, clickAndWaitSelector } from '../helperFunctions/we
 const HEADLESS = false;
 const GLOBALDELAY = 50;
 
-const INDIANALOGINURL = "https://811.kentucky811.org/login";
-const INDIANATICKETURL = "https://811.kentucky811.org/tickets/dashboard";
-const INDIANAUSERNAME = "ecocraftgus@gmail.com";
-const INDIANAPASSWORD = "UKRecW6YFX4ZYyg";
+const KENTUCKYLOGINURL = "https://811.kentucky811.org/login";
+const KENTUCKYTICKETURL = "https://811.kentucky811.org/tickets/dashboard";
+const KENTUCKYUSERNAME = "ecocraftgus@gmail.com";
+const KENTUCKYPASSWORD = "UKRecW6YFX4ZYyg";
 
 
-async function refreshTicketsIndiana(tickets : string[]) : Promise<RefreshedTickets> {
-  const [browser, page] = await loginIndiana(INDIANAUSERNAME, INDIANAPASSWORD);
+async function refreshTicketsKentucky(tickets : string[]) : Promise<RefreshedTickets> {
+  const [browser, page] = await loginKentucky(KENTUCKYUSERNAME, KENTUCKYPASSWORD);
 
   let newTickets : RefreshedTickets = {};
 
   for (const ticket of tickets) {
-    const newTicket = await refreshTicketIndiana(ticket, page);
+    const newTicket = await refreshTicketKentucky(ticket, page);
     newTickets[ticket] = newTicket;
   }
 
@@ -27,8 +27,8 @@ async function refreshTicketsIndiana(tickets : string[]) : Promise<RefreshedTick
   return newTickets;
 }
 
-async function refreshTicketIndiana(ticket : string, page : puppeteer.Page) : Promise<string> {
-  await page.goto(INDIANATICKETURL);
+async function refreshTicketKentucky(ticket : string, page : puppeteer.Page) : Promise<string> {
+  await page.goto(KENTUCKYTICKETURL);
   await page.waitForNavigation();
 
   const ticketNumberInputSelector = "#mat-input-0";
@@ -66,13 +66,13 @@ async function refreshTicketIndiana(ticket : string, page : puppeteer.Page) : Pr
   return newTicketNumber;
 }
 
-async function loginIndiana(username : string, password : string) : Promise<[puppeteer.Browser, puppeteer.Page]> {
+async function loginKentucky(username : string, password : string) : Promise<[puppeteer.Browser, puppeteer.Page]> {
   const browser = await puppeteer.launch({
     headless: HEADLESS,
     slowMo: GLOBALDELAY,
   });
   const page = await browser.newPage();
-  await page.goto(INDIANALOGINURL);
+  await page.goto(KENTUCKYLOGINURL);
 
   const usernameInputSelector = "#mat-input-0";
   const passwordInputSelector = "#mat-input-1";
@@ -88,5 +88,3 @@ async function loginIndiana(username : string, password : string) : Promise<[pup
 async function refreshTicketsFlorida(tickets : string[]) : Promise<RefreshedTickets> {
   return {};
 }
-
-refreshTicketsIndiana(['2206050138', '2206050139']);
