@@ -14,7 +14,7 @@ export interface TicketResponse {
   notes ?: string,
 }
 
-export type States = 'Florida' | 'Indiana';
+export type States = 'Florida' | 'Kentucky';
 
 export interface TicketInfo {
   ticket_number : string,

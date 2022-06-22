@@ -8,8 +8,8 @@ const puppeteer_1 = __importDefault(require("puppeteer"));
 const db_js_1 = require("../db.js");
 const webScraping_js_1 = require("../helperFunctions/webScraping.js");
 const database_js_1 = require("../helperFunctions/database.js");
-const INDIANAPHONE = "5615018160";
-const INDIANAURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
+const KENTUCKYPHONE = "5615018160";
+const KENTUCKYURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
 const HEADLESS = false;
 const GLOBALDELAY = 50;
 /**
@@ -41,23 +41,23 @@ async function getTicketInfoFlorida(ticket) {
 }
 /**
  * takes a ticket number and gets all the info from it online
- * this one is specifically for indiana
+ * this one is specifically for Kentucky
  *
  * @param {string} ticket - string - ticket number
  * @returns {Promise<void>} - void - should be TicketInfo
  */
-async function getTicketInfoIndiana(ticket) {
+async function getTicketInfoKentucky(ticket) {
     const browser = await puppeteer_1.default.launch({
         headless: HEADLESS,
         slowMo: GLOBALDELAY,
     });
     const page = await browser.newPage();
-    await page.goto(INDIANAURL);
+    await page.goto(KENTUCKYURL);
     const ticketNumberInputSelector = "#mat-input-0";
     const phoneNumberInputSelector = "#iq-phone-0 > input";
     const findButtonSelector = ".mat-button > span:nth-child(1)";
     await (0, webScraping_js_1.typeAndWaitSelector)(page, ticketNumberInputSelector, 0, ticket);
-    await (0, webScraping_js_1.typeAndWaitSelector)(page, phoneNumberInputSelector, 0, INDIANAPHONE);
+    await (0, webScraping_js_1.typeAndWaitSelector)(page, phoneNumberInputSelector, 0, KENTUCKYPHONE);
     await (0, webScraping_js_1.clickAndWaitSelector)(page, findButtonSelector, 0);
     const ticketTextSelector = "ticket-details-printing-text-and-service-areas.ng-star-inserted > pre:nth-child(2)";
     await page.waitForSelector(ticketTextSelector);
@@ -79,7 +79,7 @@ async function getTicketInfoIndiana(ticket) {
         }
         return responses;
     });
-    let parsedInfo = parseTicketTextIndiana(ticketText);
+    let parsedInfo = parseTicketTextKentucky(ticketText);
     let ticketInfo = {
         ticket_number: ticket,
         city: parsedInfo.city,
@@ -92,7 +92,7 @@ async function getTicketInfoIndiana(ticket) {
     };
     updateTicketInfo(ticketInfo);
 }
-function parseTicketTextIndiana(text) {
+function parseTicketTextKentucky(text) {
     let streetRegex = /Street  : (.*)/;
     let streetResult = text.match(streetRegex);
     let crossStreetRegex = /Cross 1 : (.*)/;
@@ -124,12 +124,12 @@ function parseTicketTextIndiana(text) {
  * @returns {Promise<void>} - should be TicketInfo
  */
 async function getTicketInfo(ticket, state) {
-    if (state == "Indiana") {
-        return await getTicketInfoIndiana(ticket);
+    if (state == "Kentucky") {
+        return await getTicketInfoKentucky(ticket);
     }
     else if (state == "Florida") {
         return await getTicketInfoFlorida(ticket);
     }
 }
 exports.getTicketInfo = getTicketInfo;
-getTicketInfo('2206050138', 'Indiana');
+getTicketInfo('2206050138', 'Kentucky');
