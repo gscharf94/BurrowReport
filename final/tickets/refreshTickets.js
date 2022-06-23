@@ -19,9 +19,9 @@ async function refreshTicketsKentucky(tickets) {
     let counter = 1;
     for (const ticket of tickets) {
         console.log(`starting: refresh of ${tickets.length} tickets`);
-        console.log(`ticket ${counter++}/${tickets.length} OLD -- ${ticket}`);
+        console.log(`ticket ${counter}/${tickets.length} OLD -- ${ticket}`);
         const newTicket = await refreshTicketKentucky(ticket, page);
-        console.log(`ticket ${counter}/${tickets.length} NEW -- ${newTicket}`);
+        console.log(`ticket ${counter++}/${tickets.length} NEW -- ${newTicket}`);
         newTickets[ticket] = newTicket;
         (0, database_js_1.updateTicketRefresh)(ticket, newTicket);
     }
@@ -83,7 +83,6 @@ async function loginKentucky(username, password) {
 async function refreshTicketsFlorida(tickets) {
     return {};
 }
-let testTickets = ["2206050166", "2206050156"];
 async function refreshTickets(tickets, state) {
     if (state == "Kentucky") {
         return await refreshTicketsKentucky(tickets);
@@ -93,4 +92,3 @@ async function refreshTickets(tickets, state) {
     }
 }
 exports.refreshTickets = refreshTickets;
-refreshTickets(testTickets, "Kentucky");
