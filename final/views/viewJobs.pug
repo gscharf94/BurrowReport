@@ -1,0 +1,21 @@
+extends layout.pug
+
+block style
+  link(rel="stylesheet", href="/stylesheets/viewJobs.css")
+
+block content
+
+  each job in jobs
+    if job.active
+      div(id=`${job.job_name}Container`).jobContainer
+        p.jobName #{job.job_name}
+        p.jobClient #{job.client}
+        a(href="#").addProduction Add Production
+        img(src="/images/icons/plus-square.svg").addProductionIcon
+        a(href="#").viewProduction View Production
+        img(src="/images/icons/hard-hat-solid.svg").viewProductionIcon
+        a(href="#").viewTickets View Tickets
+        img(src="/images/icons/ticket.png").viewTicketsIcon
+
+block scripts
+  script(src="/scripts/viewJobs.js")
