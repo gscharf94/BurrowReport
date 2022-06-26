@@ -44,6 +44,7 @@ nav h1 {
 #toggleButton {
   height: 80px;
   position: fixed;
+  z-index: 1999;
   bottom: 5%;
   left: 0%;
   font-size: 5ch;
@@ -75,7 +76,7 @@ li a.active {}
 }
 
 #content {
-  margin-left: 25%;
+  margin-left: 20%;
   transition: all 0.5s ease-in-out;
 }
 
