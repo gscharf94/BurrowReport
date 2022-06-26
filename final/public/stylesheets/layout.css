@@ -42,12 +42,16 @@ nav h1 {
 }
 
 #toggleButton {
-  height: 75px;
+  height: 80px;
   position: fixed;
   bottom: 5%;
   left: 0%;
   font-size: 5ch;
   background-color: var(--color-3);
+}
+
+#toggleButton:active {
+  background-color: var(--color-2);
 }
 
 li a {
@@ -63,7 +67,7 @@ li a {
 li a.active {}
 
 .hide {
-  display: none;
+  width: 0px;
 }
 
 .fullScreen {
@@ -72,6 +76,7 @@ li a.active {}
 
 #content {
   margin-left: 25%;
+  transition: all 0.5s ease-in-out;
 }
 
 .small {
@@ -96,5 +101,5 @@ nav {
   overflow: auto;
   background-color: var(--color-1);
   align-items: center;
-
+  transition: width 0.25s ease-in-out;
 }
