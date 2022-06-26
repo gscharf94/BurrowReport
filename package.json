@@ -2,7 +2,7 @@
   "name": "burrowreport",
   "version": "1.0.0",
   "description": "website to handle tickets and as builts for underground construction companies",
-  "main": "index.js",
+  "main": "./final/main.js",
   "scripts": {
     "start": "cd final && node main.js",
     "build": "tsc && npx webpack",
