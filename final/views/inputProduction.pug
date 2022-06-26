@@ -1,12 +1,28 @@
 extends layout.pug
 
 block style
+  meta(name="viewport", content="user-scalable=no")
   link(rel="stylesheet", href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css", integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==", crossorigin="")
   link(rel="stylesheet", href="/stylesheets/inputProduction.css")
 
 block content
   div#map
-
+  div#controls
+    button(onclick="window.addBoreStart()")#addBore Bore
+    button(onclick="window.addRockStart()")#addRock Rock
+    button(onclick="window.addVaultStart()")#addVault Vault
+    button(onclick="window.cancelClick()")#cancel Cancel
+    button#submit Submit
+    input(id="dateInput", type="date")
+    input(id="footageInput", type="number")
+    select(id="vaultSelect")
+      option(value="-1") ---
+      option(value="0") DT20
+      option(value="1") DT30
+      option(value="2") DT36
+    label(for="dateInput", id="dateLabel") Date
+    label(for="footageInput", id="footageLabel") Ftg
+    label(for="vaultSelect", id="vaultLabel") Size
 
 block scripts
   script(src="/packed/inputProduction.js", type="text/javascript")
