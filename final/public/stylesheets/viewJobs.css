@@ -8,7 +8,7 @@
 
 
 .jobContainer img {
-  height: 50px;
+  height: 75px;
   background-color: var(--color-5);
   justify-self: center;
   margin: 10px;
@@ -17,7 +17,7 @@
 
 .jobContainer {
   display: grid;
-  grid-template-rows: 40% 20% 20% 20%;
+  /* grid-template-rows: 30% 20% 20% 20%; */
   grid-template-columns: 70% 30%;
   background-color: var(--color-2);
   width: 80%;
@@ -39,6 +39,11 @@
   color: var(--color-5);
   font-weight: bold;
   text-align: center;
+  background-color: var(--color-6);
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .jobName {
