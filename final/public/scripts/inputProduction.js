@@ -230,7 +230,7 @@ function initialization() {
 }
 /**
  * takes in two lists of element ids
- * it removes the 'hide' class from the first ones
+ * it removes the 'hideControl' class from the first ones
  * and adds it to the second ones
  *
  * @param {string[]} toShow - string[] - ids for elements to show
@@ -240,11 +240,11 @@ function initialization() {
 function hideAndShowElements(toShow, toHide) {
     toShow.map((id) => {
         let element = document.getElementById(id);
-        element.classList.remove('hide');
+        element.classList.remove('hideControl');
     });
     toHide.map((id) => {
         let element = document.getElementById(id);
-        element.classList.add('hide');
+        element.classList.add('hideControl');
     });
 }
 /**
