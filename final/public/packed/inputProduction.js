@@ -17,9 +17,20 @@ class MapObject {
     constructor() {
         this.hidden = false;
     }
+    /**
+     * simply removes the .mapObject
+     * from the map
+     * which will always be the refrence point
+     * for the thing that leaflet handles
+     */
     hideObject() {
         map.removeLayer(this.mapObject);
     }
+    /**
+     * the inverse of hideObject
+     * this adds an element to the map so
+     * leaflet displays it
+     */
     showObject() {
         this.mapObject.addTo(map);
     }
@@ -28,21 +39,103 @@ class MapLine extends MapObject {
     points;
     color;
     weight;
+    lineMarkers;
     constructor(points, color = 'blue', weight = 6) {
         super();
         this.points = points;
         this.color = color;
         this.weight = weight;
+        this.lineMarkers = [];
+        this.createSelf();
+    }
+    /**
+     * create the Polyline object and assigns .mapObject to it
+     * if points < 2 then we can't make a line!!
+     */
+    createSelf(updateLineMarkers = true) {
+        if (this.points.length < 2) {
+            console.log('not enough points to make a line');
+            return;
+        }
+        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight });
+        if (updateLineMarkers) {
+            this.addLineMarkers();
+        }
+        this.showObject();
+    }
+    /**
+     * takes in a gps coordinate, as well an optional index
+     * splices the new gps coordinate into the points list
+     * and then refreshes the object onto the map
+     *
+     * @param {Coord} pos - Coord - [number, number] which is gps for new point
+     * @param {number} index - number - by default it adds on the end.. but can add in middle
+     */
+    addPoint(pos, index = this.points.length) {
+        this.hideObject();
+        this.points.splice(index, 0, pos);
+        this.createSelf();
+    }
+    /**
+     * removes a specific point from an index on the list
+     * then refreshes the map object
+     *
+     * @param {number} index - number - which gps point to remove by index
+     */
+    removePoint(index) {
+        this.hideObject();
+        this.points.splice(index, 1);
+        this.createSelf();
+    }
+    updatePoint(newPos, index) {
+        this.hideObject();
+        this.points.splice(index, 1, newPos);
+        this.createSelf(false);
+    }
+    removeLineMarkers() {
+        for (const marker of this.lineMarkers) {
+            marker.hideObject();
+        }
+    }
+    addLineMarkers() {
+        this.removeLineMarkers();
+        console.log('deleted line markers');
+        this.lineMarkers = [];
+        for (const [ind, point] of this.points.entries()) {
+            let marker = new MapMarker(point, true);
+            this.lineMarkers.push(marker);
+            // marker.mapObject.on('drag', function(event) {
+            //   let newPoint = event.target.getLatLng();
+            //   marker.updatePoint(newPoint);
+            //   this.updatePoint(newPoint, ind);
+            // });
+            marker.mapObject.on('drag', (event) => {
+                let newPoint = event.target.getLatLng();
+                marker.updatePoint(newPoint);
+                this.updatePoint(newPoint, ind);
+            });
+        }
+    }
+}
+class MapMarker extends MapObject {
+    point;
+    draggable;
+    constructor(point, draggable) {
+        super();
+        this.point = point;
+        this.draggable = draggable;
         this.createSelf();
     }
     createSelf() {
-        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight });
+        this.mapObject = leaflet_1.default.marker(this.point, {
+            draggable: this.draggable,
+            // icon = this.icon
+        });
         this.showObject();
     }
-}
-class MapPolygon extends (/* unused pure expression or super */ null && (MapObject)) {
-}
-class MapMarker extends (/* unused pure expression or super */ null && (MapObject)) {
+    updatePoint(newPos) {
+        this.point = [newPos.lat, newPos.lng];
+    }
 }
 window.addBoreStart = addBoreStart;
 window.addRockStart = addRockStart;
@@ -57,7 +150,8 @@ leaflet_1.default.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
     zoomOffset: -1,
     accessToken: 'pk.eyJ1IjoiZ3NjaGFyZjk0IiwiYSI6ImNreWd2am9mODBjbnMyb29sNjZ2Mnd1OW4ifQ.1cSadM_VR54gigTAsVVGng'
 }).addTo(map);
-let line = new MapLine([[0, 1], [1, 2]]);
+let line = new MapLine([[0, 1], [1, 2], [3, 5], [4, -8]]);
+window.line = line;
 /**
  * just housekeeping stuff so that I don't have it scattered throughout
  * the file and all in one place
