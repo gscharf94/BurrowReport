@@ -4,6 +4,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const leaflet_1 = __importDefault(require("leaflet"));
+class MapObject {
+    hidden;
+    mapObject;
+    constructor() {
+        this.hidden = false;
+    }
+    hideObject() {
+        map.removeLayer(this.mapObject);
+    }
+    showObject() {
+        this.mapObject.addTo(map);
+    }
+}
+class MapLine extends MapObject {
+    points;
+    color;
+    weight;
+    constructor(points, color = 'blue', weight = 6) {
+        super();
+        this.points = points;
+        this.color = color;
+        this.weight = weight;
+        this.createSelf();
+    }
+    createSelf() {
+        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight });
+        this.showObject();
+    }
+}
+class MapPolygon extends MapObject {
+}
+class MapMarker extends MapObject {
+}
 window.addBoreStart = addBoreStart;
 window.addRockStart = addRockStart;
 window.addVaultStart = addVaultStart;
@@ -17,6 +50,8 @@ leaflet_1.default.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
     zoomOffset: -1,
     accessToken: 'pk.eyJ1IjoiZ3NjaGFyZjk0IiwiYSI6ImNreWd2am9mODBjbnMyb29sNjZ2Mnd1OW4ifQ.1cSadM_VR54gigTAsVVGng'
 }).addTo(map);
+let line = new MapLine([[0, 1], [1, 2]]);
+window.line = line;
 /**
  * just housekeeping stuff so that I don't have it scattered throughout
  * the file and all in one place

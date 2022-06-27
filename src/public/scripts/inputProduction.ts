@@ -1,4 +1,5 @@
 import L from 'leaflet';
+import { Coord } from '../../interfaces';
 
 declare global {
   interface Window {
@@ -6,7 +7,53 @@ declare global {
     addRockStart : () => void,
     addVaultStart : () => void,
     cancelClick : () => void,
+    line : MapLine,
   }
+}
+
+class MapObject {
+  hidden : boolean;
+  mapObject : L.Layer;
+
+  constructor() {
+    this.hidden = false;
+  }
+
+  hideObject() {
+    map.removeLayer(this.mapObject);
+  }
+
+  showObject() {
+    this.mapObject.addTo(map);
+  }
+}
+
+class MapLine extends MapObject {
+  points : Coord[];
+  color : string;
+  weight : number;
+
+  constructor(points : Coord[], color : string = 'blue', weight : number = 6) {
+    super();
+    this.points = points;
+    this.color = color;
+    this.weight = weight;
+    this.createSelf();
+  }
+
+  createSelf() {
+    this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight });
+    this.showObject();
+  }
+}
+
+
+class MapPolygon extends MapObject {
+
+}
+
+class MapMarker extends MapObject {
+
 }
 
 window.addBoreStart = addBoreStart;
@@ -24,6 +71,9 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
   accessToken: 'pk.eyJ1IjoiZ3NjaGFyZjk0IiwiYSI6ImNreWd2am9mODBjbnMyb29sNjZ2Mnd1OW4ifQ.1cSadM_VR54gigTAsVVGng'
 }).addTo(map);
 
+
+let line = new MapLine([[0, 1], [1, 2]]);
+window.line = line;
 
 /**
  * just housekeeping stuff so that I don't have it scattered throughout
@@ -142,5 +192,6 @@ function cancelClick() : void {
   ]
   hideAndShowElements(elementsToShow, elementsToHide);
 }
+
 
 initialization();

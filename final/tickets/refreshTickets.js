@@ -92,3 +92,14 @@ async function refreshTickets(tickets, state) {
     }
 }
 exports.refreshTickets = refreshTickets;
+let tickets = [
+    '2206062389',
+    '2206062376',
+    '2206062381',
+    '2206062436',
+    '2206062393',
+    '2206062400',
+    '2206062395',
+    '2206062397',
+];
+refreshTickets(tickets, 'Kentucky');

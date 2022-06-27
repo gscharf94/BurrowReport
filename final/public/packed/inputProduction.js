@@ -11,6 +11,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const leaflet_1 = __importDefault(__webpack_require__(243));
+class MapObject {
+    hidden;
+    mapObject;
+    constructor() {
+        this.hidden = false;
+    }
+    hideObject() {
+        map.removeLayer(this.mapObject);
+    }
+    showObject() {
+        this.mapObject.addTo(map);
+    }
+}
+class MapLine extends MapObject {
+    points;
+    color;
+    weight;
+    constructor(points, color = 'blue', weight = 6) {
+        super();
+        this.points = points;
+        this.color = color;
+        this.weight = weight;
+        this.createSelf();
+    }
+    createSelf() {
+        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight });
+        this.showObject();
+    }
+}
+class MapPolygon extends (/* unused pure expression or super */ null && (MapObject)) {
+}
+class MapMarker extends (/* unused pure expression or super */ null && (MapObject)) {
+}
 window.addBoreStart = addBoreStart;
 window.addRockStart = addRockStart;
 window.addVaultStart = addVaultStart;
@@ -24,6 +57,7 @@ leaflet_1.default.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
     zoomOffset: -1,
     accessToken: 'pk.eyJ1IjoiZ3NjaGFyZjk0IiwiYSI6ImNreWd2am9mODBjbnMyb29sNjZ2Mnd1OW4ifQ.1cSadM_VR54gigTAsVVGng'
 }).addTo(map);
+let line = new MapLine([[0, 1], [1, 2]]);
 /**
  * just housekeeping stuff so that I don't have it scattered throughout
  * the file and all in one place
@@ -73,7 +107,7 @@ function addBoreStart() {
     ];
     const elementsToHide = [
         'vaultLabel', 'vaultSelect',
-        'addRock', 'addBore', 'addVault',
+        'addRock', 'addVault',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
 }
@@ -92,7 +126,7 @@ function addRockStart() {
     ];
     const elementsToHide = [
         'vaultLabel', 'vaultSelect',
-        'addRock', 'addBore', 'addVault',
+        'addBore', 'addVault',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
 }
@@ -111,7 +145,7 @@ function addVaultStart() {
     ];
     const elementsToHide = [
         'footageLabel', 'footageInput',
-        'addRock', 'addBore', 'addVault',
+        'addRock', 'addBore',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
 }
