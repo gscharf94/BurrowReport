@@ -6,7 +6,8 @@
   "scripts": {
     "start": "cd final && node main.js",
     "build": "tsc && npx webpack",
-    "go": "npm run build && npm run start"
+    "go": "npm run build && npm run start",
+    "go-tsc": "npx webpack && npm run start"
   },
   "author": "",
   "license": "ISC",

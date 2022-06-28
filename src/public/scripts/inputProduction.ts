@@ -11,6 +11,18 @@ declare global {
   }
 }
 
+let lineMarkerIcon = L.icon({
+  iconUrl: "/images/icons/lineMarker.png",
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
+
+let lineMarkerIconTransparent = L.icon({
+  iconUrl: "/images/icons/lineMarkerTransparent.png",
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+});
+
 class MapObject {
   /**
    * @type {boolean} - hidden. whether or not object should be showing. this 
@@ -52,7 +64,7 @@ class MapObject {
 class MapLine extends MapObject {
   /**
    * @type {Coord[]} - set of gps points that will be used to draw and update
-   * the line
+   * the line [number, number] []
    */
   points : Coord[];
   /**
@@ -68,6 +80,12 @@ class MapLine extends MapObject {
    * this array are those MapMarkers, which have .mapObject property
    */
   lineMarkers : MapMarker[];
+  /**
+   * @type {MapMarker[]} - a list of MapMarker class instances which will be
+   * the transparent icons which will be shown in the middle of points
+   * this way the user can add points dynamically instead of having to restart
+   */
+  transparentLineMarkers : MapMarker[];
 
 
 
@@ -77,6 +95,7 @@ class MapLine extends MapObject {
     this.color = color;
     this.weight = weight;
     this.lineMarkers = [];
+    this.transparentLineMarkers = [];
     this.createSelf();
   }
 
@@ -90,7 +109,10 @@ class MapLine extends MapObject {
       return;
     }
     this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight });
+    this.addTransparentLineMarkers();
     if (updateLineMarkers) {
+      // this.removeLineMarkers();
+      // this.addTransparentLineMarkers();
       this.addLineMarkers();
     }
     this.showObject();
@@ -131,12 +153,12 @@ class MapLine extends MapObject {
    * this is because there is no need to create new line markers
    * every 10ms or whatever
    *
-   * @param {Coord} newPos - Coord - a new gps coordinate, presumably from user dragging
+   * @param { {lat: number, lng: number} } newPos - Coord - a new gps coordinate, presumably from user dragging
    * @param {number} index - number - which point on the line should be updated
    */
-  updatePoint(newPos : Coord, index : number) {
+  updatePoint(newPos : { lat : number, lng : number }, index : number) {
     this.hideObject();
-    this.points.splice(index, 1, newPos);
+    this.points.splice(index, 1, [newPos.lat, newPos.lng]);
     this.createSelf(false);
   }
 
@@ -152,18 +174,42 @@ class MapLine extends MapObject {
     this.lineMarkers = [];
   }
 
+  removeTransparentLineMarkers() {
+    for (const marker of this.transparentLineMarkers) {
+      marker.hideObject();
+    }
+    this.transparentLineMarkers = [];
+  }
+
+
+  addTransparentLineMarkers() {
+    this.removeTransparentLineMarkers();
+    for (let i = 0; i < this.points.length - 1; i++) {
+      let pointA = this.points[i];
+      let pointB = this.points[i + 1];
+      let halfwayPoint : Coord = [
+        (pointA[0] + pointB[0]) / 2,
+        (pointA[1] + pointB[1]) / 2,
+      ];
+      let marker = new MapMarker(halfwayPoint, true, lineMarkerIconTransparent);
+      this.transparentLineMarkers.push(marker);
+      marker.mapObject.on('click dragstart', (event) => {
+        let point = event.target.getLatLng();
+        let coord : Coord = [point.lat, point.lng];
+        this.addPoint(coord, i + 1);
+      });
+    }
+  }
+
   /**
    * goes through the array of points and creates LineMarker objects
    * with a on 'drag' event which updates the line when the user drags
    * the marker. 
-   *
-   * it also resetes the linemarkers to zero in the case of
-   * removal or addition of a point
    */
   addLineMarkers() {
     this.removeLineMarkers();
     for (const [ind, point] of this.points.entries()) {
-      let marker = new MapMarker(point, true);
+      let marker = new MapMarker(point, true, lineMarkerIcon);
       this.lineMarkers.push(marker);
       marker.mapObject.on('drag', (event) => {
         let newPoint = event.target.getLatLng();
@@ -188,10 +234,21 @@ class MapMarker extends MapObject {
    * when loading in a marker from the database, it should be static
    */
   draggable : boolean;
-  constructor(point : Coord, draggable : boolean) {
+
+  /**
+   * @type {L.Icon} - this is an icon type for the marker. will be different
+   * depending on if it's going to be a line marker or the semi-transparent
+   * marker in between points
+   *
+   * TODO: this also handles the size and anchor of the marker, which needs
+   * to be adjusted with every zoom in or out
+   */
+  icon : L.Icon;
+  constructor(point : Coord, draggable : boolean, icon : L.Icon) {
     super();
     this.point = point;
     this.draggable = draggable;
+    this.icon = icon;
     this.createSelf();
   }
 
@@ -207,7 +264,7 @@ class MapMarker extends MapObject {
   createSelf() {
     this.mapObject = L.marker(this.point, {
       draggable: this.draggable,
-      // icon = this.icon
+      icon: this.icon,
     });
     this.showObject();
   }
