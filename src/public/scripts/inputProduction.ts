@@ -23,6 +23,12 @@ let lineMarkerIconTransparent = L.icon({
   iconAnchor: [9, 9],
 });
 
+let lineXIcon = L.icon({
+  iconUrl: "/images/icons/lineX.png",
+  iconSize: [30, 30],
+  iconAnchor: [15, 15],
+});
+
 class MapObject {
   /**
    * @type {boolean} - hidden. whether or not object should be showing. this 
@@ -105,7 +111,7 @@ class MapLine extends MapObject {
    */
   createSelf(updateLineMarkers : boolean = true) {
     if (this.points.length < 2) {
-      console.log('not enough points to make a line');
+      alert('not enough points to make a line');
       return;
     }
     this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight });
@@ -144,6 +150,9 @@ class MapLine extends MapObject {
     this.createSelf();
   }
 
+  resetLineMarkers() {
+  }
+
   /**
    * takes in a gps coordinate, and then replaces
    * a specific point in the this.points array
@@ -157,6 +166,30 @@ class MapLine extends MapObject {
    * @param {number} index - number - which point on the line should be updated
    */
   updatePoint(newPos : { lat : number, lng : number }, index : number) {
+    for (const [ind, marker] of this.lineMarkers.entries()) {
+      if (marker.draggable == false) {
+        marker.draggable = true;
+        marker.icon = lineMarkerIcon;
+        marker.hideObject();
+        marker.createSelf();
+        marker.mapObject.on('drag', (event) => {
+          let newPoint = event.target.getLatLng();
+          marker.updatePoint(newPoint);
+          this.updatePoint(newPoint, ind);
+        });
+        marker.mapObject.on('click', (event) => {
+          marker.icon = lineXIcon;
+          marker.draggable = false;
+          marker.hideObject();
+          marker.createSelf();
+          marker.mapObject.off('click');
+          marker.mapObject.on('click', (event) => {
+            this.removePoint(ind);
+          });
+        });
+        break;
+      }
+    }
     this.hideObject();
     this.points.splice(index, 1, [newPos.lat, newPos.lng]);
     this.createSelf(false);
@@ -215,6 +248,16 @@ class MapLine extends MapObject {
         let newPoint = event.target.getLatLng();
         marker.updatePoint(newPoint);
         this.updatePoint(newPoint, ind);
+      });
+      marker.mapObject.on('click', (event) => {
+        marker.icon = lineXIcon;
+        marker.draggable = false;
+        marker.hideObject();
+        marker.createSelf();
+        marker.mapObject.off('click');
+        marker.mapObject.on('click', (event) => {
+          this.removePoint(ind);
+        });
       });
     }
   }
@@ -374,6 +417,12 @@ function addRockStart() : void {
     'addBore', 'addVault',
   ];
   hideAndShowElements(elementsToShow, elementsToHide);
+
+  let newLine = new MapLine([]);
+  map.on('click', (event) => {
+    let latlng = event.target.getLatLng();
+    newLine.addPoint([latlng.lat, latlng.lng]);
+  });
 }
 
 /**
