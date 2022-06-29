@@ -117,8 +117,6 @@ class MapLine extends MapObject {
     this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight });
     this.addTransparentLineMarkers();
     if (updateLineMarkers) {
-      // this.removeLineMarkers();
-      // this.addTransparentLineMarkers();
       this.addLineMarkers();
     }
     this.showObject();
@@ -133,6 +131,14 @@ class MapLine extends MapObject {
    * @param {number} index - number - by default it adds on the end.. but can add in middle
    */
   addPoint(pos : Coord, index : number = this.points.length) {
+    if (this.points.length < 2) {
+      this.lineMarkers.push(new MapMarker(pos, true, lineMarkerIcon));
+      this.points.push(pos);
+      if (this.points.length == 2) {
+        this.createSelf();
+      }
+      return;
+    }
     this.hideObject();
     this.points.splice(index, 0, pos);
     this.createSelf();
@@ -145,6 +151,13 @@ class MapLine extends MapObject {
    * @param {number} index - number - which gps point to remove by index
    */
   removePoint(index : number) {
+    if (this.points.length < 3) {
+      this.hideObject();
+      this.removeLineMarkers();
+      this.removeTransparentLineMarkers();
+      this.points = [];
+      return;
+    }
     this.hideObject();
     this.points.splice(index, 1);
     this.createSelf();
@@ -177,13 +190,13 @@ class MapLine extends MapObject {
           marker.updatePoint(newPoint);
           this.updatePoint(newPoint, ind);
         });
-        marker.mapObject.on('click', (event) => {
+        marker.mapObject.on('click', () => {
           marker.icon = lineXIcon;
           marker.draggable = false;
           marker.hideObject();
           marker.createSelf();
           marker.mapObject.off('click');
-          marker.mapObject.on('click', (event) => {
+          marker.mapObject.on('click', () => {
             this.removePoint(ind);
           });
         });
@@ -249,13 +262,13 @@ class MapLine extends MapObject {
         marker.updatePoint(newPoint);
         this.updatePoint(newPoint, ind);
       });
-      marker.mapObject.on('click', (event) => {
+      marker.mapObject.on('click', () => {
         marker.icon = lineXIcon;
         marker.draggable = false;
         marker.hideObject();
         marker.createSelf();
         marker.mapObject.off('click');
-        marker.mapObject.on('click', (event) => {
+        marker.mapObject.on('click', () => {
           this.removePoint(ind);
         });
       });
@@ -339,9 +352,6 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
 }).addTo(map);
 
 
-let line = new MapLine([[0, 1], [1, 2], [3, 5], [4, -8]]);
-window.line = line;
-
 /**
  * just housekeeping stuff so that I don't have it scattered throughout
  * the file and all in one place
@@ -397,6 +407,13 @@ function addBoreStart() : void {
     'addRock', 'addVault',
   ];
   hideAndShowElements(elementsToShow, elementsToHide);
+
+  let newLine = new MapLine([]);
+  map.on('click', (event) => {
+    let latlng = event.latlng;
+    console.log(`click @ : ${latlng}`);
+    newLine.addPoint([latlng.lat, latlng.lng]);
+  });
 }
 
 /**
@@ -417,12 +434,6 @@ function addRockStart() : void {
     'addBore', 'addVault',
   ];
   hideAndShowElements(elementsToShow, elementsToHide);
-
-  let newLine = new MapLine([]);
-  map.on('click', (event) => {
-    let latlng = event.target.getLatLng();
-    newLine.addPoint([latlng.lat, latlng.lng]);
-  });
 }
 
 /**
