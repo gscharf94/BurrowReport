@@ -72,6 +72,7 @@ class MapLine extends MapObject {
      */
     color;
     weight;
+    dashed;
     /**
      * @type {MapMarker[]} - a list of MapMarker class instances which represents
      * the way users update the line. each point in a line has a marker associated
@@ -85,11 +86,15 @@ class MapLine extends MapObject {
      * this way the user can add points dynamically instead of having to restart
      */
     transparentLineMarkers;
-    constructor(points, color = 'blue', weight = 6) {
+    // constructor(points : Coord[], color : string = 'blue', weight : number = 6, dashed : boolean = false) {
+    constructor(points, options = {}) {
         super();
+        const COLOR_DEFAULT = "blue";
+        const WEIGHT_DEFAULT = 6;
         this.points = points;
-        this.color = color;
-        this.weight = weight;
+        (options.color) ? this.color = options.color : this.color = COLOR_DEFAULT;
+        (options.weight) ? this.weight = options.weight : this.weight = WEIGHT_DEFAULT;
+        (options.dashed) ? this.dashed = '10 10' : this.dashed = '';
         this.lineMarkers = [];
         this.transparentLineMarkers = [];
         this.createSelf();
@@ -100,10 +105,9 @@ class MapLine extends MapObject {
      */
     createSelf(updateLineMarkers = true) {
         if (this.points.length < 2) {
-            alert('not enough points to make a line');
             return;
         }
-        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight });
+        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed });
         this.addTransparentLineMarkers();
         if (updateLineMarkers) {
             this.addLineMarkers();
@@ -148,8 +152,6 @@ class MapLine extends MapObject {
         this.hideObject();
         this.points.splice(index, 1);
         this.createSelf();
-    }
-    resetLineMarkers() {
     }
     /**
      * takes in a gps coordinate, and then replaces
@@ -203,12 +205,23 @@ class MapLine extends MapObject {
         }
         this.lineMarkers = [];
     }
+    /**
+     * iterates through this.transparentLineMarkers and then hides all the objects
+     * ie: map.removeLayer() and then sets the array to []
+     */
     removeTransparentLineMarkers() {
         for (const marker of this.transparentLineMarkers) {
             marker.hideObject();
         }
         this.transparentLineMarkers = [];
     }
+    /**
+     * goes through all points in this.points and creates markers
+     * for the midway points in between those
+     * also creates click events on the markers so that they creates
+     * new points in this.points which then later gets turned into a
+     * regular marker
+     */
     addTransparentLineMarkers() {
         this.removeTransparentLineMarkers();
         for (let i = 0; i < this.points.length - 1; i++) {
@@ -400,12 +413,11 @@ function addBoreStart() {
     let line = new MapLine([]);
     map.on('click', (event) => {
         let latlng = event.latlng;
-        console.log(`click @ : ${latlng}`);
         line.addPoint([latlng.lat, latlng.lng]);
     });
     let submitButton = document.getElementById('submit');
     const submitOneTime = () => {
-        sendPostRequest('google.con', line);
+        sendPostRequest('google.con', { ...line });
         line.clearSelf();
         initialization();
         map.off('click');
@@ -421,6 +433,16 @@ function addBoreStart() {
     };
     cancelButton.addEventListener('click', cancelOneTime);
 }
+/**
+ * basically takes a url on the website or a full url and sends
+ * a post request with whatever data is in body
+ *
+ * TODO: move this out of this file because it's a helper function and
+ *       can help with others. super useful function
+ *
+ * @param {string} url - string - the url, relative to current page or full path
+ * @param {Object} body - {} - any object that will get stringified and sent
+ */
 function sendPostRequest(url, body) {
     console.log(`we are sending post request to ${url}\nbody:`);
     console.log(body);
@@ -443,6 +465,31 @@ function addRockStart() {
         'addBore', 'addVault',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
+    let line = new MapLine([], {
+        color: 'green',
+        dashed: true,
+    });
+    map.on('click', (event) => {
+        let latlng = event.latlng;
+        line.addPoint([latlng.lat, latlng.lng]);
+    });
+    let submitButton = document.getElementById('submit');
+    const submitOneTime = () => {
+        sendPostRequest('google.com', { ...line });
+        line.clearSelf();
+        initialization();
+        map.off('click');
+        submitButton.removeEventListener('click', submitOneTime);
+    };
+    submitButton.addEventListener('click', submitOneTime);
+    let cancelButton = document.getElementById('cancel');
+    const cancelOneTime = () => {
+        line.clearSelf();
+        initialization();
+        map.off('click');
+        cancelButton.removeEventListener('click', cancelOneTime);
+    };
+    cancelButton.addEventListener('click', cancelOneTime);
 }
 /**
  * the user has clicked on the add vault button so now we start the process
