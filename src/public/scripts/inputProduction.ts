@@ -248,6 +248,21 @@ class MapLine extends MapObject {
   }
 
   /**
+   * basically just deletes itself. i would delete the object too here
+   * if i could.. but a class instance can't delete itself
+   * but this way the line dissapears from the screen
+   */
+  clearSelf() {
+    this.hideObject();
+    this.points = [];
+    for (const marker of [...this.lineMarkers, ...this.transparentLineMarkers]) {
+      marker.hideObject();
+    }
+    this.lineMarkers = [];
+    this.transparentLineMarkers = [];
+  }
+
+  /**
    * goes through the array of points and creates LineMarker objects
    * with a on 'drag' event which updates the line when the user drags
    * the marker. 
@@ -365,7 +380,10 @@ function initialization() : void {
     'vaultLabel', 'vaultSelect',
     'cancel', 'submit',
   ];
-  hideAndShowElements([], elementsToHide);
+  const elementsToShow = [
+    'addBore', 'addVault', 'addRock',
+  ]
+  hideAndShowElements(elementsToShow, elementsToHide);
 }
 
 /**
@@ -393,6 +411,11 @@ function hideAndShowElements(toShow : string[], toHide : string[]) : void {
  * the user has clicked on the add bore button so now we start the process
  * of adding a bore... 
  * 1 - we show/hide the correct elements
+ * 2 - we create a line object and create a click event when the map gets clicked
+ *     we add a point to the line
+ * 3 - we create a click event handler for the submit & cancel buttons
+ *     submit sents a post request and resets everything
+ *     cancel just resets everything
  *
  * @returns {void}
  */
@@ -408,12 +431,37 @@ function addBoreStart() : void {
   ];
   hideAndShowElements(elementsToShow, elementsToHide);
 
-  let newLine = new MapLine([]);
+  let line = new MapLine([]);
   map.on('click', (event) => {
     let latlng = event.latlng;
     console.log(`click @ : ${latlng}`);
-    newLine.addPoint([latlng.lat, latlng.lng]);
+    line.addPoint([latlng.lat, latlng.lng]);
   });
+
+  let submitButton = document.getElementById('submit');
+  const submitOneTime = () => {
+    sendPostRequest('google.con', { ...line });
+    line.clearSelf();
+    initialization();
+    map.off('click');
+    submitButton.removeEventListener('click', submitOneTime);
+  }
+  submitButton.addEventListener('click', submitOneTime);
+
+  let cancelButton = document.getElementById('cancel');
+
+  const cancelOneTime = () => {
+    line.clearSelf();
+    initialization();
+    map.off('click');
+    cancelButton.removeEventListener('click', cancelOneTime);
+  }
+  cancelButton.addEventListener('click', cancelOneTime);
+}
+
+function sendPostRequest(url : string, body : {}) {
+  console.log(`we are sending post request to ${url}\nbody:`);
+  console.log(body);
 }
 
 /**
@@ -465,17 +513,19 @@ function addVaultStart() : void {
  * @returns {void}
  */
 function cancelClick() : void {
-  const elementsToShow = [
-    'addBore', 'addVault', 'addRock'
-  ];
-  const elementsToHide = [
-    'footageLabel', 'footageInput',
-    'vaultLabel', 'vaultSelect',
-    'dateLabel', 'dateInput',
-    'cancel', 'submit',
-  ]
-  hideAndShowElements(elementsToShow, elementsToHide);
+  initialization();
+  // const elementsToShow = [
+  //   'addBore', 'addVault', 'addRock'
+  // ];
+  // const elementsToHide = [
+  //   'footageLabel', 'footageInput',
+  //   'vaultLabel', 'vaultSelect',
+  //   'dateLabel', 'dateInput',
+  //   'cancel', 'submit',
+  // ]
+  // hideAndShowElements(elementsToShow, elementsToHide);
 }
+
 
 
 initialization();
