@@ -17,23 +17,43 @@ interface LineOptions {
   dashed ?: boolean,
 }
 
-let lineMarkerIcon = L.icon({
-  iconUrl: "/images/icons/lineMarker.png",
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
-});
-
-let lineMarkerIconTransparent = L.icon({
-  iconUrl: "/images/icons/lineMarkerTransparent.png",
-  iconSize: [18, 18],
-  iconAnchor: [9, 9],
-});
-
-let lineXIcon = L.icon({
-  iconUrl: "/images/icons/lineX.png",
-  iconSize: [30, 30],
-  iconAnchor: [15, 15],
-});
+const ICONS = {
+  lineMarker: L.icon({
+    iconUrl: "/images/icons/lineMarker.png",
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+  }),
+  lineMarkerTransparent: L.icon({
+    iconUrl: "/images/icons/lineMarkerTransparent.png",
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+  }),
+  lineX: L.icon({
+    iconUrl: "/images/icons/lineX.png",
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+  }),
+  question: L.icon({
+    iconUrl: "/images/icons/question.png",
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  }),
+  dt20: L.icon({
+    iconUrl: "/images/icons/DT20.png",
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  }),
+  dt30: L.icon({
+    iconUrl: "/images/icons/DT30.png",
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  }),
+  dt36: L.icon({
+    iconUrl: "/images/icons/DT36.png",
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  }),
+}
 
 class MapObject {
   /**
@@ -144,7 +164,7 @@ class MapLine extends MapObject {
    */
   addPoint(pos : Coord, index : number = this.points.length) {
     if (this.points.length < 2) {
-      this.lineMarkers.push(new MapMarker(pos, true, lineMarkerIcon));
+      this.lineMarkers.push(new MapMarker(pos, true, ICONS.lineMarker));
       this.points.push(pos);
       if (this.points.length == 2) {
         this.createSelf();
@@ -191,7 +211,7 @@ class MapLine extends MapObject {
     for (const [ind, marker] of this.lineMarkers.entries()) {
       if (marker.draggable == false) {
         marker.draggable = true;
-        marker.icon = lineMarkerIcon;
+        marker.icon = ICONS.lineMarker;
         marker.hideObject();
         marker.createSelf();
         marker.mapObject.on('drag', (event) => {
@@ -200,7 +220,7 @@ class MapLine extends MapObject {
           this.updatePoint(newPoint, ind);
         });
         marker.mapObject.on('click', () => {
-          marker.icon = lineXIcon;
+          marker.icon = ICONS.lineX;
           marker.draggable = false;
           marker.hideObject();
           marker.createSelf();
@@ -257,7 +277,7 @@ class MapLine extends MapObject {
         (pointA[0] + pointB[0]) / 2,
         (pointA[1] + pointB[1]) / 2,
       ];
-      let marker = new MapMarker(halfwayPoint, true, lineMarkerIconTransparent);
+      let marker = new MapMarker(halfwayPoint, true, ICONS.lineMarkerTransparent);
       this.transparentLineMarkers.push(marker);
       marker.mapObject.on('click dragstart', (event) => {
         let point = event.target.getLatLng();
@@ -290,7 +310,7 @@ class MapLine extends MapObject {
   addLineMarkers() {
     this.removeLineMarkers();
     for (const [ind, point] of this.points.entries()) {
-      let marker = new MapMarker(point, true, lineMarkerIcon);
+      let marker = new MapMarker(point, true, ICONS.lineMarker);
       this.lineMarkers.push(marker);
       marker.mapObject.on('drag', (event) => {
         let newPoint = event.target.getLatLng();
@@ -298,7 +318,7 @@ class MapLine extends MapObject {
         this.updatePoint(newPoint, ind);
       });
       marker.mapObject.on('click', () => {
-        marker.icon = lineXIcon;
+        marker.icon = ICONS.lineX;
         marker.draggable = false;
         marker.hideObject();
         marker.createSelf();
@@ -557,6 +577,36 @@ function addVaultStart() : void {
     'addRock', 'addBore',
   ];
   hideAndShowElements(elementsToShow, elementsToHide);
+
+
+  const clickVaultOneTime = (event : L.LeafletMouseEvent) => {
+    let point : Coord = [event.latlng.lat, event.latlng.lng];
+    let marker = new MapMarker(point, true, ICONS.question);
+
+    let submitButton = document.getElementById('submit');
+    const submitOneTime = () => {
+      sendPostRequest('google.com', { ...marker });
+      marker.hideObject();
+      initialization();
+      map.off('click');
+      submitButton.removeEventListener('click', submitOneTime);
+    }
+    submitButton.addEventListener('click', submitOneTime);
+
+    let cancelButton = document.getElementById('cancel');
+    const cancelOneTime = () => {
+      marker.hideObject();
+      initialization();
+      map.off('click');
+      cancelButton.removeEventListener('click', cancelOneTime);
+    }
+    cancelButton.addEventListener('click', cancelOneTime);
+
+    map.off('click', clickVaultOneTime);
+  }
+
+  map.on('click', clickVaultOneTime);
+
 }
 
 /**
