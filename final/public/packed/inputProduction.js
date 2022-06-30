@@ -389,6 +389,7 @@ function initialization() {
         'addBore', 'addVault', 'addRock',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
+    resetInputs();
 }
 /**
  * takes in two lists of element ids
@@ -575,6 +576,15 @@ function cancelClick() {
     //   'cancel', 'submit',
     // ]
     // hideAndShowElements(elementsToShow, elementsToHide);
+}
+function resetInputs() {
+    let dateInput = document.getElementById('dateInput');
+    let today = new Date();
+    let year = String(today.getFullYear()).padStart(2, "0");
+    let month = String(today.getMonth() + 1).padStart(2, "0");
+    let day = today.getDate();
+    let dateString = `${year}-${month}-${day}`;
+    dateInput.value = dateString;
 }
 initialization();
 

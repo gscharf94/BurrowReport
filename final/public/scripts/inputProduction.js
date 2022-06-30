@@ -382,6 +382,7 @@ function initialization() {
         'addBore', 'addVault', 'addRock',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
+    resetInputs();
 }
 /**
  * takes in two lists of element ids
@@ -558,15 +559,24 @@ function addVaultStart() {
  */
 function cancelClick() {
     initialization();
-    // const elementsToShow = [
-    //   'addBore', 'addVault', 'addRock'
-    // ];
-    // const elementsToHide = [
-    //   'footageLabel', 'footageInput',
-    //   'vaultLabel', 'vaultSelect',
-    //   'dateLabel', 'dateInput',
-    //   'cancel', 'submit',
-    // ]
-    // hideAndShowElements(elementsToShow, elementsToHide);
+}
+/**
+ * sets all 3 inputs to default so that people have to type it in again for each
+ * thing they input. yeah yeah i'm evil but i think it'll reduce errors
+ * i'm not really sure if it will or is just more frustrating..
+ * but better safe than sorry, right?
+ */
+function resetInputs() {
+    let dateInput = document.getElementById('dateInput');
+    let today = new Date();
+    let year = String(today.getFullYear()).padStart(2, "0");
+    let month = String(today.getMonth() + 1).padStart(2, "0");
+    let day = today.getDate();
+    let dateString = `${year}-${month}-${day}`;
+    dateInput.value = dateString;
+    let footageInput = document.getElementById('footageInput');
+    footageInput.value = '0';
+    let vaultInput = document.getElementById('vaultSelect');
+    vaultInput.value = "-1";
 }
 initialization();
