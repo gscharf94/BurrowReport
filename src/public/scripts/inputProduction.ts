@@ -489,6 +489,15 @@ function addBoreStart() : void {
     line.addPoint([latlng.lat, latlng.lng]);
   });
 
+  let cancelButton = document.getElementById('cancel');
+  const cancelOneTime = () => {
+    line.clearSelf();
+    initialization();
+    map.off('click');
+    cancelButton.removeEventListener('click', cancelOneTime);
+  }
+  cancelButton.addEventListener('click', cancelOneTime);
+
   let submitButton = document.getElementById('submit');
   /**
    * this callback happens once and then it deletes itself
@@ -506,6 +515,8 @@ function addBoreStart() : void {
    *     when being clicked. it also resets the inputs for the next item
    *
    * 4 - then finally it deletes itself. quite a beauty aint she
+   * 5 - and also deletes click event listner related to cancel.. otherwise
+   *     we will delete all lines if we ever click cancel, lol
    */
   const submitOneTime = () => {
     if (line.points.length < 2) {
@@ -527,17 +538,9 @@ function addBoreStart() : void {
     initialization();
     map.off('click');
     submitButton.removeEventListener('click', submitOneTime);
-  }
-  submitButton.addEventListener('click', submitOneTime);
-
-  let cancelButton = document.getElementById('cancel');
-  const cancelOneTime = () => {
-    line.clearSelf();
-    initialization();
-    map.off('click');
     cancelButton.removeEventListener('click', cancelOneTime);
   }
-  cancelButton.addEventListener('click', cancelOneTime);
+  submitButton.addEventListener('click', submitOneTime);
 }
 
 /**
@@ -582,6 +585,16 @@ function addRockStart() : void {
     let latlng = event.latlng;
     line.addPoint([latlng.lat, latlng.lng]);
   });
+
+  let cancelButton = document.getElementById('cancel');
+  const cancelOneTime = () => {
+    line.clearSelf();
+    initialization();
+    map.off('click');
+    cancelButton.removeEventListener('click', cancelOneTime);
+  }
+  cancelButton.addEventListener('click', cancelOneTime);
+
   let submitButton = document.getElementById('submit');
   const submitOneTime = () => {
     if (line.points.length < 2) {
@@ -603,17 +616,10 @@ function addRockStart() : void {
     initialization();
     map.off('click');
     submitButton.removeEventListener('click', submitOneTime);
+    cancelButton.removeEventListener('click', cancelOneTime);
   }
   submitButton.addEventListener('click', submitOneTime);
 
-  let cancelButton = document.getElementById('cancel');
-  const cancelOneTime = () => {
-    line.clearSelf();
-    initialization();
-    map.off('click');
-    cancelButton.removeEventListener('click', cancelOneTime);
-  }
-  cancelButton.addEventListener('click', cancelOneTime);
 }
 
 /**
@@ -639,6 +645,15 @@ function addVaultStart() : void {
   const clickVaultOneTime = (event : L.LeafletMouseEvent) => {
     let point : Coord = [event.latlng.lat, event.latlng.lng];
     let marker = new MapMarker(point, true, ICONS.question);
+
+    let cancelButton = document.getElementById('cancel');
+    const cancelOneTime = () => {
+      marker.hideObject();
+      initialization();
+      map.off('click');
+      cancelButton.removeEventListener('click', cancelOneTime);
+    }
+    cancelButton.addEventListener('click', cancelOneTime);
 
     let submitButton = document.getElementById('submit');
     const submitOneTime = () => {
@@ -674,18 +689,9 @@ function addVaultStart() : void {
       initialization();
       map.off('click');
       submitButton.removeEventListener('click', submitOneTime);
-    }
-    submitButton.addEventListener('click', submitOneTime);
-
-    let cancelButton = document.getElementById('cancel');
-    const cancelOneTime = () => {
-      marker.hideObject();
-      initialization();
-      map.off('click');
       cancelButton.removeEventListener('click', cancelOneTime);
     }
-    cancelButton.addEventListener('click', cancelOneTime);
-
+    submitButton.addEventListener('click', submitOneTime);
     map.off('click', clickVaultOneTime);
   }
 
