@@ -133,9 +133,6 @@ class MapLine extends MapObject {
    */
   transparentLineMarkers : MapMarker[];
 
-
-
-  // constructor(points : Coord[], color : string = 'blue', weight : number = 6, dashed : boolean = false) {
   constructor(points : Coord[], options : LineOptions = {}) {
     super();
 
@@ -344,7 +341,6 @@ class MapLine extends MapObject {
   }
 }
 
-
 class MapMarker extends MapObject {
   /**
    * @type {Coord} - the gps position for the class instance
@@ -358,7 +354,6 @@ class MapMarker extends MapObject {
    * when loading in a marker from the database, it should be static
    */
   draggable : boolean;
-
   /**
    * @type {L.Icon} - this is an icon type for the marker. will be different
    * depending on if it's going to be a line marker or the semi-transparent
@@ -368,6 +363,7 @@ class MapMarker extends MapObject {
    * to be adjusted with every zoom in or out
    */
   icon : L.Icon;
+
   constructor(point : Coord, draggable : boolean, icon : L.Icon) {
     super();
     this.point = point;
@@ -408,6 +404,7 @@ window.addBoreStart = addBoreStart;
 window.addRockStart = addRockStart;
 window.addVaultStart = addVaultStart;
 window.cancelClick = cancelClick;
+
 
 let map = L.map('map').setView([0, 0], 5);
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -525,7 +522,8 @@ function addBoreStart() : void {
       work_date: getDateValue(),
     }
     sendPostRequest('google.com', postObject);
-    // line.clearSelf();
+    line.removeLineMarkers();
+    line.removeTransparentLineMarkers();
     initialization();
     map.off('click');
     submitButton.removeEventListener('click', submitOneTime);
@@ -600,7 +598,8 @@ function addRockStart() : void {
       work_date: getDateValue(),
     }
     sendPostRequest('google.com', postObject);
-    // line.clearSelf();
+    line.removeLineMarkers();
+    line.removeTransparentLineMarkers();
     initialization();
     map.off('click');
     submitButton.removeEventListener('click', submitOneTime);

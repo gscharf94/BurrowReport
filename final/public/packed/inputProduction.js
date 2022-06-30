@@ -108,7 +108,6 @@ class MapLine extends MapObject {
      * this way the user can add points dynamically instead of having to restart
      */
     transparentLineMarkers;
-    // constructor(points : Coord[], color : string = 'blue', weight : number = 6, dashed : boolean = false) {
     constructor(points, options = {}) {
         super();
         const COLOR_DEFAULT = "blue";
@@ -471,7 +470,8 @@ function addBoreStart() {
             work_date: getDateValue(),
         };
         sendPostRequest('google.com', postObject);
-        // line.clearSelf();
+        line.removeLineMarkers();
+        line.removeTransparentLineMarkers();
         initialization();
         map.off('click');
         submitButton.removeEventListener('click', submitOneTime);
@@ -542,7 +542,8 @@ function addRockStart() {
             work_date: getDateValue(),
         };
         sendPostRequest('google.com', postObject);
-        // line.clearSelf();
+        line.removeLineMarkers();
+        line.removeTransparentLineMarkers();
         initialization();
         map.off('click');
         submitButton.removeEventListener('click', submitOneTime);
