@@ -433,7 +433,20 @@ function addBoreStart() {
     });
     let submitButton = document.getElementById('submit');
     const submitOneTime = () => {
-        sendPostRequest('google.con', { ...line });
+        if (line.points.length < 2) {
+            alert('ERROR\n\nPlease finish drawing the line.');
+            return;
+        }
+        if (validateBoreInput() === false) {
+            return;
+        }
+        let postObject = {
+            points: line.points,
+            footage: getFootageValue(),
+            rock: false,
+            work_date: getDateValue(),
+        };
+        sendPostRequest('google.con', postObject);
         line.clearSelf();
         initialization();
         map.off('click');
@@ -575,8 +588,63 @@ function resetInputs() {
     let dateString = `${year}-${month}-${day}`;
     dateInput.value = dateString;
     let footageInput = document.getElementById('footageInput');
-    footageInput.value = '0';
+    footageInput.value = '';
     let vaultInput = document.getElementById('vaultSelect');
     vaultInput.value = "-1";
+}
+function validateFootageValue() {
+    let footageInput = document.getElementById('footageInput');
+    if (isNaN(Number(footageInput.value)) || footageInput.value == "") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+function validateDateValue() {
+    let dateInput = document.getElementById('dateInput');
+    if (dateInput.value == "") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+function validateVaultValue() {
+    let vaultSelect = document.getElementById('vaultSelect');
+    if (vaultSelect.value == "-1") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+function getFootageValue() {
+    let footageInput = document.getElementById('footageInput');
+    return Number(footageInput.value);
+}
+function getVaultValue() {
+    let vaultSelect = document.getElementById('vaultSelect');
+    return Number(vaultSelect.value);
+}
+function getDateValue() {
+    let dateInput = document.getElementById('dateInput');
+    return new Date(dateInput.value);
+}
+function validateBoreInput() {
+    let errorMessage = "ERROR\n\n";
+    let footage = validateFootageValue();
+    let date = validateDateValue();
+    if (footage === false) {
+        errorMessage += "Please enter a number into the footage field.\n";
+    }
+    if (date === false) {
+        errorMessage += "Please enter a valid date in the date field.\n";
+    }
+    if (footage === false || date === false) {
+        alert(errorMessage);
+        return false;
+    }
+    return true;
 }
 initialization();
