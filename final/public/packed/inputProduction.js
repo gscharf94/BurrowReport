@@ -471,7 +471,7 @@ function addBoreStart() {
             work_date: getDateValue(),
         };
         sendPostRequest('google.com', postObject);
-        line.clearSelf();
+        // line.clearSelf();
         initialization();
         map.off('click');
         submitButton.removeEventListener('click', submitOneTime);
@@ -542,7 +542,7 @@ function addRockStart() {
             work_date: getDateValue(),
         };
         sendPostRequest('google.com', postObject);
-        line.clearSelf();
+        // line.clearSelf();
         initialization();
         map.off('click');
         submitButton.removeEventListener('click', submitOneTime);
@@ -587,13 +587,27 @@ function addVaultStart() {
             if (validateVaultInput() === false) {
                 return;
             }
+            let size = getVaultValue();
             let postObject = {
-                size: getVaultValue(),
+                size: size,
                 point: marker.point,
                 work_date: getDateValue(),
             };
             sendPostRequest('google.com', postObject);
+            switch (size) {
+                case 0:
+                    marker.icon = ICONS.dt20;
+                    break;
+                case 1:
+                    marker.icon = ICONS.dt30;
+                    break;
+                case 2:
+                    marker.icon = ICONS.dt36;
+                    break;
+            }
+            marker.draggable = false;
             marker.hideObject();
+            marker.createSelf();
             initialization();
             map.off('click');
             submitButton.removeEventListener('click', submitOneTime);
