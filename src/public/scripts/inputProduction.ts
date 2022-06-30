@@ -599,7 +599,7 @@ function addRockStart() : void {
       rock: true,
       work_date: getDateValue(),
     }
-    sendPostRequest('google.com', { ...line });
+    sendPostRequest('google.com', postObject);
     line.clearSelf();
     initialization();
     map.off('click');
