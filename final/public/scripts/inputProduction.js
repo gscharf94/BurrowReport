@@ -432,6 +432,23 @@ function addBoreStart() {
         line.addPoint([latlng.lat, latlng.lng]);
     });
     let submitButton = document.getElementById('submit');
+    /**
+     * this callback happens once and then it deletes itself
+     * 1 - it checks to make sure that both
+     *       a) there are enough points to make a line
+     *       b) there are valid inputs in the input fields
+     *     if neither, then it exits and does not delete itself
+     *
+     * 2 - if these two conditions are met, it creates a post object
+     *     which then gets sent as a post request to the server
+     *     with the relevant data about the bore
+     *
+     * 3 - it deletes the points on the line and removes it from the map
+     *     it also deletes the event handler for the map that creates points
+     *     when being clicked. it also resets the inputs for the next item
+     *
+     * 4 - then finally it deletes itself. quite a beauty aint she
+     */
     const submitOneTime = () => {
         if (line.points.length < 2) {
             alert('ERROR\n\nPlease finish drawing the line.');
@@ -446,7 +463,7 @@ function addBoreStart() {
             rock: false,
             work_date: getDateValue(),
         };
-        sendPostRequest('google.con', postObject);
+        sendPostRequest('google.com', postObject);
         line.clearSelf();
         initialization();
         map.off('click');
@@ -592,6 +609,12 @@ function resetInputs() {
     let vaultInput = document.getElementById('vaultSelect');
     vaultInput.value = "-1";
 }
+/**
+ * makes sure there's a valid number in the footageInput element
+ * turns into a Number and checks isNaN
+ *
+ * @returns {boolean} - true if valid number, false if not
+ */
 function validateFootageValue() {
     let footageInput = document.getElementById('footageInput');
     if (isNaN(Number(footageInput.value)) || footageInput.value == "") {
@@ -601,6 +624,14 @@ function validateFootageValue() {
         return true;
     }
 }
+/**
+ * makes sure that there's a valid date
+ * in the date input element, it's either going to be a valid date
+ * or it's gonna be empty. so we just gotta check to make sure it's not an
+ * empty string
+ *
+ * @returns {boolean} - true if valid date, false if not
+ */
 function validateDateValue() {
     let dateInput = document.getElementById('dateInput');
     if (dateInput.value == "") {
@@ -610,6 +641,14 @@ function validateDateValue() {
         return true;
     }
 }
+/**
+ * it makes sure that the default selection is not selected
+ * the default is always -1 and the resetInputs() function resets it to -1
+ *
+ * so if -1 is not selected, it has to be 0,1,2 which are one of the vault sizes
+ *
+ * @returns {boolean} - boolean - false if -1, true if anything else
+ */
 function validateVaultValue() {
     let vaultSelect = document.getElementById('vaultSelect');
     if (vaultSelect.value == "-1") {
@@ -619,18 +658,49 @@ function validateVaultValue() {
         return true;
     }
 }
+/**
+ * gets the current value in the #footageInput element
+ * it should always be validated before this function gets run
+ * it turns it into a number because it's a string by default
+ *
+ * @returns {number} - the number value from the footageInput input element
+ */
 function getFootageValue() {
     let footageInput = document.getElementById('footageInput');
     return Number(footageInput.value);
 }
+/**
+ * gets the current value in the #vaultSelect element
+ * it should always be validated before this function gets run
+ * it turns it into a number because it's a string by default
+ *
+ * 0 = dt20 1 = dt30 2 = dt36
+ *
+ * @returns {number} - number - the size of vault
+ */
 function getVaultValue() {
     let vaultSelect = document.getElementById('vaultSelect');
     return Number(vaultSelect.value);
 }
+/**
+ * gets the current value in the #dateInput element
+ * it should always be validated before this function gets called
+ * so it doesnt need to check (famous last words.. lol)
+ * it converts into Date object and returns
+ *
+ * @returns {Date} - Date - the date from date field
+ */
 function getDateValue() {
     let dateInput = document.getElementById('dateInput');
     return new Date(dateInput.value);
 }
+/**
+ * checks everything related to a bore input, namely the footage and the date
+ * if either are false, a specific message is added to a string that gets shown
+ * in an alert in the browser, advising the user to fill in the field correctly
+ *
+ * @returns {boolean} - if everything is valid, true, otherwise it returns false
+ */
 function validateBoreInput() {
     let errorMessage = "ERROR\n\n";
     let footage = validateFootageValue();
