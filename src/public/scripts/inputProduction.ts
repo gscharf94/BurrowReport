@@ -586,6 +586,19 @@ function addRockStart() : void {
   });
   let submitButton = document.getElementById('submit');
   const submitOneTime = () => {
+    if (line.points.length < 2) {
+      alert('ERROR\n\nPlease finish drawing the line.');
+      return;
+    }
+    if (validateBoreInput() === false) {
+      return;
+    }
+    let postObject : BoreUploadObject = {
+      points: line.points,
+      footage: getFootageValue(),
+      rock: true,
+      work_date: getDateValue(),
+    }
     sendPostRequest('google.com', { ...line });
     line.clearSelf();
     initialization();
@@ -630,7 +643,19 @@ function addVaultStart() : void {
 
     let submitButton = document.getElementById('submit');
     const submitOneTime = () => {
-      sendPostRequest('google.com', { ...marker });
+      if (!marker.point) {
+        alert('ERROR\n\nPlease finish placing the vault.');
+        return;
+      }
+      if (validateVaultInput() === false) {
+        return;
+      }
+      let postObject : VaultUploadObject = {
+        size: getVaultValue(),
+        point: marker.point,
+        work_date: getDateValue(),
+      }
+      sendPostRequest('google.com', postObject);
       marker.hideObject();
       initialization();
       map.off('click');
@@ -802,6 +827,30 @@ function validateBoreInput() : boolean {
   return true;
 }
 
+/**
+ * checks everything related to a vault input, namely the size and date
+ * if either are not validated, then an error messages gets displayed to the 
+ * screen
+ *
+ * @returns {boolean} - true if everything is gucci, false if something doesnt validate
+ */
+function validateVaultInput() : boolean {
+  let errorMessage = "ERROR\n\n";
+  let size : boolean = validateVaultValue();
+  let date : boolean = validateDateValue();
+  if (size === false) {
+    errorMessage += "Please select a vault size.\n";
+  }
+  if (date === false) {
+    errorMessage += "Please enter a valid date in the date field.\n";
+  }
+  if (size === false || date === false) {
+    alert(errorMessage);
+    return false;
+  }
+
+  return true;
+}
 
 
 initialization();
