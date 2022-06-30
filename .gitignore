@@ -2,6 +2,7 @@ node_modules/
 postgres.sql
 final/public/images
 final/public/prints
+final/public/packed
 
 final/tickets/kmls
 todo.txt
