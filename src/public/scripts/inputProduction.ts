@@ -68,6 +68,11 @@ const ICONS = {
   }),
 }
 
+//@ts-ignore
+const JOBNAME = jobNamePug;
+//@ts-ignore
+const PAGENUMBER = pageNumberPug;
+
 class MapObject {
   /**
    * @type {boolean} - hidden. whether or not object should be showing. this 
