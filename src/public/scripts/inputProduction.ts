@@ -308,7 +308,7 @@ class MapLine extends MapObject {
    * but this way the line dissapears from the screen
    */
   clearSelf() {
-    if (this.points.length > 2) {
+    if (this.points.length > 1) {
       this.hideObject();
     }
     this.points = [];
@@ -544,7 +544,7 @@ function addBoreStart() : void {
       rock: false,
       work_date: getDateValue(),
     }
-    sendPostRequest('google.com', postObject);
+    sendPostRequest('inputData', postObject);
     line.removeLineMarkers();
     line.removeTransparentLineMarkers();
     initialization();
@@ -566,8 +566,10 @@ function addBoreStart() : void {
  * @param {Object} body - {} - any object that will get stringified and sent 
  */
 function sendPostRequest(url : string, body : {}) {
-  console.log(`we are sending post request to ${url}\nbody:`);
-  console.log(body);
+  let req = new XMLHttpRequest();
+  req.open('POST', `http://192.168.86.36:3000/${url}`);
+  req.setRequestHeader("Content-type", "application/json");
+  req.send(JSON.stringify(body));
 }
 
 /**
@@ -623,7 +625,7 @@ function addRockStart() : void {
       rock: true,
       work_date: getDateValue(),
     }
-    sendPostRequest('google.com', postObject);
+    sendPostRequest('inputData', postObject);
     line.removeLineMarkers();
     line.removeTransparentLineMarkers();
     initialization();
@@ -684,7 +686,7 @@ function addVaultStart() : void {
         point: marker.point,
         work_date: getDateValue(),
       }
-      sendPostRequest('google.com', postObject);
+      sendPostRequest('inputData', postObject);
       switch (size) {
         case 0:
           marker.icon = ICONS.dt20;

@@ -10,6 +10,7 @@ const index_js_1 = require("./routes/index.js");
 const viewJobs_js_1 = require("./routes/viewJobs.js");
 const viewProduction_js_1 = require("./routes/viewProduction.js");
 const inputProduction_js_1 = require("./routes/inputProduction.js");
+const inputDataPOST_js_1 = require("./routes/inputDataPOST.js");
 const app = (0, express_1.default)();
 const PORT = 3000;
 app.locals.basedir = "/";
@@ -22,6 +23,7 @@ app.use('/', index_js_1.router);
 app.use('/viewJobs', viewJobs_js_1.router);
 app.use('/inputProduction', inputProduction_js_1.router);
 app.use('/viewProduction', viewProduction_js_1.router);
+app.use('/inputData', inputDataPOST_js_1.router);
 app.listen(PORT, () => {
     console.log(`listening @ http://localhost:3000`);
 });
