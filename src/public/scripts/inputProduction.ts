@@ -412,13 +412,15 @@ window.cancelClick = cancelClick;
 
 
 let map = L.map('map').setView([0, 0], 5);
-L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-  attribution: 'BLUEOCEAN',
+L.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
+  attribution: `${JOBNAME} - PAGE# ${PAGENUMBER}`,
   maxZoom: 18,
-  id: 'mapbox/streets-v11',
-  tileSize: 512,
-  zoomOffset: -1,
-  accessToken: 'pk.eyJ1IjoiZ3NjaGFyZjk0IiwiYSI6ImNreWd2am9mODBjbnMyb29sNjZ2Mnd1OW4ifQ.1cSadM_VR54gigTAsVVGng'
+  tileSize: 256,
+  // zoomOffset: -1,
+  //@ts-ignore
+  job: JOBNAME,
+  page: PAGENUMBER,
+  noWrap: true,
 }).addTo(map);
 
 

@@ -1,9 +1,9 @@
 node_modules/
 postgres.sql
-# final/public/images
-# final/public/prints
-# final/public/packed
-final/public/
+final/public/images
+final/public/prints
+final/public/packed
+final/public/maps
 
 final/tickets/kmls
 todo.txt
