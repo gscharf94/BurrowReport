@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { Coord } from '../../interfaces';
+import { Coord, UploadBoreObject, UploadVaultObject } from '../../interfaces';
 
 declare global {
   interface Window {
@@ -15,19 +15,6 @@ interface LineOptions {
   color ?: string,
   weight ?: number,
   dashed ?: boolean,
-}
-
-interface BoreUploadObject {
-  points : Coord[],
-  rock : boolean,
-  work_date : Date,
-  footage : number,
-}
-
-interface VaultUploadObject {
-  point : Coord,
-  work_date : Date,
-  size : number,
 }
 
 const ICONS = {
@@ -72,6 +59,8 @@ const ICONS = {
 const JOBNAME = jobNamePug;
 //@ts-ignore
 const PAGENUMBER = pageNumberPug;
+
+const CREWNAME = "test_crew";
 
 class MapObject {
   /**
@@ -538,11 +527,15 @@ function addBoreStart() : void {
     if (validateBoreInput() === false) {
       return;
     }
-    let postObject : BoreUploadObject = {
-      points: line.points,
+    let postObject : UploadBoreObject = {
+      coordinates: line.points,
       footage: getFootageValue(),
       rock: false,
       work_date: getDateValue(),
+      crew_name: CREWNAME,
+      job_name: JOBNAME,
+      page_number: PAGENUMBER,
+      object_type: "bore",
     }
     sendPostRequest('inputData', postObject);
     line.removeLineMarkers();
@@ -619,11 +612,15 @@ function addRockStart() : void {
     if (validateBoreInput() === false) {
       return;
     }
-    let postObject : BoreUploadObject = {
-      points: line.points,
+    let postObject : UploadBoreObject = {
+      object_type: "bore",
+      coordinates: line.points,
       footage: getFootageValue(),
       rock: true,
       work_date: getDateValue(),
+      job_name: JOBNAME,
+      page_number: PAGENUMBER,
+      crew_name: CREWNAME,
     }
     sendPostRequest('inputData', postObject);
     line.removeLineMarkers();
@@ -681,10 +678,14 @@ function addVaultStart() : void {
         return;
       }
       let size = getVaultValue();
-      let postObject : VaultUploadObject = {
+      let postObject : UploadVaultObject = {
         size: size,
-        point: marker.point,
+        coordinate: marker.point,
         work_date: getDateValue(),
+        job_name: JOBNAME,
+        page_number: PAGENUMBER,
+        crew_name: CREWNAME,
+        object_type: "vault",
       }
       sendPostRequest('inputData', postObject);
       switch (size) {

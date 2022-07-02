@@ -2,11 +2,14 @@ export type RefreshedTickets = {
   [key : string] : string,
 }
 
+export type UploadObjects = 'vault' | 'bore';
+
 export interface UploadObject {
   job_name : string,
   page_number : number,
   work_date : Date,
   crew_name : string,
+  object_type : UploadObjects,
 }
 
 export interface UploadBoreObject extends UploadObject {

@@ -1,7 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = void 0;
+exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = void 0;
 const db_js_1 = require("../db.js");
+function insertBore(boreData) {
+    let tableName = (boreData.rock) ? "rocks" : "bores";
+    // this is for testing..
+    let pageId = 2;
+    let query = `
+    INSERT INTO ${tableName}
+      (
+        job_name, page_id, page_number, work_date,
+        footage, coordinates, crew_name
+      )
+    VALUES
+      (
+      '${boreData.job_name}', ${pageId}, ${boreData.page_number},
+      '${formatDateToPsql(new Date(boreData.work_date))}',
+      '${formatCoordsToPsql(boreData.coordinates)}',
+      '${boreData.crew_name}'
+      );
+  `;
+    console.log(query);
+}
+exports.insertBore = insertBore;
 /**
  * psql accepts date in YYYY-MM-DD format
  * so this function takes in a javascript date object
