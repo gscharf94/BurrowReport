@@ -264,7 +264,9 @@ class MapLine extends MapObject {
      * but this way the line dissapears from the screen
      */
     clearSelf() {
-        this.hideObject();
+        if (this.points.length > 2) {
+            this.hideObject();
+        }
         this.points = [];
         for (const marker of [...this.lineMarkers, ...this.transparentLineMarkers]) {
             marker.hideObject();
@@ -438,10 +440,13 @@ function addBoreStart() {
     });
     let cancelButton = document.getElementById('cancel');
     const cancelOneTime = () => {
+        console.log(`cancelling`);
+        console.log(line);
         line.clearSelf();
         initialization();
         map.off('click');
         cancelButton.removeEventListener('click', cancelOneTime);
+        submitButton.removeEventListener('click', submitOneTime);
     };
     cancelButton.addEventListener('click', cancelOneTime);
     let submitButton = document.getElementById('submit');
@@ -534,6 +539,7 @@ function addRockStart() {
         initialization();
         map.off('click');
         cancelButton.removeEventListener('click', cancelOneTime);
+        submitButton.removeEventListener('click', submitOneTime);
     };
     cancelButton.addEventListener('click', cancelOneTime);
     let submitButton = document.getElementById('submit');
@@ -588,6 +594,7 @@ function addVaultStart() {
             initialization();
             map.off('click');
             cancelButton.removeEventListener('click', cancelOneTime);
+            submitButton.removeEventListener('click', submitOneTime);
         };
         cancelButton.addEventListener('click', cancelOneTime);
         let submitButton = document.getElementById('submit');
