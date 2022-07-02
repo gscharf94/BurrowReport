@@ -52,6 +52,7 @@ const ICONS = {
 const JOBNAME = jobNamePug;
 //@ts-ignore
 const PAGENUMBER = pageNumberPug;
+const CREWNAME = "test_crew";
 class MapObject {
     /**
      * @type {boolean} - hidden. whether or not object should be showing. this
@@ -485,10 +486,14 @@ function addBoreStart() {
             return;
         }
         let postObject = {
-            points: line.points,
+            coordinates: line.points,
             footage: getFootageValue(),
             rock: false,
             work_date: getDateValue(),
+            crew_name: CREWNAME,
+            job_name: JOBNAME,
+            page_number: PAGENUMBER,
+            object_type: "bore",
         };
         sendPostRequest('inputData', postObject);
         line.removeLineMarkers();
@@ -561,10 +566,14 @@ function addRockStart() {
             return;
         }
         let postObject = {
-            points: line.points,
+            object_type: "bore",
+            coordinates: line.points,
             footage: getFootageValue(),
             rock: true,
             work_date: getDateValue(),
+            job_name: JOBNAME,
+            page_number: PAGENUMBER,
+            crew_name: CREWNAME,
         };
         sendPostRequest('inputData', postObject);
         line.removeLineMarkers();
@@ -594,10 +603,17 @@ function addVaultStart() {
         'addRock', 'addBore',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
+    const tempCancel = () => {
+        initialization();
+        map.off('click');
+    };
+    let cancelButton = document.getElementById('cancel');
+    cancelButton.addEventListener('click', tempCancel);
     const clickVaultOneTime = (event) => {
         let point = [event.latlng.lat, event.latlng.lng];
         let marker = new MapMarker(point, true, ICONS.question);
         let cancelButton = document.getElementById('cancel');
+        cancelButton.removeEventListener('click', tempCancel);
         const cancelOneTime = () => {
             marker.hideObject();
             initialization();
@@ -618,8 +634,12 @@ function addVaultStart() {
             let size = getVaultValue();
             let postObject = {
                 size: size,
-                point: marker.point,
+                coordinate: marker.point,
                 work_date: getDateValue(),
+                job_name: JOBNAME,
+                page_number: PAGENUMBER,
+                crew_name: CREWNAME,
+                object_type: "vault",
             };
             sendPostRequest('inputData', postObject);
             switch (size) {

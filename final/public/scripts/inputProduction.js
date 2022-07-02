@@ -596,10 +596,17 @@ function addVaultStart() {
         'addRock', 'addBore',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
+    const tempCancel = () => {
+        initialization();
+        map.off('click');
+    };
+    let cancelButton = document.getElementById('cancel');
+    cancelButton.addEventListener('click', tempCancel);
     const clickVaultOneTime = (event) => {
         let point = [event.latlng.lat, event.latlng.lng];
         let marker = new MapMarker(point, true, ICONS.question);
         let cancelButton = document.getElementById('cancel');
+        cancelButton.removeEventListener('click', tempCancel);
         const cancelOneTime = () => {
             marker.hideObject();
             initialization();

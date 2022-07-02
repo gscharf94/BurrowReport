@@ -1,26 +1,112 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = void 0;
+exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.getPageId = void 0;
 const db_js_1 = require("../db.js");
-function insertBore(boreData) {
-    let tableName = (boreData.rock) ? "rocks" : "bores";
-    // this is for testing..
-    let pageId = 2;
+/**
+ * takes a job name and a page number and returns a page id
+ * which is unique for each page. page numbers aren't unique
+ * because each job can have a page 2 or page 3
+ * but id is unique
+ *
+ * @param {string} job_name - string - the job name
+ * @param {number} page_number - number - the page number
+ * @returns {Promise<number>} - Promise<number> - the page id unique to the page
+ */
+async function getPageId(job_name, page_number) {
+    let query = `SELECT * FROM pages WHERE page_number=${page_number} AND job_name='${job_name}'`;
+    let result = await db_js_1.pool.query(query);
+    return result.rows[0].id;
+}
+exports.getPageId = getPageId;
+/**
+ * inserts a vault based on the information taken in
+ * note we need to call the async function to get the page id
+ * same deal as in insertBore()
+ *
+ * @param {UploadVaultObject} vaultData - UploadVaultObject (see interface.ts)
+ * @returns {Promise<void>} - returns nothing.. just updates database
+ */
+async function insertVault(vaultData) {
+    let pageId = await getPageId(vaultData.job_name, vaultData.page_number);
     let query = `
-    INSERT INTO ${tableName}
+    INSERT INTO vaults
       (
-        job_name, page_id, page_number, work_date,
-        footage, coordinates, crew_name
+        job_name,
+        page_id,
+        page_number,
+        work_date,
+        vault_size,
+        coordinate,
+        crew_name
       )
     VALUES
       (
-      '${boreData.job_name}', ${pageId}, ${boreData.page_number},
+      '${vaultData.job_name}',
+      ${pageId},
+      ${vaultData.page_number},
+      '${formatDateToPsql(new Date(vaultData.work_date))}',
+      ${vaultData.size},
+      '{${vaultData.coordinate[0]}, ${vaultData.coordinate[1]}}',
+      '${vaultData.crew_name}'
+      );
+  `;
+    db_js_1.pool.query(query, (err) => {
+        if (err) {
+            console.log(`error uploading vault`);
+            console.log(vaultData);
+        }
+        else {
+            console.log(`uploaded vault`);
+            console.log(vaultData);
+        }
+    });
+}
+exports.insertVault = insertVault;
+/**
+ * takes in the information about a bore and then inserts it
+ * into the database
+ * note: we call a function to correlate page id with page number
+ * this is because i'm bad at sql, presumably, and I can't think
+ * of any easier way to do this
+ *
+ * @param {UploadBoreObject} boreData - UploadBoreObject - check interface.ts
+ * @returns {void} - doesn't return anything.. just inserts into database
+ */
+async function insertBore(boreData) {
+    let tableName = (boreData.rock) ? "rocks" : "bores";
+    let pageId = await getPageId(boreData.job_name, boreData.page_number);
+    let query = `
+    INSERT INTO ${tableName}
+      (
+        job_name,
+        page_id,
+        page_number,
+        work_date,
+        footage,
+        coordinates,
+        crew_name
+      )
+    VALUES
+      (
+      '${boreData.job_name}',
+      ${pageId},
+      ${boreData.page_number},
       '${formatDateToPsql(new Date(boreData.work_date))}',
+      ${boreData.footage},
       '${formatCoordsToPsql(boreData.coordinates)}',
       '${boreData.crew_name}'
       );
   `;
-    console.log(query);
+    db_js_1.pool.query(query, (err) => {
+        if (err) {
+            console.log(`error uploading bore`);
+            console.log(boreData);
+        }
+        else {
+            console.log(`uploaded bore`);
+            console.log(boreData);
+        }
+    });
 }
 exports.insertBore = insertBore;
 /**

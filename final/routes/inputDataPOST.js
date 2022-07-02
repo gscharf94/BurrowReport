@@ -15,6 +15,7 @@ exports.router.post('/', (req, res, next) => {
     }
     else if (req.body.object_type == "vault") {
         let object_data = req.body;
+        (0, database_js_1.insertVault)(object_data);
     }
     res.send('this is a response');
 });
