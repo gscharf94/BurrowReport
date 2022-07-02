@@ -55,10 +55,21 @@ const ICONS = {
   }),
 }
 
+// need to ignore typescript here cause it doesn't understand
+// that i'm getting fed this info from the html 
+
 //@ts-ignore
 const JOBNAME = jobNamePug;
 //@ts-ignore
 const PAGENUMBER = pageNumberPug;
+
+//@ts-ignore
+let boresAndRocks = parseJSON(boresAndRocksJSON);
+//@ts-ignore
+let vaults = parseJSON(vaultsJSON);
+
+console.log(boresAndRocks);
+console.log(vaults);
 
 const CREWNAME = "test_crew";
 
@@ -415,6 +426,18 @@ L.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg',
 }).addTo(map);
 map.doubleClickZoom.disable();
 
+
+/**
+ * when sending an object through express router -> pug -> page js
+ * you need to do it through JSON.stringify() cause only strings go through
+ * and then there's this weird artifact that we fix with this function
+ *
+ * @param {string} txt - the JSON.stringify() output that gets ported to here
+ * @returns {{}} - the object parsed as an object
+ */
+function parseJSON(txt : string) : {} {
+  return JSON.parse(txt.replace(/&quot;/g, '"'));
+}
 
 /**
  * just housekeeping stuff so that I don't have it scattered throughout
