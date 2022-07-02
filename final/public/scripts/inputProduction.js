@@ -373,6 +373,7 @@ leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{
     page: PAGENUMBER,
     noWrap: true,
 }).addTo(map);
+map.doubleClickZoom.disable();
 /**
  * just housekeeping stuff so that I don't have it scattered throughout
  * the file and all in one place

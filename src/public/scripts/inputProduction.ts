@@ -413,6 +413,7 @@ L.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg',
   page: PAGENUMBER,
   noWrap: true,
 }).addTo(map);
+map.doubleClickZoom.disable();
 
 
 /**
