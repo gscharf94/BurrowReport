@@ -363,8 +363,7 @@ let map = leaflet_1.default.map('map').setView([0, 0], 5);
 leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
     attribution: `${JOBNAME} - PAGE# ${PAGENUMBER}`,
     maxZoom: 18,
-    tileSize: 256,
-    // zoomOffset: -1,
+    tileSize: 512,
     //@ts-ignore
     job: JOBNAME,
     page: PAGENUMBER,
