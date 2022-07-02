@@ -2,6 +2,24 @@ export type RefreshedTickets = {
   [key : string] : string,
 }
 
+export interface UploadObject {
+  job_name : string,
+  page_number : number,
+  work_date : Date,
+  crew_name : string,
+}
+
+export interface UploadBoreObject extends UploadObject {
+  coordinates : Coord[],
+  footage : number,
+  rock : boolean,
+}
+
+export interface UploadVaultObject extends UploadObject {
+  coordinate : Coord,
+  size : number,
+}
+
 export type Coord = [number, number];
 
 export interface TicketResponse {
