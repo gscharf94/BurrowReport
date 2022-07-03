@@ -85,6 +85,13 @@ class BoreObject {
         else {
             this.line = new MapLine(this.coordinates, {}, false);
         }
+        this.bindPopup();
+    }
+    generatePopupHTML() {
+        return `${this.footage}`;
+    }
+    bindPopup() {
+        this.line.mapObject.bindPopup(this.generatePopupHTML());
     }
 }
 class VaultObject {
