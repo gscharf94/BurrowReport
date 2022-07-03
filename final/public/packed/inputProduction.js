@@ -662,6 +662,7 @@ function addBoreStart() {
         sendPostRequest('inputData', postObject, requestCallback);
         line.removeLineMarkers();
         line.removeTransparentLineMarkers();
+        line.hideObject();
         initialization();
         map.off('click');
         submitButton.removeEventListener('click', submitOneTime);
@@ -762,6 +763,7 @@ function addRockStart() {
         sendPostRequest('inputData', postObject, requestCallback);
         line.removeLineMarkers();
         line.removeTransparentLineMarkers();
+        line.hideObject();
         initialization();
         map.off('click');
         submitButton.removeEventListener('click', submitOneTime);
@@ -851,9 +853,7 @@ function addVaultStart() {
                     marker.icon = ICONS.dt36;
                     break;
             }
-            marker.draggable = false;
             marker.hideObject();
-            marker.createSelf();
             initialization();
             map.off('click');
             submitButton.removeEventListener('click', submitOneTime);
