@@ -8,9 +8,11 @@ const express_1 = __importDefault(require("express"));
 const database_js_1 = require("../helperFunctions/database.js");
 exports.router = express_1.default.Router();
 exports.router.post('/', (req, res, next) => {
-    console.log(`delete post request`);
+    console.log(`delete object post request`);
     let id = req.body.id;
     let table = req.body.tableName;
     (0, database_js_1.deleteObject)(table, id);
+    let msg = `deleted type: ${table} id: ${id}`;
     res.send(`deleted id: ${id} from table: ${table}`);
+    console.log(msg);
 });

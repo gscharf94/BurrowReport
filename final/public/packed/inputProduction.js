@@ -165,7 +165,8 @@ class BoreObject {
                 id: this.id,
             };
             const cb = (res) => {
-                alert(res);
+                console.log(`edit request for ${(this.rock) ? 'rock' : 'bore'} id: ${this.id}has been received and this is response:\n`);
+                console.log(res);
             };
             sendPostRequest('editData', postObject, cb);
             this.line.removeLineMarkers();
@@ -177,7 +178,6 @@ class BoreObject {
             submitButton.removeEventListener('click', submitOneTime);
         };
         const cancelOneTime = () => {
-            console.log('start cancel one time from edit');
             this.coordinates = [...this.tmp_coordinates];
             this.line.points = this.coordinates;
             this.tmp_coordinates = [];
@@ -191,7 +191,6 @@ class BoreObject {
             cancelButton.removeEventListener('click', cancelOneTime);
             submitButton.removeEventListener('click', submitOneTime);
         };
-        console.log('adding event listners..');
         cancelButton.addEventListener('click', cancelOneTime);
         submitButton.addEventListener('click', submitOneTime);
     }
@@ -278,7 +277,8 @@ class VaultObject {
                 object_type: "vault",
             };
             const cb = (res) => {
-                alert(res);
+                console.log(`vault: ${this.id} has been updated and response recieved\nres:`);
+                console.log(res);
             };
             sendPostRequest('editData', postObject, cb);
             this.marker.draggable = false;
@@ -1200,15 +1200,13 @@ function formatDate(date) {
  */
 function deleteObject(table, id) {
     const callback = (res) => {
-        console.log('response received');
+        console.log(`request to delete id: ${id} from ${table} recieved response: \n`);
         console.log(res);
     };
-    console.log(`delete table: ${table} obj: ${id}`);
+    console.log(`sending request to delete -  table: ${table} obj: ${id}`);
     if (table == 'vaults') {
         for (const vault of window.vaults) {
             if (vault.id == id) {
-                console.log('found');
-                console.log(vault);
                 vault.marker.hideObject();
             }
         }
@@ -1216,8 +1214,6 @@ function deleteObject(table, id) {
     else {
         for (const bore of window.boresAndRocks) {
             if (bore.id == id) {
-                console.log('found');
-                console.log(bore);
                 bore.line.hideObject();
             }
         }
@@ -1248,10 +1244,6 @@ function editObject(objectType, id) {
             }
         }
     }
-    const responseCallback = (res) => {
-        console.log(`editObject post: \n${res}`);
-    };
-    sendPostRequest('editData', { test: 'gustavo' }, responseCallback);
 }
 /**
  * i would use formatDateToPsql() but webpack is bugging out because there's

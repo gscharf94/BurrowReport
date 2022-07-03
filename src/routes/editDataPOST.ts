@@ -5,12 +5,16 @@ export const router = express.Router();
 
 
 router.post('/', (req, res, next) => {
-  console.log('update item request');
+  console.log('update item post request');
   if (req.body.object_type == "bore") {
     updateBore(req.body);
-    res.send(`updating item: ${req.body.id} of type: ${req.body.object_type}`);
+    let msg = `updated item: ${req.body.id} of type: ${(req.body.rock) ? 'rock' : 'bore'}`;
+    res.send(msg);
+    console.log(msg);
   } else if (req.body.object_type == "vault") {
     updateVault(req.body);
-    res.send(`updating item: ${req.body.id} of type: ${req.body.object_type}`);
+    let msg = `updated item: ${req.body.id} of type: vault`
+    res.send(msg);
+    console.log(msg);
   }
 });
