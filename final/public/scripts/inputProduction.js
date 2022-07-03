@@ -101,7 +101,7 @@ class BoreObject {
       <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
       <h3 class="popupFootage">${this.footage}ft</h3>
       <h3 class="popupRock">${(this.rock) ? "ROCK" : ""}</h3>
-      <a class="popupEdit" onclick="alert('edit: ${this.id}')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupEdit" onclick="editObject('bore', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
       <a class="popupDelete" onclick="deleteObject('${(this.rock) ? 'rocks' : 'bores'}', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
     </div>
     `;
@@ -145,7 +145,7 @@ class VaultObject {
       <h3 class="popupCrewName">${this.crew_name}</h3>
       <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
       <h3 class="popupFootage">${VAULTNAMETRANS[this.vault_size]}</h3>
-      <a class="popupEdit" onclick="alert('edit: ${this.id}')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupEdit" onclick="editObject('vault', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
       <a class="popupDelete" onclick="deleteObject('vaults', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
     </div>
     `;
@@ -485,6 +485,7 @@ window.addRockStart = addRockStart;
 window.addVaultStart = addVaultStart;
 window.cancelClick = cancelClick;
 window.deleteObject = deleteObject;
+window.editObject = editObject;
 window.boresAndRocks = [];
 window.vaults = [];
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 4);
@@ -499,6 +500,7 @@ leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{
     noWrap: true,
 }).addTo(map);
 map.doubleClickZoom.disable();
+window.map = map;
 function drawSavedBoresAndRocks() {
     for (const bore of boresAndRocks) {
         window.boresAndRocks.push(new BoreObject(bore));
@@ -1046,9 +1048,12 @@ function deleteObject(table, id) {
         console.log('response received');
         console.log(res);
     };
+    console.log(`delete table: ${table} obj: ${id}`);
     if (table == 'vaults') {
         for (const vault of window.vaults) {
             if (vault.id == id) {
+                console.log('found');
+                console.log(vault);
                 vault.marker.hideObject();
             }
         }
@@ -1056,11 +1061,28 @@ function deleteObject(table, id) {
     else {
         for (const bore of window.boresAndRocks) {
             if (bore.id == id) {
+                console.log('found');
+                console.log(bore);
                 bore.line.hideObject();
             }
         }
     }
     sendPostRequest('deleteData', { id: id, tableName: table }, callback);
+}
+/**
+ * takes in an object type and an id.. makes that specific item editable
+ * so that the user can change it. pops up the submit/cancel buttons
+ * and when user clicks submit, sends post request to change the data
+ *
+ * @param {'vault' | 'bore'} object_type - 'vault' | 'bore' -whether it's a bore or vault being changed
+ * @param {number} id - number - the id of the object
+ * @returns {void}
+ */
+function editObject(objectType, id) {
+    const responseCallback = (res) => {
+        alert(res);
+    };
+    sendPostRequest('editData', { test: 'gustavo' }, responseCallback);
 }
 drawSavedBoresAndRocks();
 drawSavedVaults();
