@@ -128,3 +128,61 @@ label {
   grid-row: 3;
   grid-column: 2;
 }
+
+.infoPopup {
+  display: grid;
+  width: 150px;
+  align-items: center;
+}
+
+.popupCrewName {
+  grid-column: 1;
+  grid-row: 1;
+  margin-top: 0;
+  margin-bottom: 0;
+  align-self: center;
+}
+
+.popupWorkDate {
+  grid-column: 1;
+  grid-row: 2;
+  margin-top: 0;
+  margin-bottom: 0;
+  align-self: center;
+
+}
+
+.popupFootage {
+  grid-column: 1;
+  grid-row: 3;
+  margin-top: 0;
+  margin-bottom: 0;
+  align-self: center;
+}
+
+.popupRock {
+  grid-column: 1;
+  grid-row: 4;
+  margin-top: 0;
+  margin-bottom: 0;
+  align-self: center;
+}
+
+.popupEdit {
+  grid-column: 2;
+  grid-row: 2;
+  margin: auto;
+  text-align: right;
+}
+
+.popupDelete {
+  grid-column: 2;
+  grid-row: 3;
+  margin: auto;
+  text-align: right;
+}
+
+.popupImage {
+  width: 30%;
+  align-self: center;
+}

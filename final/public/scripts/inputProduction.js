@@ -88,7 +88,17 @@ class BoreObject {
         this.bindPopup();
     }
     generatePopupHTML() {
-        return `${this.footage}`;
+        let html = `
+    <div class="infoPopup">
+      <h3 class="popupCrewName">${this.crew_name}</h3>
+      <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
+      <h3 class="popupFootage">${this.footage}ft</h3>
+      <h3 class="popupRock">${(this.rock) ? "ROCK" : ""}</h3>
+      <a class="popupEdit" onclick="alert('edit')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupDelete" onclick="alert('delete')" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
+    </div>
+    `;
+        return html;
     }
     bindPopup() {
         this.line.mapObject.bindPopup(this.generatePopupHTML());
@@ -928,6 +938,20 @@ function validateVaultInput() {
         return false;
     }
     return true;
+}
+/**
+ * formats a date to display in the common
+ * MM - DD - YYYY format
+ *
+ * @param {Date} date - Date the date object to be formatted
+ * @returns {string} - string - 'MM-DD-YYYY'
+ */
+function formatDate(date) {
+    date = new Date(date);
+    let year = date.getFullYear();
+    let month = String(date.getMonth() + 1).padStart(2, "0");
+    let day = String(date.getDate()).padStart(2, "0");
+    return `${month}-${day}-${year}`;
 }
 drawSavedBoresAndRocks();
 drawSavedVaults();
