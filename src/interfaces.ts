@@ -29,6 +29,7 @@ export interface DownloadObject {
   page_id : number,
   work_date : Date,
   crew_name : string,
+  id : number,
 }
 
 export interface DownloadBoreObject extends DownloadObject {

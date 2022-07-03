@@ -24,7 +24,8 @@ exports.getPageId = getPageId;
  * same deal as in insertBore()
  *
  * @param {UploadVaultObject} vaultData - UploadVaultObject (see interface.ts)
- * @returns {Promise<number>} - Promise<number> - id of the new vault
+ * @returns {Promise<[number, number]>} - Promise<[number, number]> - id of the new vault
+ * and the pageId
  */
 async function insertVault(vaultData) {
     let pageId = await getPageId(vaultData.job_name, vaultData.page_number);
@@ -52,7 +53,7 @@ async function insertVault(vaultData) {
       RETURNING id;
   `;
     let queryResults = await db_js_1.pool.query(query);
-    return queryResults.rows[0].id;
+    return [queryResults.rows[0].id, pageId];
 }
 exports.insertVault = insertVault;
 /**
@@ -63,7 +64,8 @@ exports.insertVault = insertVault;
  * of any easier way to do this
  *
  * @param {UploadBoreObject} boreData - UploadBoreObject - check interface.ts
- * @returns {Promise<number>} - Promise<number> - this is the id for the new bore
+ * @returns {Promise<[number, number]>} - Promise<[number, number]>
+ * - this is the id for the new bore and the page number
  */
 async function insertBore(boreData) {
     let tableName = (boreData.rock) ? "rocks" : "bores";
@@ -92,7 +94,7 @@ async function insertBore(boreData) {
       RETURNING id;
   `;
     let queryResults = await db_js_1.pool.query(query);
-    return queryResults.rows[0].id;
+    return [queryResults.rows[0].id, pageId];
 }
 exports.insertBore = insertBore;
 /**

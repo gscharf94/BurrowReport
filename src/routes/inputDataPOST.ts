@@ -11,12 +11,12 @@ router.post('/', (req, res, next) => {
   (async () => {
     if (req.body.object_type == "bore") {
       let object_data : UploadBoreObject = req.body;
-      let newId = await insertBore(object_data);
-      res.send(String(newId));
+      let [newId, pageId] = await insertBore(object_data);
+      res.send(`${newId}, ${pageId}`);
     } else if (req.body.object_type == "vault") {
       let object_data : UploadVaultObject = req.body;
-      let newId = await insertVault(object_data);
-      res.send(String(newId));
+      let [newId, pageId] = await insertVault(object_data);
+      res.send(`${newId}, ${pageId}`);
     }
   })();
 });

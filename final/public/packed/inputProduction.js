@@ -635,7 +635,22 @@ function addBoreStart() {
             page_number: PAGENUMBER,
             object_type: "bore",
         };
-        sendPostRequest('inputData', postObject);
+        const requestCallback = (res) => {
+            let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
+            let newBoreObject = new BoreObject({
+                job_name: JOBNAME,
+                page_number: PAGENUMBER,
+                page_id: pageId,
+                work_date: postObject.work_date,
+                crew_name: CREWNAME,
+                id: boreId,
+                coordinates: line.points,
+                footage: postObject.footage,
+                rock: postObject.rock,
+            });
+            window.boresAndRocks.push(newBoreObject);
+        };
+        sendPostRequest('inputData', postObject, requestCallback);
         line.removeLineMarkers();
         line.removeTransparentLineMarkers();
         initialization();
@@ -655,14 +670,14 @@ function addBoreStart() {
  * @param {string} url - string - the url, relative to current page or full path
  * @param {Object} body - {} - any object that will get stringified and sent
  */
-function sendPostRequest(url, body) {
+function sendPostRequest(url, body, callback) {
     let req = new XMLHttpRequest();
     req.open('POST', `http://192.168.86.36:3000/${url}`);
     req.setRequestHeader("Content-type", "application/json");
     req.send(JSON.stringify(body));
     req.onreadystatechange = function () {
         if (req.readyState == XMLHttpRequest.DONE) {
-            alert(req.responseText);
+            callback(req.responseText);
         }
     };
 }
@@ -720,7 +735,22 @@ function addRockStart() {
             page_number: PAGENUMBER,
             crew_name: CREWNAME,
         };
-        sendPostRequest('inputData', postObject);
+        const requestCallback = (res) => {
+            let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
+            let newBoreObject = new BoreObject({
+                job_name: JOBNAME,
+                page_number: PAGENUMBER,
+                page_id: pageId,
+                work_date: postObject.work_date,
+                crew_name: CREWNAME,
+                id: boreId,
+                coordinates: line.points,
+                footage: postObject.footage,
+                rock: postObject.rock,
+            });
+            window.boresAndRocks.push(newBoreObject);
+        };
+        sendPostRequest('inputData', postObject, requestCallback);
         line.removeLineMarkers();
         line.removeTransparentLineMarkers();
         initialization();
@@ -786,7 +816,21 @@ function addVaultStart() {
                 crew_name: CREWNAME,
                 object_type: "vault",
             };
-            sendPostRequest('inputData', postObject);
+            const requestCallback = (res) => {
+                let [vaultId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
+                let newVaultObject = new VaultObject({
+                    job_name: JOBNAME,
+                    page_number: PAGENUMBER,
+                    page_id: pageId,
+                    work_date: postObject.work_date,
+                    crew_name: CREWNAME,
+                    id: vaultId,
+                    coordinate: marker.point,
+                    vault_size: postObject.size,
+                });
+                window.vaults.push(newVaultObject);
+            };
+            sendPostRequest('inputData', postObject, requestCallback);
             switch (size) {
                 case 0:
                     marker.icon = ICONS.dt20;

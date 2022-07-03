@@ -23,9 +23,10 @@ export async function getPageId(job_name : string, page_number : number) : Promi
  * same deal as in insertBore()
  *
  * @param {UploadVaultObject} vaultData - UploadVaultObject (see interface.ts)
- * @returns {Promise<number>} - Promise<number> - id of the new vault
+ * @returns {Promise<[number, number]>} - Promise<[number, number]> - id of the new vault
+ * and the pageId
  */
-export async function insertVault(vaultData : UploadVaultObject) : Promise<number> {
+export async function insertVault(vaultData : UploadVaultObject) : Promise<[number, number]> {
   let pageId = await getPageId(vaultData.job_name, vaultData.page_number);
   let query = `
     INSERT INTO vaults
@@ -51,7 +52,7 @@ export async function insertVault(vaultData : UploadVaultObject) : Promise<numbe
       RETURNING id;
   `
   let queryResults = await pool.query(query);
-  return queryResults.rows[0].id;
+  return [queryResults.rows[0].id, pageId];
 }
 
 /**
@@ -62,9 +63,10 @@ export async function insertVault(vaultData : UploadVaultObject) : Promise<numbe
  * of any easier way to do this
  *
  * @param {UploadBoreObject} boreData - UploadBoreObject - check interface.ts
- * @returns {Promise<number>} - Promise<number> - this is the id for the new bore
+ * @returns {Promise<[number, number]>} - Promise<[number, number]>
+ * - this is the id for the new bore and the page number
  */
-export async function insertBore(boreData : UploadBoreObject) : Promise<number> {
+export async function insertBore(boreData : UploadBoreObject) : Promise<[number, number]> {
   let tableName = (boreData.rock) ? "rocks" : "bores";
   let pageId = await getPageId(boreData.job_name, boreData.page_number);
   let query = `
@@ -92,7 +94,7 @@ export async function insertBore(boreData : UploadBoreObject) : Promise<number> 
   `
 
   let queryResults = await pool.query(query);
-  return queryResults.rows[0].id;
+  return [queryResults.rows[0].id, pageId];
 }
 
 /**

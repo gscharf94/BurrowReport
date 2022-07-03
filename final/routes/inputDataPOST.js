@@ -12,13 +12,13 @@ exports.router.post('/', (req, res, next) => {
     (async () => {
         if (req.body.object_type == "bore") {
             let object_data = req.body;
-            let newId = await (0, database_js_1.insertBore)(object_data);
-            res.send(String(newId));
+            let [newId, pageId] = await (0, database_js_1.insertBore)(object_data);
+            res.send(`${newId}, ${pageId}`);
         }
         else if (req.body.object_type == "vault") {
             let object_data = req.body;
-            let newId = await (0, database_js_1.insertVault)(object_data);
-            res.send(String(newId));
+            let [newId, pageId] = await (0, database_js_1.insertVault)(object_data);
+            res.send(`${newId}, ${pageId}`);
         }
     })();
 });
