@@ -218,6 +218,7 @@ class MapObject {
    */
   hideObject() {
     map.removeLayer(this.mapObject);
+    this.hidden = true;
   }
 
   /**
@@ -227,6 +228,7 @@ class MapObject {
    */
   showObject() {
     this.mapObject.addTo(map);
+    this.hidden = false;
   }
 }
 

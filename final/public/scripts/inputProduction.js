@@ -176,6 +176,7 @@ class MapObject {
      */
     hideObject() {
         map.removeLayer(this.mapObject);
+        this.hidden = true;
     }
     /**
      * the inverse of hideObject
@@ -184,6 +185,7 @@ class MapObject {
      */
     showObject() {
         this.mapObject.addTo(map);
+        this.hidden = false;
     }
 }
 class MapLine extends MapObject {

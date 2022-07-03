@@ -37,6 +37,14 @@ export function deleteObject(tableName : 'vaults' | 'bores' | 'rocks', id : numb
   })
 }
 
+export function updateBore() {
+  console.log('update bore function');
+}
+
+export function updateVault() {
+  console.log('update vault function');
+}
+
 /**
  * inserts a vault based on the information taken in
  * note we need to call the async function to get the page id
