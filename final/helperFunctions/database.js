@@ -24,7 +24,7 @@ exports.getPageId = getPageId;
  * same deal as in insertBore()
  *
  * @param {UploadVaultObject} vaultData - UploadVaultObject (see interface.ts)
- * @returns {Promise<void>} - returns nothing.. just updates database
+ * @returns {Promise<number>} - Promise<number> - id of the new vault
  */
 async function insertVault(vaultData) {
     let pageId = await getPageId(vaultData.job_name, vaultData.page_number);
@@ -48,18 +48,11 @@ async function insertVault(vaultData) {
       ${vaultData.size},
       '{${vaultData.coordinate[0]}, ${vaultData.coordinate[1]}}',
       '${vaultData.crew_name}'
-      );
+      )
+      RETURNING id;
   `;
-    db_js_1.pool.query(query, (err) => {
-        if (err) {
-            console.log(`error uploading vault`);
-            console.log(vaultData);
-        }
-        else {
-            console.log(`uploaded vault`);
-            console.log(vaultData);
-        }
-    });
+    let queryResults = await db_js_1.pool.query(query);
+    return queryResults.rows[0].id;
 }
 exports.insertVault = insertVault;
 /**
@@ -70,7 +63,7 @@ exports.insertVault = insertVault;
  * of any easier way to do this
  *
  * @param {UploadBoreObject} boreData - UploadBoreObject - check interface.ts
- * @returns {void} - doesn't return anything.. just inserts into database
+ * @returns {Promise<number>} - Promise<number> - this is the id for the new bore
  */
 async function insertBore(boreData) {
     let tableName = (boreData.rock) ? "rocks" : "bores";
@@ -95,18 +88,11 @@ async function insertBore(boreData) {
       ${boreData.footage},
       '${formatCoordsToPsql(boreData.coordinates)}',
       '${boreData.crew_name}'
-      );
+      )
+      RETURNING id;
   `;
-    db_js_1.pool.query(query, (err) => {
-        if (err) {
-            console.log(`error uploading bore`);
-            console.log(boreData);
-        }
-        else {
-            console.log(`uploaded bore`);
-            console.log(boreData);
-        }
-    });
+    let queryResults = await db_js_1.pool.query(query);
+    return queryResults.rows[0].id;
 }
 exports.insertBore = insertBore;
 /**

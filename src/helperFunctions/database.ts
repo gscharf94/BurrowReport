@@ -23,9 +23,9 @@ export async function getPageId(job_name : string, page_number : number) : Promi
  * same deal as in insertBore()
  *
  * @param {UploadVaultObject} vaultData - UploadVaultObject (see interface.ts)
- * @returns {Promise<void>} - returns nothing.. just updates database
+ * @returns {Promise<number>} - Promise<number> - id of the new vault
  */
-export async function insertVault(vaultData : UploadVaultObject) : Promise<void> {
+export async function insertVault(vaultData : UploadVaultObject) : Promise<number> {
   let pageId = await getPageId(vaultData.job_name, vaultData.page_number);
   let query = `
     INSERT INTO vaults
@@ -47,17 +47,11 @@ export async function insertVault(vaultData : UploadVaultObject) : Promise<void>
       ${vaultData.size},
       '{${vaultData.coordinate[0]}, ${vaultData.coordinate[1]}}',
       '${vaultData.crew_name}'
-      );
+      )
+      RETURNING id;
   `
-  pool.query(query, (err) => {
-    if (err) {
-      console.log(`error uploading vault`);
-      console.log(vaultData);
-    } else {
-      console.log(`uploaded vault`);
-      console.log(vaultData);
-    }
-  });
+  let queryResults = await pool.query(query);
+  return queryResults.rows[0].id;
 }
 
 /**
@@ -68,9 +62,9 @@ export async function insertVault(vaultData : UploadVaultObject) : Promise<void>
  * of any easier way to do this
  *
  * @param {UploadBoreObject} boreData - UploadBoreObject - check interface.ts
- * @returns {void} - doesn't return anything.. just inserts into database
+ * @returns {Promise<number>} - Promise<number> - this is the id for the new bore
  */
-export async function insertBore(boreData : UploadBoreObject) : Promise<void> {
+export async function insertBore(boreData : UploadBoreObject) : Promise<number> {
   let tableName = (boreData.rock) ? "rocks" : "bores";
   let pageId = await getPageId(boreData.job_name, boreData.page_number);
   let query = `
@@ -93,17 +87,12 @@ export async function insertBore(boreData : UploadBoreObject) : Promise<void> {
       ${boreData.footage},
       '${formatCoordsToPsql(boreData.coordinates)}',
       '${boreData.crew_name}'
-      );
+      )
+      RETURNING id;
   `
-  pool.query(query, (err) => {
-    if (err) {
-      console.log(`error uploading bore`);
-      console.log(boreData);
-    } else {
-      console.log(`uploaded bore`);
-      console.log(boreData);
-    }
-  });
+
+  let queryResults = await pool.query(query);
+  return queryResults.rows[0].id;
 }
 
 /**

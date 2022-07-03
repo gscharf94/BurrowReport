@@ -653,6 +653,11 @@ function sendPostRequest(url, body) {
     req.open('POST', `http://192.168.86.36:3000/${url}`);
     req.setRequestHeader("Content-type", "application/json");
     req.send(JSON.stringify(body));
+    req.onreadystatechange = function () {
+        if (req.readyState == XMLHttpRequest.DONE) {
+            alert(req.responseText);
+        }
+    };
 }
 /**
  * the user has clicked on the add rock button so now we start the process

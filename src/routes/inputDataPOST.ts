@@ -8,13 +8,15 @@ export const router = express.Router();
 
 router.post('/', (req, res, next) => {
   console.log('data input post request');
-  if (req.body.object_type == "bore") {
-    let object_data : UploadBoreObject = req.body;
-    insertBore(object_data);
-  } else if (req.body.object_type == "vault") {
-    let object_data : UploadVaultObject = req.body;
-    insertVault(object_data);
-  }
-
-  res.send('this is a response');
+  (async () => {
+    if (req.body.object_type == "bore") {
+      let object_data : UploadBoreObject = req.body;
+      let newId = await insertBore(object_data);
+      res.send(String(newId));
+    } else if (req.body.object_type == "vault") {
+      let object_data : UploadVaultObject = req.body;
+      let newId = await insertVault(object_data);
+      res.send(String(newId));
+    }
+  })();
 });

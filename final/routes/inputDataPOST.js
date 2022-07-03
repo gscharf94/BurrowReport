@@ -9,13 +9,16 @@ const database_js_1 = require("../helperFunctions/database.js");
 exports.router = express_1.default.Router();
 exports.router.post('/', (req, res, next) => {
     console.log('data input post request');
-    if (req.body.object_type == "bore") {
-        let object_data = req.body;
-        (0, database_js_1.insertBore)(object_data);
-    }
-    else if (req.body.object_type == "vault") {
-        let object_data = req.body;
-        (0, database_js_1.insertVault)(object_data);
-    }
-    res.send('this is a response');
+    (async () => {
+        if (req.body.object_type == "bore") {
+            let object_data = req.body;
+            let newId = await (0, database_js_1.insertBore)(object_data);
+            res.send(String(newId));
+        }
+        else if (req.body.object_type == "vault") {
+            let object_data = req.body;
+            let newId = await (0, database_js_1.insertVault)(object_data);
+            res.send(String(newId));
+        }
+    })();
 });
