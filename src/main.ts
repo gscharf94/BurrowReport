@@ -7,6 +7,7 @@ import { router as viewJobs } from './routes/viewJobs.js';
 import { router as viewProduction } from './routes/viewProduction.js';
 import { router as inputProduction } from './routes/inputProduction.js';
 import { router as inputDataPOST } from './routes/inputDataPOST.js';
+import { router as deleteDataPOST } from './routes/deleteDataPOST.js';
 
 
 const app = express();
@@ -24,6 +25,7 @@ app.use('/viewJobs', viewJobs);
 app.use('/inputProduction', inputProduction);
 app.use('/viewProduction', viewProduction);
 app.use('/inputData', inputDataPOST);
+app.use('/deleteData', deleteDataPOST);
 
 app.listen(PORT, () => {
   console.log(`listening @ http://localhost:3000`);

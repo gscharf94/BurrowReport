@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.getPageId = void 0;
+exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.deleteObject = exports.getPageId = void 0;
 const db_js_1 = require("../db.js");
 /**
  * takes a job name and a page number and returns a page id
@@ -18,6 +18,25 @@ async function getPageId(job_name, page_number) {
     return result.rows[0].id;
 }
 exports.getPageId = getPageId;
+/**
+ * takes in a table name & an id and removes that item from the table
+ * TODO - potentially expand this for tickets? not right now
+ *
+ * @param {'vaults' | 'bores' | 'rocks'} tableName - string - the name of table
+ * @param {number} id - number - the id of the row to be deleted
+ * @returns {void}  doesnt return anything just deletes
+ */
+function deleteObject(tableName, id) {
+    let query = `
+    DELETE FROM ${tableName} WHERE id=${id};
+  `;
+    db_js_1.pool.query(query, (err, resp) => {
+        if (err) {
+            console.log(`error deleting id: ${id} from ${tableName}`);
+        }
+    });
+}
+exports.deleteObject = deleteObject;
 /**
  * inserts a vault based on the information taken in
  * note we need to call the async function to get the page id

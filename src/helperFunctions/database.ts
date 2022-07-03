@@ -17,6 +17,26 @@ export async function getPageId(job_name : string, page_number : number) : Promi
   return result.rows[0].id;
 }
 
+
+/**
+ * takes in a table name & an id and removes that item from the table
+ * TODO - potentially expand this for tickets? not right now
+ *
+ * @param {'vaults' | 'bores' | 'rocks'} tableName - string - the name of table
+ * @param {number} id - number - the id of the row to be deleted
+ * @returns {void}  doesnt return anything just deletes
+ */
+export function deleteObject(tableName : 'vaults' | 'bores' | 'rocks', id : number) : void {
+  let query = `
+    DELETE FROM ${tableName} WHERE id=${id};
+  `
+  pool.query(query, (err, resp) => {
+    if (err) {
+      console.log(`error deleting id: ${id} from ${tableName}`);
+    }
+  })
+}
+
 /**
  * inserts a vault based on the information taken in
  * note we need to call the async function to get the page id

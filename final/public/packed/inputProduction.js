@@ -79,6 +79,7 @@ class BoreObject {
     footage;
     coordinates;
     rock;
+    id;
     constructor(boreInfo) {
         this.job_name = boreInfo.job_name;
         this.page_number = boreInfo.page_number;
@@ -88,6 +89,7 @@ class BoreObject {
         this.footage = boreInfo.footage;
         this.coordinates = boreInfo.coordinates;
         this.rock = boreInfo.rock;
+        this.id = boreInfo.id;
         this.drawLine();
     }
     drawLine() {
@@ -106,8 +108,8 @@ class BoreObject {
       <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
       <h3 class="popupFootage">${this.footage}ft</h3>
       <h3 class="popupRock">${(this.rock) ? "ROCK" : ""}</h3>
-      <a class="popupEdit" onclick="alert('edit')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
-      <a class="popupDelete" onclick="alert('delete')" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
+      <a class="popupEdit" onclick="alert('edit: ${this.id}')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupDelete" onclick="deleteObject('${(this.rock) ? 'rocks' : 'bores'}', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
     </div>
     `;
         return html;
@@ -125,6 +127,7 @@ class VaultObject {
     page_id;
     vault_size;
     coordinate;
+    id;
     constructor(vaultInfo) {
         this.job_name = vaultInfo.job_name;
         this.page_number = vaultInfo.page_number;
@@ -133,6 +136,7 @@ class VaultObject {
         this.page_id = vaultInfo.page_id;
         this.coordinate = vaultInfo.coordinate;
         this.vault_size = vaultInfo.vault_size;
+        this.id = vaultInfo.id;
         this.drawMarker();
     }
     drawMarker() {
@@ -148,8 +152,8 @@ class VaultObject {
       <h3 class="popupCrewName">${this.crew_name}</h3>
       <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
       <h3 class="popupFootage">${VAULTNAMETRANS[this.vault_size]}</h3>
-      <a class="popupEdit" onclick="alert('edit')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
-      <a class="popupDelete" onclick="alert('delete')" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
+      <a class="popupEdit" onclick="alert('edit: ${this.id}')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupDelete" onclick="deleteObject('vaults', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
     </div>
     `;
         return html;
@@ -485,6 +489,7 @@ window.addBoreStart = addBoreStart;
 window.addRockStart = addRockStart;
 window.addVaultStart = addVaultStart;
 window.cancelClick = cancelClick;
+window.deleteObject = deleteObject;
 window.boresAndRocks = [];
 window.vaults = [];
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 4);
@@ -1029,6 +1034,38 @@ function formatDate(date) {
     let month = String(date.getMonth() + 1).padStart(2, "0");
     let day = String(date.getDate()).padStart(2, "0");
     return `${month}-${day}-${year}`;
+}
+/**
+ * takes a table name & id for an object and sends a post request
+ * to deleteDataPost which will delete the object from the database
+ *
+ * in addition, will search the list of either vaults or bores to remove
+ * it from the map for the user
+ *
+ * @param {'vaults' | 'bores' | 'rocks'} table - string of table name
+ * @param {number} id - number - the id of the object to be deleted
+ * @returns {void}
+ */
+function deleteObject(table, id) {
+    const callback = (res) => {
+        console.log('response received');
+        console.log(res);
+    };
+    if (table == 'vaults') {
+        for (const vault of window.vaults) {
+            if (vault.id == id) {
+                vault.marker.hideObject();
+            }
+        }
+    }
+    else {
+        for (const bore of window.boresAndRocks) {
+            if (bore.id == id) {
+                bore.line.hideObject();
+            }
+        }
+    }
+    sendPostRequest('deleteData', { id: id, tableName: table }, callback);
 }
 drawSavedBoresAndRocks();
 drawSavedVaults();
