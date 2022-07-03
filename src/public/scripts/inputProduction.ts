@@ -511,7 +511,7 @@ window.boresAndRocks = [];
 window.vaults = [];
 
 
-let map = L.map('map').setView([0, 0], 4);
+let map = L.map('map').setView([58.8, -4.08], 4);
 L.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
   attribution: `${JOBNAME} - PAGE# ${PAGENUMBER}`,
   minZoom: 2,
