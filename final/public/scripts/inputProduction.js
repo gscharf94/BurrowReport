@@ -71,6 +71,7 @@ class BoreObject {
     page_id;
     footage;
     coordinates;
+    tmp_coordinates;
     rock;
     id;
     constructor(boreInfo) {
@@ -109,6 +110,59 @@ class BoreObject {
     }
     bindPopup() {
         this.line.mapObject.bindPopup(this.generatePopupHTML());
+    }
+    editLine() {
+        this.tmp_coordinates = [...this.coordinates];
+        this.line.addLineMarkers();
+        this.line.addTransparentLineMarkers();
+        map.on('click', (ev) => {
+            this.line.addPoint([ev.latlng.lat, ev.latlng.lng]);
+        });
+        let elementsToShow = [
+            'footageLabel', 'footageInput',
+            'dateLabel', 'dateInput',
+            'submit', 'cancel'
+        ];
+        let elementsToHide = [
+            'addBore', 'addVault', 'addRock',
+            'vaultLabel', 'vaultSelect'
+        ];
+        hideAndShowElements(elementsToShow, elementsToHide);
+        let footageInput = document.getElementById('footageInput');
+        let dateInput = document.getElementById('dateInput');
+        footageInput.value = String(this.footage);
+        dateInput.value = formatDateToInputElement(this.work_date);
+        let cancelButton = document.getElementById('cancel');
+        let submitButton = document.getElementById('submit');
+        const submitOneTime = () => {
+            console.log('start submit one time from edit');
+            const cb = (res) => {
+                alert(res);
+            };
+            sendPostRequest('editData', { test: 'hello' }, cb);
+            this.line.removeLineMarkers();
+            this.line.removeTransparentLineMarkers();
+            map.off('click');
+            cancelButton.removeEventListener('click', cancelOneTime);
+            submitButton.removeEventListener('click', submitOneTime);
+        };
+        const cancelOneTime = () => {
+            console.log('start cancel one time from edit');
+            this.coordinates = [...this.tmp_coordinates];
+            this.line.points = this.coordinates;
+            this.tmp_coordinates = [];
+            this.line.removeTransparentLineMarkers();
+            this.line.removeLineMarkers();
+            this.line.hideObject();
+            this.line.createSelfNoMarkers();
+            initialization();
+            map.off('click');
+            cancelButton.removeEventListener('click', cancelOneTime);
+            submitButton.removeEventListener('click', submitOneTime);
+        };
+        console.log('adding event listners..');
+        cancelButton.addEventListener('click', cancelOneTime);
+        submitButton.addEventListener('click', submitOneTime);
     }
 }
 class VaultObject {
@@ -590,8 +644,6 @@ function addBoreStart() {
     });
     let cancelButton = document.getElementById('cancel');
     const cancelOneTime = () => {
-        console.log(`cancelling`);
-        console.log(line);
         line.clearSelf();
         initialization();
         map.off('click');
@@ -1079,10 +1131,34 @@ function deleteObject(table, id) {
  * @returns {void}
  */
 function editObject(objectType, id) {
+    if (objectType == "bore") {
+        for (const bore of window.boresAndRocks) {
+            if (id == bore.id) {
+                bore.editLine();
+            }
+        }
+    }
     const responseCallback = (res) => {
-        alert(res);
+        console.log(`editObject post: \n${res}`);
     };
     sendPostRequest('editData', { test: 'gustavo' }, responseCallback);
+}
+/**
+ * i would use formatDateToPsql() but webpack is bugging out because there's
+ * some other libraries in helperFunctions/database.ts like pg. it doesn't just
+ * import the proper function.. so whatever we make the function twice gg wp
+ *
+ * date -> YYYY-MM-DD
+ *
+ * @param {Date} date - Date - the date to be formatted
+ * @returns {string} - YYYY-MM-DD in string format
+ */
+function formatDateToInputElement(date) {
+    date = new Date(date);
+    let year = date.getFullYear();
+    let month = String(date.getMonth() + 1).padStart(2, "0");
+    let day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
 }
 drawSavedBoresAndRocks();
 drawSavedVaults();
