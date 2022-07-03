@@ -1,5 +1,8 @@
 import L from 'leaflet';
-import { Coord, UploadBoreObject, UploadVaultObject } from '../../interfaces';
+import {
+  Coord, UploadBoreObject, UploadVaultObject,
+  DownloadBoreObject, DownloadVaultObject
+} from '../../interfaces';
 
 declare global {
   interface Window {
@@ -7,7 +10,8 @@ declare global {
     addRockStart : () => void,
     addVaultStart : () => void,
     cancelClick : () => void,
-    line : MapLine,
+    boresAndRocks : BoreObject[],
+    vaults : VaultObject[],
   }
 }
 
@@ -15,7 +19,9 @@ interface LineOptions {
   color ?: string,
   weight ?: number,
   dashed ?: boolean,
+  editable ?: boolean,
 }
+
 
 const ICONS = {
   lineMarker: L.icon({
@@ -55,6 +61,12 @@ const ICONS = {
   }),
 }
 
+const VAULTICONTRANS = {
+  0: ICONS.dt20,
+  1: ICONS.dt30,
+  2: ICONS.dt36,
+};
+
 // need to ignore typescript here cause it doesn't understand
 // that i'm getting fed this info from the html 
 
@@ -64,14 +76,72 @@ const JOBNAME = jobNamePug;
 const PAGENUMBER = pageNumberPug;
 
 //@ts-ignore
-let boresAndRocks = parseJSON(boresAndRocksJSON);
+let boresAndRocks : DownloadBoreObject[] = parseJSON(boresAndRocksJSON);
 //@ts-ignore
-let vaults = parseJSON(vaultsJSON);
+let vaults : DownloadVaultObject[] = parseJSON(vaultsJSON);
 
-console.log(boresAndRocks);
-console.log(vaults);
 
 const CREWNAME = "test_crew";
+
+class BoreObject {
+  line : MapLine;
+  job_name : string;
+  page_number : number;
+  work_date : Date;
+  crew_name : string;
+  page_id : number;
+  footage : number;
+  coordinates : Coord[];
+  rock : boolean;
+
+  constructor(boreInfo : DownloadBoreObject) {
+    this.job_name = boreInfo.job_name;
+    this.page_number = boreInfo.page_number;
+    this.work_date = new Date(boreInfo.work_date);
+    this.crew_name = boreInfo.crew_name;
+    this.page_id = boreInfo.page_id;
+    this.footage = boreInfo.footage;
+    this.coordinates = boreInfo.coordinates;
+    this.rock = boreInfo.rock;
+
+    this.drawLine();
+  }
+
+  drawLine() {
+    if (this.rock) {
+      this.line = new MapLine(this.coordinates, { color: 'green', dashed: true, weight: 6 }, false);
+    } else {
+      this.line = new MapLine(this.coordinates, {}, false);
+    }
+  }
+}
+
+class VaultObject {
+  marker : MapMarker;
+  job_name : string;
+  page_number : number;
+  work_date : Date;
+  crew_name : string;
+  page_id : number;
+  vault_size : number;
+  coordinate : Coord;
+
+  constructor(vaultInfo : DownloadVaultObject) {
+    this.job_name = vaultInfo.job_name;
+    this.page_number = vaultInfo.page_number;
+    this.work_date = new Date(vaultInfo.work_date);
+    this.crew_name = vaultInfo.crew_name;
+    this.page_id = vaultInfo.page_id;
+    this.coordinate = vaultInfo.coordinate;
+    this.vault_size = vaultInfo.vault_size;
+
+    this.drawMarker();
+  }
+
+  drawMarker() {
+    this.marker = new MapMarker(this.coordinate, false, VAULTICONTRANS[this.vault_size]);
+  }
+}
 
 class MapObject {
   /**
@@ -137,8 +207,13 @@ class MapLine extends MapObject {
    * this way the user can add points dynamically instead of having to restart
    */
   transparentLineMarkers : MapMarker[];
+  /**
+   * @type {boolean} - if this is true, the markers will show up
+   * otherwise, no markers just a static line
+   */
+  editable : boolean;
 
-  constructor(points : Coord[], options : LineOptions = {}) {
+  constructor(points : Coord[], options : LineOptions = {}, editable : boolean = true) {
     super();
 
     const COLOR_DEFAULT = "blue";
@@ -150,7 +225,9 @@ class MapLine extends MapObject {
     (options.dashed) ? this.dashed = '10 10' : this.dashed = '';
     this.lineMarkers = [];
     this.transparentLineMarkers = [];
-    this.createSelf();
+
+    this.editable = editable;
+    (editable) ? this.createSelf() : this.createSelfNoMarkers();
   }
 
   /**
@@ -166,6 +243,15 @@ class MapLine extends MapObject {
     if (updateLineMarkers) {
       this.addLineMarkers();
     }
+    this.showObject();
+  }
+
+  /**
+   * to draw a line without markers or interactivity..
+   * later when it's being edited the markers can show back up
+   */
+  createSelfNoMarkers() {
+    this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed })
     this.showObject();
   }
 
@@ -411,6 +497,8 @@ window.addBoreStart = addBoreStart;
 window.addRockStart = addRockStart;
 window.addVaultStart = addVaultStart;
 window.cancelClick = cancelClick;
+window.boresAndRocks = [];
+window.vaults = [];
 
 
 let map = L.map('map').setView([0, 0], 4);
@@ -425,6 +513,18 @@ L.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg',
   noWrap: true,
 }).addTo(map);
 map.doubleClickZoom.disable();
+
+function drawSavedBoresAndRocks() : void {
+  for (const bore of boresAndRocks) {
+    window.boresAndRocks.push(new BoreObject(bore));
+  }
+}
+
+function drawSavedVaults() : void {
+  for (const vault of vaults) {
+    window.vaults.push(new VaultObject(vault));
+  }
+}
 
 
 /**
@@ -922,5 +1022,6 @@ function validateVaultInput() : boolean {
   return true;
 }
 
-
+drawSavedBoresAndRocks();
+drawSavedVaults();
 initialization();

@@ -23,6 +23,25 @@ export interface UploadVaultObject extends UploadObject {
   size : number,
 }
 
+export interface DownloadObject {
+  job_name : string,
+  page_number : number,
+  page_id : number,
+  work_date : Date,
+  crew_name : string,
+}
+
+export interface DownloadBoreObject extends DownloadObject {
+  footage : number,
+  coordinates : Coord[],
+  rock : boolean,
+}
+
+export interface DownloadVaultObject extends DownloadObject {
+  coordinate : Coord,
+  vault_size : number,
+}
+
 export type Coord = [number, number];
 
 export interface TicketResponse {

@@ -41,6 +41,11 @@ const ICONS = {
         iconAnchor: [6, 6],
     }),
 };
+const VAULTICONTRANS = {
+    0: ICONS.dt20,
+    1: ICONS.dt30,
+    2: ICONS.dt36,
+};
 // need to ignore typescript here cause it doesn't understand
 // that i'm getting fed this info from the html 
 //@ts-ignore
@@ -51,9 +56,60 @@ const PAGENUMBER = pageNumberPug;
 let boresAndRocks = parseJSON(boresAndRocksJSON);
 //@ts-ignore
 let vaults = parseJSON(vaultsJSON);
-console.log(boresAndRocks);
-console.log(vaults);
 const CREWNAME = "test_crew";
+class BoreObject {
+    line;
+    job_name;
+    page_number;
+    work_date;
+    crew_name;
+    page_id;
+    footage;
+    coordinates;
+    rock;
+    constructor(boreInfo) {
+        this.job_name = boreInfo.job_name;
+        this.page_number = boreInfo.page_number;
+        this.work_date = new Date(boreInfo.work_date);
+        this.crew_name = boreInfo.crew_name;
+        this.page_id = boreInfo.page_id;
+        this.footage = boreInfo.footage;
+        this.coordinates = boreInfo.coordinates;
+        this.rock = boreInfo.rock;
+        this.drawLine();
+    }
+    drawLine() {
+        if (this.rock) {
+            this.line = new MapLine(this.coordinates, { color: 'green', dashed: true, weight: 6 }, false);
+        }
+        else {
+            this.line = new MapLine(this.coordinates, {}, false);
+        }
+    }
+}
+class VaultObject {
+    marker;
+    job_name;
+    page_number;
+    work_date;
+    crew_name;
+    page_id;
+    vault_size;
+    coordinate;
+    constructor(vaultInfo) {
+        this.job_name = vaultInfo.job_name;
+        this.page_number = vaultInfo.page_number;
+        this.work_date = new Date(vaultInfo.work_date);
+        this.crew_name = vaultInfo.crew_name;
+        this.page_id = vaultInfo.page_id;
+        this.coordinate = vaultInfo.coordinate;
+        this.vault_size = vaultInfo.vault_size;
+        this.drawMarker();
+    }
+    drawMarker() {
+        this.marker = new MapMarker(this.coordinate, false, VAULTICONTRANS[this.vault_size]);
+    }
+}
 class MapObject {
     /**
      * @type {boolean} - hidden. whether or not object should be showing. this
@@ -114,7 +170,12 @@ class MapLine extends MapObject {
      * this way the user can add points dynamically instead of having to restart
      */
     transparentLineMarkers;
-    constructor(points, options = {}) {
+    /**
+     * @type {boolean} - if this is true, the markers will show up
+     * otherwise, no markers just a static line
+     */
+    editable;
+    constructor(points, options = {}, editable = true) {
         super();
         const COLOR_DEFAULT = "blue";
         const WEIGHT_DEFAULT = 6;
@@ -124,7 +185,8 @@ class MapLine extends MapObject {
         (options.dashed) ? this.dashed = '10 10' : this.dashed = '';
         this.lineMarkers = [];
         this.transparentLineMarkers = [];
-        this.createSelf();
+        this.editable = editable;
+        (editable) ? this.createSelf() : this.createSelfNoMarkers();
     }
     /**
      * create the Polyline object and assigns .mapObject to it
@@ -139,6 +201,14 @@ class MapLine extends MapObject {
         if (updateLineMarkers) {
             this.addLineMarkers();
         }
+        this.showObject();
+    }
+    /**
+     * to draw a line without markers or interactivity..
+     * later when it's being edited the markers can show back up
+     */
+    createSelfNoMarkers() {
+        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed });
         this.showObject();
     }
     /**
@@ -370,6 +440,8 @@ window.addBoreStart = addBoreStart;
 window.addRockStart = addRockStart;
 window.addVaultStart = addVaultStart;
 window.cancelClick = cancelClick;
+window.boresAndRocks = [];
+window.vaults = [];
 let map = leaflet_1.default.map('map').setView([0, 0], 4);
 leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
     attribution: `${JOBNAME} - PAGE# ${PAGENUMBER}`,
@@ -382,6 +454,16 @@ leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{
     noWrap: true,
 }).addTo(map);
 map.doubleClickZoom.disable();
+function drawSavedBoresAndRocks() {
+    for (const bore of boresAndRocks) {
+        window.boresAndRocks.push(new BoreObject(bore));
+    }
+}
+function drawSavedVaults() {
+    for (const vault of vaults) {
+        window.vaults.push(new VaultObject(vault));
+    }
+}
 /**
  * when sending an object through express router -> pug -> page js
  * you need to do it through JSON.stringify() cause only strings go through
@@ -840,4 +922,6 @@ function validateVaultInput() {
     }
     return true;
 }
+drawSavedBoresAndRocks();
+drawSavedVaults();
 initialization();
