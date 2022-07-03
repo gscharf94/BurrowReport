@@ -46,6 +46,11 @@ const VAULTICONTRANS = {
     1: ICONS.dt30,
     2: ICONS.dt36,
 };
+const VAULTNAMETRANS = {
+    0: "DT20",
+    1: "DT30",
+    2: "DT36",
+};
 // need to ignore typescript here cause it doesn't understand
 // that i'm getting fed this info from the html 
 //@ts-ignore
@@ -125,6 +130,22 @@ class VaultObject {
     }
     drawMarker() {
         this.marker = new MapMarker(this.coordinate, false, VAULTICONTRANS[this.vault_size]);
+        this.bindPopup();
+    }
+    bindPopup() {
+        this.marker.mapObject.bindPopup(this.generatePopupHTML());
+    }
+    generatePopupHTML() {
+        let html = `
+    <div class="infoPopup">
+      <h3 class="popupCrewName">${this.crew_name}</h3>
+      <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
+      <h3 class="popupFootage">${VAULTNAMETRANS[this.vault_size]}</h3>
+      <a class="popupEdit" onclick="alert('edit')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupDelete" onclick="alert('delete')" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
+    </div>
+    `;
+        return html;
     }
 }
 class MapObject {
