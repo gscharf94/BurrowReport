@@ -37,11 +37,26 @@ export function deleteObject(tableName : 'vaults' | 'bores' | 'rocks', id : numb
   })
 }
 
-export function updateBore() {
-  console.log('update bore function');
+export function updateBore(boreInfo : UploadBoreObject) : void {
+  let query = `
+    UPDATE ${(boreInfo.rock) ? 'rocks' : 'bores'}
+    SET
+      coordinates='${formatCoordsToPsql(boreInfo.coordinates)}',
+      footage=${boreInfo.footage},
+      work_date='${formatDateToPsql(new Date(boreInfo.work_date))}'
+    WHERE
+      id=${boreInfo.id};
+  `
+  pool.query(query, (err, resp) => {
+    if (err) {
+      console.log(`error editing bore id: ${boreInfo.id}`)
+    } else {
+      console.log(`we did it`)
+    }
+  });
 }
 
-export function updateVault() {
+export function updateVault(vaultInfo : UploadVaultObject) : void {
   console.log('update vault function');
 }
 

@@ -135,13 +135,36 @@ class BoreObject {
         let cancelButton = document.getElementById('cancel');
         let submitButton = document.getElementById('submit');
         const submitOneTime = () => {
-            console.log('start submit one time from edit');
+            if (this.line.points.length < 2) {
+                alert('ERROR\n\nPlease finish drawing the line.');
+                return;
+            }
+            if (validateBoreInput() === false) {
+                return;
+            }
+            this.coordinates = this.line.points;
+            this.tmp_coordinates = [];
+            this.footage = getFootageValue();
+            this.work_date = getDateValue();
+            let postObject = {
+                coordinates: this.coordinates,
+                footage: this.footage,
+                rock: this.rock,
+                work_date: this.work_date,
+                crew_name: CREWNAME,
+                job_name: JOBNAME,
+                page_number: PAGENUMBER,
+                object_type: "bore",
+                id: this.id,
+            };
             const cb = (res) => {
                 alert(res);
             };
-            sendPostRequest('editData', { test: 'hello' }, cb);
+            sendPostRequest('editData', postObject, cb);
             this.line.removeLineMarkers();
             this.line.removeTransparentLineMarkers();
+            this.bindPopup();
+            initialization();
             map.off('click');
             cancelButton.removeEventListener('click', cancelOneTime);
             submitButton.removeEventListener('click', submitOneTime);
@@ -155,6 +178,7 @@ class BoreObject {
             this.line.removeLineMarkers();
             this.line.hideObject();
             this.line.createSelfNoMarkers();
+            this.bindPopup();
             initialization();
             map.off('click');
             cancelButton.removeEventListener('click', cancelOneTime);

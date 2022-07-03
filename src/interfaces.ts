@@ -10,6 +10,7 @@ export interface UploadObject {
   work_date : Date,
   crew_name : string,
   object_type : UploadObjects,
+  id ?: number,
 }
 
 export interface UploadBoreObject extends UploadObject {
