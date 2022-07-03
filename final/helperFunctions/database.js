@@ -49,16 +49,26 @@ function updateBore(boreInfo) {
   `;
     db_js_1.pool.query(query, (err, resp) => {
         if (err) {
-            console.log(`error editing bore id: ${boreInfo.id}`);
-        }
-        else {
-            console.log(`we did it`);
+            console.log(`error editing ${(boreInfo.rock) ? 'rock' : 'bore'} id: ${boreInfo.id}`);
         }
     });
 }
 exports.updateBore = updateBore;
 function updateVault(vaultInfo) {
-    console.log('update vault function');
+    let query = `
+    UPDATE vaults
+    SET
+      coordinate='{${vaultInfo.coordinate[0]}, ${vaultInfo.coordinate[1]}}',
+      vault_size=${vaultInfo.size},
+      work_date='${formatDateToPsql(new Date(vaultInfo.work_date))}'
+    WHERE
+      id=${vaultInfo.id};
+  `;
+    db_js_1.pool.query(query, (err, resp) => {
+        if (err) {
+            console.log(`error editing vault id: ${vaultInfo.id}`);
+        }
+    });
 }
 exports.updateVault = updateVault;
 /**

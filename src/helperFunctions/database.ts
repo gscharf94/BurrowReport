@@ -49,15 +49,26 @@ export function updateBore(boreInfo : UploadBoreObject) : void {
   `
   pool.query(query, (err, resp) => {
     if (err) {
-      console.log(`error editing bore id: ${boreInfo.id}`)
-    } else {
-      console.log(`we did it`)
+      console.log(`error editing ${(boreInfo.rock) ? 'rock' : 'bore'} id: ${boreInfo.id}`)
     }
   });
 }
 
 export function updateVault(vaultInfo : UploadVaultObject) : void {
-  console.log('update vault function');
+  let query = `
+    UPDATE vaults
+    SET
+      coordinate='{${vaultInfo.coordinate[0]}, ${vaultInfo.coordinate[1]}}',
+      vault_size=${vaultInfo.size},
+      work_date='${formatDateToPsql(new Date(vaultInfo.work_date))}'
+    WHERE
+      id=${vaultInfo.id};
+  `
+  pool.query(query, (err, resp) => {
+    if (err) {
+      console.log(`error editing vault id: ${vaultInfo.id}`)
+    }
+  });
 }
 
 /**

@@ -199,6 +199,7 @@ class VaultObject {
     vault_size;
     coordinate;
     id;
+    tmp_coordinate;
     constructor(vaultInfo) {
         this.job_name = vaultInfo.job_name;
         this.page_number = vaultInfo.page_number;
@@ -228,6 +229,74 @@ class VaultObject {
     </div>
     `;
         return html;
+    }
+    editMarker() {
+        this.tmp_coordinate = [this.coordinate[0], this.coordinate[1]];
+        this.marker.icon = ICONS.question;
+        this.marker.draggable = true;
+        this.marker.hideObject();
+        this.marker.createSelf();
+        let elementsToShow = [
+            'dateLabel', 'dateInput',
+            'vaultLabel', 'vaultSelect',
+            'submit', 'cancel',
+        ];
+        let elementsToHide = [
+            'footageLabel', 'footageInput',
+            'addBore', 'addVault', 'addRock',
+        ];
+        hideAndShowElements(elementsToShow, elementsToHide);
+        let vaultSelect = document.getElementById('vaultSelect');
+        let dateInput = document.getElementById('dateInput');
+        vaultSelect.value = String(this.vault_size);
+        dateInput.value = formatDateToInputElement(this.work_date);
+        let cancelButton = document.getElementById('cancel');
+        let submitButton = document.getElementById('submit');
+        const submitOneTime = () => {
+            if (validateVaultInput() === false) {
+                return;
+            }
+            this.vault_size = getVaultValue();
+            this.work_date = getDateValue();
+            this.coordinate = this.marker.point;
+            this.tmp_coordinate = [-100, -100];
+            let postObject = {
+                coordinate: this.coordinate,
+                job_name: JOBNAME,
+                crew_name: CREWNAME,
+                id: this.id,
+                page_number: PAGENUMBER,
+                work_date: this.work_date,
+                size: this.vault_size,
+                object_type: "vault",
+            };
+            const cb = (res) => {
+                alert(res);
+            };
+            sendPostRequest('editData', postObject, cb);
+            this.marker.draggable = false;
+            this.marker.icon = VAULTICONTRANS[this.vault_size];
+            this.marker.hideObject();
+            this.marker.createSelf();
+            this.bindPopup();
+            initialization();
+            cancelButton.removeEventListener('click', cancelOneTime);
+            submitButton.removeEventListener('click', submitOneTime);
+        };
+        const cancelOneTime = () => {
+            this.coordinate = [this.tmp_coordinate[0], this.tmp_coordinate[1]];
+            this.tmp_coordinate = [-100, -100];
+            this.marker.point = this.coordinate;
+            this.marker.icon = VAULTICONTRANS[this.vault_size];
+            this.marker.hideObject();
+            this.marker.createSelf();
+            this.bindPopup();
+            initialization();
+            cancelButton.removeEventListener('click', cancelOneTime);
+            submitButton.removeEventListener('click', submitOneTime);
+        };
+        submitButton.addEventListener('click', submitOneTime);
+        cancelButton.addEventListener('click', cancelOneTime);
     }
 }
 class MapObject {
@@ -545,6 +614,9 @@ class MapMarker extends MapObject {
         this.mapObject = leaflet_1.default.marker(this.point, {
             draggable: this.draggable,
             icon: this.icon,
+        });
+        this.mapObject.on('drag', (event) => {
+            this.updatePoint(event.target.getLatLng());
         });
         this.showObject();
     }
@@ -1150,7 +1222,7 @@ function deleteObject(table, id) {
  * so that the user can change it. pops up the submit/cancel buttons
  * and when user clicks submit, sends post request to change the data
  *
- * @param {'vault' | 'bore'} object_type - 'vault' | 'bore' -whether it's a bore or vault being changed
+ * @param {'vault' | 'bore'} objectType - 'vault' | 'bore' -whether it's a bore or vault being changed
  * @param {number} id - number - the id of the object
  * @returns {void}
  */
@@ -1159,6 +1231,13 @@ function editObject(objectType, id) {
         for (const bore of window.boresAndRocks) {
             if (id == bore.id) {
                 bore.editLine();
+            }
+        }
+    }
+    else if (objectType == "vault") {
+        for (const vault of window.vaults) {
+            if (id == vault.id) {
+                vault.editMarker();
             }
         }
     }
