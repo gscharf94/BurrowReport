@@ -700,6 +700,35 @@ leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{
     noWrap: true,
 }).addTo(map);
 map.doubleClickZoom.disable();
+setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+}, 251);
+// map.on('map-resize', function() {
+//   setTimeout(() => {
+//     console.log('hm')
+//     map.invalidateSize();
+//   }, 1100);
+// });
+// function getNavCookie2() : "true" | "false" {
+//   let cookies = document.cookie;
+//   let regex = /navBarToggle=(.+)\s*/;
+//   let cookieValResults = cookies.match(regex);
+//   let cookieVal : string = cookieValResults[1];
+//   console.log(`cookie: ${cookieVal}`);
+//   if (cookieVal == "true" || cookieVal == "false") {
+//     return cookieVal;
+//   } else {
+//     return "false";
+//   }
+// }
+// function test() {
+//   console.log('this happens');
+//   if (getNavCookie2() == "false") {
+//     console.log('this too');
+//     map.invalidateSize();
+//   }
+// }
+// test();
 window.map = map;
 function drawSavedBoresAndRocks() {
     for (const bore of boresAndRocks) {

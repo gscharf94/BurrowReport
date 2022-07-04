@@ -31,14 +31,12 @@ function autoHideNavBar() : void {
   if (checkForNavCookie()) {
     let cookieVal = getNavCookie();
     if (cookieVal == "false") {
-      // toggleNavBar();
       let navBar = document.getElementById('navBar');
-      navBar.classList.toggle('hide');
-
       let mainContent = document.getElementById('content');
-      mainContent.classList.toggle('fullScreen');
-
       let toggleButton = document.getElementById('toggleButton');
+
+      navBar.classList.toggle('hide');
+      mainContent.classList.toggle('fullScreen');
       toggleButton.classList.toggle('small');
     }
   }
@@ -64,12 +62,11 @@ function toggleNavBar() : void {
 
 
   let navBar = document.getElementById('navBar');
-  navBar.classList.toggle('hide');
-
   let mainContent = document.getElementById('content');
-  mainContent.classList.toggle('fullScreen');
-
   let toggleButton = document.getElementById('toggleButton');
+
+  navBar.classList.toggle('hide');
+  mainContent.classList.toggle('fullScreen');
   toggleButton.classList.toggle('small');
 }
 

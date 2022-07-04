@@ -744,6 +744,12 @@ L.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg',
 }).addTo(map);
 map.doubleClickZoom.disable();
 
+// this redraws the leaflet map after the navbar transition
+// if navbar isn't hidden then it does nothing
+setTimeout(() => {
+  window.dispatchEvent(new Event('resize'));
+}, 251);
+
 window.map = map;
 
 function drawSavedBoresAndRocks() : void {
