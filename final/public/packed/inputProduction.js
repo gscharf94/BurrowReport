@@ -104,7 +104,7 @@ const VAULTNAMETRANS = {
 //@ts-ignore
 const JOBNAME = jobNamePug;
 //@ts-ignore
-const PAGENUMBER = pageNumberPug;
+const PAGENUMBER = Number(pageNumberPug);
 //@ts-ignore
 const TOTALPAGES = parseJSON(totalPagesForJobPug);
 //@ts-ignore
@@ -1329,12 +1329,18 @@ function toggleMovementLinks() {
     let backwardLink = document.getElementById('backward');
     if (forward) {
         forwardLink.classList.add('movementActive');
+        forwardLink.addEventListener('click', () => {
+            window.location.href = `http://192.168.86.36:3000/inputProduction/${JOBNAME}/${PAGENUMBER + 1}`;
+        });
     }
     else {
         forwardLink.classList.remove('movementActive');
     }
     if (backward) {
         backwardLink.classList.add('movementActive');
+        backwardLink.addEventListener('click', () => {
+            window.location.href = `http://192.168.86.36:3000/inputProduction/${JOBNAME}/${PAGENUMBER - 1}`;
+        });
     }
     else {
         backwardLink.classList.remove('movementActive');

@@ -29,11 +29,11 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-  height: 50vh;
+  height: 60vh;
   width: 20vw;
   position: absolute;
-  background-color: pink;
-  top: 3%;
+  /* background-color: pink; */
+  top: 0%;
   right: 0%;
   z-index: 1999;
   justify-items: center;
@@ -43,6 +43,7 @@
 .movementArrow {
   width: 70px;
   background-color: gray;
+  pointer-events: none;
 }
 
 #backward {
@@ -60,10 +61,16 @@
 #movementHeader {
   grid-row: 1;
   grid-column: 1 /span 4;
+  background-color: var(--color-6);
+  color: var(--color-5);
+  padding: 6px;
+  border-radius: 5px;
 }
 
 .movementActive {
   background-color: green;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 button {

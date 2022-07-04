@@ -81,9 +81,9 @@ const VAULTNAMETRANS = {
 // that i'm getting fed this info from the html 
 
 //@ts-ignore
-const JOBNAME = jobNamePug;
+const JOBNAME : string = jobNamePug;
 //@ts-ignore
-const PAGENUMBER = pageNumberPug;
+const PAGENUMBER : number = Number(pageNumberPug);
 //@ts-ignore
 const TOTALPAGES : { page_number : number }[] = parseJSON(totalPagesForJobPug);
 
@@ -1419,11 +1419,17 @@ function toggleMovementLinks() : void {
   let backwardLink = document.getElementById('backward');
   if (forward) {
     forwardLink.classList.add('movementActive');
+    forwardLink.addEventListener('click', () => {
+      window.location.href = `http://192.168.86.36:3000/inputProduction/${JOBNAME}/${PAGENUMBER + 1}`;
+    });
   } else {
     forwardLink.classList.remove('movementActive');
   }
   if (backward) {
     backwardLink.classList.add('movementActive');
+    backwardLink.addEventListener('click', () => {
+      window.location.href = `http://192.168.86.36:3000/inputProduction/${JOBNAME}/${PAGENUMBER - 1}`;
+    });
   } else {
     backwardLink.classList.remove('movementActive');
   }
