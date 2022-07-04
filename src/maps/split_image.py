@@ -70,4 +70,8 @@ def save_tiles(image, zoom, job_name, page_number):
             tile = image.crop((l, t, r, b))
             tile.save(f'{folder_path}/tiled/{job_name}/{page_number}/{zoom}/{x}/{y}.jpg')
 
-create_tiles('T404W', 2)
+JOB_NAME = "P4882"
+for file in os.listdir(f'{folder_path}/originals/P4882'):
+    create_tiles(JOB_NAME, int(file.split(".")[0]));
+
+# create_tiles('T404W', 2)
