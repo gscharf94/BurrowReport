@@ -7,15 +7,15 @@ block style
 
 block content
   div#map
-  div#controls
-    button(onclick="window.addBoreStart()")#addBore Bore
-    button(onclick="window.addRockStart()")#addRock Rock
-    button(onclick="window.addVaultStart()")#addVault Vault
-    button#cancel Cancel
-    button#submit Submit
-    input(id="dateInput", type="date")
-    input(id="footageInput", type="number")
-    select(id="vaultSelect")
+  div#controls.control
+    button(onclick="window.addBoreStart()")#addBore.controlChild Bore
+    button(onclick="window.addRockStart()")#addRock.controlChild Rock
+    button(onclick="window.addVaultStart()")#addVault.controlChild Vault
+    button#cancel.controlChild Cancel
+    button#submit.controlChild Submit
+    input(id="dateInput", type="date", class="controlChild")
+    input(id="footageInput", type="number", class="controlChild")
+    select(id="vaultSelect", class="controlChild")
       option(value="-1") ---
       option(value="0") DT20
       option(value="1") DT30
@@ -23,9 +23,9 @@ block content
     label(for="dateInput", id="dateLabel") Date
     label(for="footageInput", id="footageLabel") Ftg
     label(for="vaultSelect", id="vaultLabel") Size
-  div#adminControls
-    img(src="/images/icons/forward.svg")#forward.movementArrow
-    img(src="/images/icons/backward.svg")#backward.movementArrow
+  div#adminControls.control
+    img(src="/images/icons/forward.svg")#forward.movementArrow.controlChild
+    img(src="/images/icons/backward.svg")#backward.movementArrow.controlChild
     h1#movementHeader SH#{pageNumber} 
 
 block scripts

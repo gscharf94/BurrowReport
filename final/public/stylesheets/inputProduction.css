@@ -2,6 +2,14 @@
   height: 100%;
 }
 
+.control {
+  pointer-events: none;
+}
+
+.controlChild {
+  pointer-events: auto;
+}
+
 #controls {
   display: grid;
   grid-template-rows: 1fr 1fr 1fr;
