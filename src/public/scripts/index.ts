@@ -77,4 +77,22 @@ function redirectLoggedInUser() {
 }
 
 
+/**
+ * this just makes it so if the user hits enter it triggers the login
+ * function
+ */
+function setOnEnter() {
+  let usernameInput = document.getElementById('usernameInput');
+  let passwordInput = document.getElementById('passwordInput');
+  let eles = [usernameInput, passwordInput];
+  for (const ele of eles) {
+    ele.addEventListener('keypress', (event) => {
+      if (event.key == "Enter") {
+        document.getElementById('submit').click();
+      }
+    })
+  }
+}
+
 redirectLoggedInUser();
+setOnEnter();
