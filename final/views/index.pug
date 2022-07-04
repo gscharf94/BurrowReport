@@ -1,12 +1,13 @@
-extends layout.pug
+link(rel="stylesheet", href="/stylesheets/index.css")
 
-block style
-  link(rel="stylesheet", href="/stylesheets/index.css")
+div#formContainer
+  img(src="/images/logo.svg")#logo
+  input#usernameInput(type="text", name="username")
+  label(for="username")#usernameLabel Username
+  input#passwordInput(type="password", name="password")
+  label#passwordLabel(for="password") Password
+  button#submit(onclick="checkCredentials()") Login
 
-block content
-  h1 Hello World
-  each job in jobs
-    li #{job.job_name}
-
-block scripts
-  script(src="/scripts/index.js")
+script.
+  crewsJSON="#{crews}"
+script(src="/packed/index.js")

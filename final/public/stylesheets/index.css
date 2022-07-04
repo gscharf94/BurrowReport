@@ -1,0 +1,92 @@
+:root {
+  /* dark */
+  --color-1: #5B616A;
+  /* blue */
+  --color-2: #275DAD;
+  /* purple */
+  --color-3: #ABA9C3;
+  /* light blue */
+  --color-4: #CED3DC;
+  /* whiteish */
+  --color-5: #FCF7F8;
+  /* darker */
+  --color-6: #2F3237;
+}
+
+html {
+  font-family: Roboto, sans-serif;
+  background-color: var(--color-6);
+}
+
+#formContainer {
+  width: 65%;
+  display: grid;
+  margin: auto;
+  margin-top: 25vh;
+  background-color: var(--color-2);
+  padding: 50px;
+  border-radius: 10px;
+  border: solid 3px var(--color-3);
+}
+
+label {
+  text-align: right;
+  margin-right: 2vw;
+  font-size: 4ch;
+  font-weight: bold;
+  color: var(--color-5);
+}
+
+input {
+  font-size: 3ch;
+  font-weight: bold;
+  margin-bottom: 2vh;
+}
+
+button {
+  font-size: 3ch;
+  font-weight: bold;
+  background-color: var(--color-6);
+  color: var(--color-5);
+  justify-self: center;
+  width: 40%;
+  border: none;
+  height: 4ch;
+  border-radius: 15px;
+}
+
+#usernameInput {
+  grid-row: 2;
+  grid-column: 2;
+}
+
+#usernameLabel {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+#passwordInput {
+  grid-row: 3;
+  grid-column: 2;
+}
+
+#passwordLabel {
+  grid-row: 3;
+  grid-column: 1;
+}
+
+#submit {
+  grid-row: 4;
+  grid-column: 1 / span 2;
+}
+
+#logo {
+  grid-row: 1;
+  grid-column: 1 / span 2;
+  max-width: 50vw;
+  justify-self: center;
+  margin-bottom: 3vh;
+  background-color: var(--color-5);
+  border-radius: 10px;
+  padding: 25px;
+}

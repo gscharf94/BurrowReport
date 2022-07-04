@@ -5,8 +5,7 @@ export const router = express.Router();
 
 router.get('/', (req, res) => {
   (async () => {
-
-    let jobs = await pool.query('SELECT * FROM jobs');
-    res.render('index', { jobs: jobs.rows });
+    let queryResult = await pool.query('SELECT * FROM crews');
+    res.render('index', { crews: JSON.stringify(queryResult.rows) });
   })();
 });

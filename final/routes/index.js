@@ -9,7 +9,7 @@ const db_js_1 = require("../db.js");
 exports.router = express_1.default.Router();
 exports.router.get('/', (req, res) => {
     (async () => {
-        let jobs = await db_js_1.pool.query('SELECT * FROM jobs');
-        res.render('index', { jobs: jobs.rows });
+        let queryResult = await db_js_1.pool.query('SELECT * FROM crews');
+        res.render('index', { crews: JSON.stringify(queryResult.rows) });
     })();
 });
