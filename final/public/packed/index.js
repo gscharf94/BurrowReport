@@ -7,7 +7,7 @@
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getUserInfo = void 0;
+exports.validUserLoggedIn = exports.getUserInfo = void 0;
 /**
  * gets the information for the current user
  * this doesn't validate to check if there is a valid cookie
@@ -21,6 +21,22 @@ function getUserInfo() {
     return { username: username, admin: Boolean(admin) };
 }
 exports.getUserInfo = getUserInfo;
+/**
+ * just makes sure that there exists two cookies with
+ * the relevant info before trying to get the information
+ *
+ * @returns {boolean} - boolean - true if there exists, false if not
+ */
+function validUserLoggedIn() {
+    let cookie = document.cookie;
+    if (cookie.includes('username') && cookie.includes('admin')) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+exports.validUserLoggedIn = validUserLoggedIn;
 
 
 /***/ })
@@ -60,7 +76,7 @@ var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
 const website_js_1 = __webpack_require__(939);
-console.log((0, website_js_1.getUserInfo)());
+window.checkCredentials = checkCredentials;
 /**
  * just unjumbling the JSON string from the pug file
  *
@@ -72,6 +88,9 @@ function parseJSON(txt) {
 }
 //@ts-ignore
 const crews = parseJSON(crewsJSON);
+/**
+ * this is embarrassing and i dont wanna make a comment
+ */
 function checkCredentials() {
     const usernameInput = document.getElementById('usernameInput');
     const passwordInput = document.getElementById('passwordInput');
@@ -102,12 +121,21 @@ function checkCredentials() {
     if (correctCredentials) {
         document.cookie = `username=${username};path=/`;
         document.cookie = `admin=${admin};path=/`;
+        window.location.replace('http://192.168.86.36:3000/viewJobs');
     }
     else {
         alert('incorrect username or password');
     }
 }
-console.log(crews);
+/**
+ * if a user is logged in redirects to viewJobs
+ */
+function redirectLoggedInUser() {
+    if ((0, website_js_1.validUserLoggedIn)()) {
+        window.location.replace('http://192.168.86.36:3000/viewJobs');
+    }
+}
+redirectLoggedInUser();
 
 })();
 

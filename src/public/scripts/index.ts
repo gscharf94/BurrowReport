@@ -1,3 +1,13 @@
+import { getUserInfo, validUserLoggedIn } from '../../helperFunctions/website.js';
+
+declare global {
+  interface Window {
+    checkCredentials : () => void;
+  }
+}
+
+window.checkCredentials = checkCredentials;
+
 interface Crew {
   crew_name : string,
   password : string,
@@ -17,10 +27,12 @@ function parseJSON(txt : string) : Crew[] {
 //@ts-ignore
 const crews = parseJSON(crewsJSON);
 
+/**
+ * this is embarrassing and i dont wanna make a comment
+ */
 function checkCredentials() {
   const usernameInput = <HTMLInputElement>document.getElementById('usernameInput');
   const passwordInput = <HTMLInputElement>document.getElementById('passwordInput');
-
   const username = usernameInput.value;
   const password = passwordInput.value;
 
@@ -35,10 +47,8 @@ function checkCredentials() {
     alert(errorMessage);
     return;
   }
-
   let correctCredentials = false;
   let admin = false;
-
   for (const crew of crews) {
     if (crew.crew_name == username && crew.password == password) {
       correctCredentials = true;
@@ -48,14 +58,23 @@ function checkCredentials() {
       break;
     }
   }
-
   if (correctCredentials) {
     document.cookie = `username=${username};path=/`;
     document.cookie = `admin=${admin};path=/`;
+    window.location.replace('http://192.168.86.36:3000/viewJobs');
   } else {
     alert('incorrect username or password');
   }
 }
 
+/**
+ * if a user is logged in redirects to viewJobs
+ */
+function redirectLoggedInUser() {
+  if (validUserLoggedIn()) {
+    window.location.replace('http://192.168.86.36:3000/viewJobs');
+  }
+}
 
-console.log(crews);
+
+redirectLoggedInUser();
