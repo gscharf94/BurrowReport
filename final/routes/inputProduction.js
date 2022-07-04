@@ -40,11 +40,18 @@ exports.router.get('/:jobName/:pageNumber', (req, res) => {
             rock.rock = true;
             boresAndRocks.push(rock);
         }
+        let pagesQuery = `
+      SELECT page_number FROM pages
+      WHERE
+        job_name='${jobName}';
+    `;
+        let pagesResult = await db_js_1.pool.query(pagesQuery);
         res.render('inputProduction', {
             jobName: jobName,
             pageNumber: pageNumber,
             vaults: JSON.stringify(vaultsResult.rows),
             boresAndRocks: JSON.stringify(boresAndRocks),
+            totalPagesForJob: JSON.stringify(pagesResult.rows),
         });
     })();
 });

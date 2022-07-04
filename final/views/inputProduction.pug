@@ -11,7 +11,6 @@ block content
     button(onclick="window.addBoreStart()")#addBore Bore
     button(onclick="window.addRockStart()")#addRock Rock
     button(onclick="window.addVaultStart()")#addVault Vault
-    // button(onclick="window.cancelClick()")#cancel Cancel
     button#cancel Cancel
     button#submit Submit
     input(id="dateInput", type="date")
@@ -24,6 +23,10 @@ block content
     label(for="dateInput", id="dateLabel") Date
     label(for="footageInput", id="footageLabel") Ftg
     label(for="vaultSelect", id="vaultLabel") Size
+  div#adminControls
+    img(src="/images/icons/forward.svg")#forward.movementArrow
+    img(src="/images/icons/backward.svg")#backward.movementArrow
+    h1#movementHeader SH#{pageNumber} 
 
 block scripts
   script.
@@ -31,4 +34,6 @@ block scripts
     pageNumberPug="#{pageNumber}"
     vaultsJSON="#{vaults}"
     boresAndRocksJSON="#{boresAndRocks}"
+    totalPagesForJobPug="#{totalPagesForJob}"
+
   script(src="/packed/inputProduction.js", type="text/javascript")

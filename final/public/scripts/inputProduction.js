@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const leaflet_1 = __importDefault(require("leaflet"));
+const website_js_1 = require("../../helperFunctions/website.js");
 const ICONS = {
     lineMarker: leaflet_1.default.icon({
         iconUrl: "/images/icons/lineMarker.png",
@@ -58,10 +59,12 @@ const JOBNAME = jobNamePug;
 //@ts-ignore
 const PAGENUMBER = pageNumberPug;
 //@ts-ignore
+const TOTALPAGES = parseJSON(totalPagesForJobPug);
+//@ts-ignore
 let boresAndRocks = parseJSON(boresAndRocksJSON);
 //@ts-ignore
 let vaults = parseJSON(vaultsJSON);
-const CREWNAME = "test_crew";
+const USERINFO = (0, website_js_1.getUserInfo)();
 class BoreObject {
     line;
     job_name;
@@ -151,7 +154,7 @@ class BoreObject {
                 footage: this.footage,
                 rock: this.rock,
                 work_date: this.work_date,
-                crew_name: CREWNAME,
+                crew_name: USERINFO.username,
                 job_name: JOBNAME,
                 page_number: PAGENUMBER,
                 object_type: "bore",
@@ -262,7 +265,7 @@ class VaultObject {
             let postObject = {
                 coordinate: this.coordinate,
                 job_name: JOBNAME,
-                crew_name: CREWNAME,
+                crew_name: USERINFO.username,
                 id: this.id,
                 page_number: PAGENUMBER,
                 work_date: this.work_date,
@@ -780,7 +783,7 @@ function addBoreStart() {
             footage: getFootageValue(),
             rock: false,
             work_date: getDateValue(),
-            crew_name: CREWNAME,
+            crew_name: USERINFO.username,
             job_name: JOBNAME,
             page_number: PAGENUMBER,
             object_type: "bore",
@@ -792,7 +795,7 @@ function addBoreStart() {
                 page_number: PAGENUMBER,
                 page_id: pageId,
                 work_date: postObject.work_date,
-                crew_name: CREWNAME,
+                crew_name: USERINFO.username,
                 id: boreId,
                 coordinates: line.points,
                 footage: postObject.footage,
@@ -884,7 +887,7 @@ function addRockStart() {
             work_date: getDateValue(),
             job_name: JOBNAME,
             page_number: PAGENUMBER,
-            crew_name: CREWNAME,
+            crew_name: USERINFO.username,
         };
         const requestCallback = (res) => {
             let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
@@ -893,7 +896,7 @@ function addRockStart() {
                 page_number: PAGENUMBER,
                 page_id: pageId,
                 work_date: postObject.work_date,
-                crew_name: CREWNAME,
+                crew_name: USERINFO.username,
                 id: boreId,
                 coordinates: line.points,
                 footage: postObject.footage,
@@ -965,7 +968,7 @@ function addVaultStart() {
                 work_date: getDateValue(),
                 job_name: JOBNAME,
                 page_number: PAGENUMBER,
-                crew_name: CREWNAME,
+                crew_name: USERINFO.username,
                 object_type: "vault",
             };
             const requestCallback = (res) => {
@@ -975,7 +978,7 @@ function addVaultStart() {
                     page_number: PAGENUMBER,
                     page_id: pageId,
                     work_date: postObject.work_date,
-                    crew_name: CREWNAME,
+                    crew_name: USERINFO.username,
                     id: vaultId,
                     coordinate: marker.point,
                     vault_size: postObject.size,
@@ -1255,6 +1258,42 @@ function formatDateToInputElement(date) {
     let day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
 }
+/**
+ * it gets all the pages and determines whether the
+ * forward or backward buttons should be turned on or off
+ *
+ * @returns {[boolean, boolean]} - [boolean, boolean] - [backward, forward]
+ */
+function determineBackAndForward() {
+    let [backward, forward] = [false, false];
+    for (const page of TOTALPAGES) {
+        if (page.page_number > PAGENUMBER) {
+            forward = true;
+        }
+        else if (page.page_number < PAGENUMBER) {
+            backward = true;
+        }
+    }
+    return [backward, forward];
+}
+function toggleMovementLinks() {
+    let [backward, forward] = determineBackAndForward();
+    let forwardLink = document.getElementById('forward');
+    let backwardLink = document.getElementById('backward');
+    if (forward) {
+        forwardLink.classList.add('movementActive');
+    }
+    else {
+        forwardLink.classList.remove('movementActive');
+    }
+    if (backward) {
+        backwardLink.classList.add('movementActive');
+    }
+    else {
+        backwardLink.classList.remove('movementActive');
+    }
+}
 drawSavedBoresAndRocks();
 drawSavedVaults();
+toggleMovementLinks();
 initialization();

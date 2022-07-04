@@ -3,6 +3,7 @@ import {
   Coord, UploadBoreObject, UploadVaultObject,
   DownloadBoreObject, DownloadVaultObject
 } from '../../interfaces';
+import { getUserInfo } from '../../helperFunctions/website.js';
 
 declare global {
   interface Window {
@@ -83,14 +84,15 @@ const VAULTNAMETRANS = {
 const JOBNAME = jobNamePug;
 //@ts-ignore
 const PAGENUMBER = pageNumberPug;
+//@ts-ignore
+const TOTALPAGES : { page_number : number }[] = parseJSON(totalPagesForJobPug);
 
 //@ts-ignore
 let boresAndRocks : DownloadBoreObject[] = parseJSON(boresAndRocksJSON);
 //@ts-ignore
 let vaults : DownloadVaultObject[] = parseJSON(vaultsJSON);
 
-
-const CREWNAME = "test_crew";
+const USERINFO = getUserInfo();
 
 class BoreObject {
   line : MapLine;
@@ -197,7 +199,7 @@ class BoreObject {
         footage: this.footage,
         rock: this.rock,
         work_date: this.work_date,
-        crew_name: CREWNAME,
+        crew_name: USERINFO.username,
         job_name: JOBNAME,
         page_number: PAGENUMBER,
         object_type: "bore",
@@ -325,7 +327,7 @@ class VaultObject {
       let postObject : UploadVaultObject = {
         coordinate: this.coordinate,
         job_name: JOBNAME,
-        crew_name: CREWNAME,
+        crew_name: USERINFO.username,
         id: this.id,
         page_number: PAGENUMBER,
         work_date: this.work_date,
@@ -884,7 +886,7 @@ function addBoreStart() : void {
       footage: getFootageValue(),
       rock: false,
       work_date: getDateValue(),
-      crew_name: CREWNAME,
+      crew_name: USERINFO.username,
       job_name: JOBNAME,
       page_number: PAGENUMBER,
       object_type: "bore",
@@ -896,7 +898,7 @@ function addBoreStart() : void {
         page_number: PAGENUMBER,
         page_id: pageId,
         work_date: postObject.work_date,
-        crew_name: CREWNAME,
+        crew_name: USERINFO.username,
         id: boreId,
         coordinates: line.points,
         footage: postObject.footage,
@@ -993,7 +995,7 @@ function addRockStart() : void {
       work_date: getDateValue(),
       job_name: JOBNAME,
       page_number: PAGENUMBER,
-      crew_name: CREWNAME,
+      crew_name: USERINFO.username,
     }
     const requestCallback = (res : string) => {
       let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])]
@@ -1002,7 +1004,7 @@ function addRockStart() : void {
         page_number: PAGENUMBER,
         page_id: pageId,
         work_date: postObject.work_date,
-        crew_name: CREWNAME,
+        crew_name: USERINFO.username,
         id: boreId,
         coordinates: line.points,
         footage: postObject.footage,
@@ -1082,7 +1084,7 @@ function addVaultStart() : void {
         work_date: getDateValue(),
         job_name: JOBNAME,
         page_number: PAGENUMBER,
-        crew_name: CREWNAME,
+        crew_name: USERINFO.username,
         object_type: "vault",
       }
       const requestCallback = (res : string) => {
@@ -1092,7 +1094,7 @@ function addVaultStart() : void {
           page_number: PAGENUMBER,
           page_id: pageId,
           work_date: postObject.work_date,
-          crew_name: CREWNAME,
+          crew_name: USERINFO.username,
           id: vaultId,
           coordinate: marker.point,
           vault_size: postObject.size,
@@ -1393,6 +1395,42 @@ function formatDateToInputElement(date : Date) : string {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ * it gets all the pages and determines whether the 
+ * forward or backward buttons should be turned on or off
+ *
+ * @returns {[boolean, boolean]} - [boolean, boolean] - [backward, forward]
+ */
+function determineBackAndForward() : [boolean, boolean] {
+  let [backward, forward] = [false, false];
+  for (const page of TOTALPAGES) {
+    if (page.page_number > PAGENUMBER) {
+      forward = true;
+    } else if (page.page_number < PAGENUMBER) {
+      backward = true;
+    }
+  }
+  return [backward, forward];
+}
+
+function toggleMovementLinks() : void {
+  let [backward, forward] = determineBackAndForward();
+  let forwardLink = document.getElementById('forward');
+  let backwardLink = document.getElementById('backward');
+  if (forward) {
+    forwardLink.classList.add('movementActive');
+  } else {
+    forwardLink.classList.remove('movementActive');
+  }
+  if (backward) {
+    backwardLink.classList.add('movementActive');
+  } else {
+    backwardLink.classList.remove('movementActive');
+  }
+}
+
+
 drawSavedBoresAndRocks();
 drawSavedVaults();
+toggleMovementLinks();
 initialization();

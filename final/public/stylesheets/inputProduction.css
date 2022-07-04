@@ -17,6 +17,47 @@
   align-items: center;
 }
 
+#adminControls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  height: 50vh;
+  width: 20vw;
+  position: absolute;
+  background-color: pink;
+  top: 3%;
+  right: 0%;
+  z-index: 1999;
+  justify-items: center;
+  align-items: center;
+}
+
+.movementArrow {
+  width: 70px;
+  background-color: gray;
+}
+
+#backward {
+  grid-column: 1 /span 2;
+  grid-row: 2;
+  margin-left: 15px;
+}
+
+#forward {
+  grid-column: 3 /span 2;
+  grid-row: 2;
+  margin-right: 15px;
+}
+
+#movementHeader {
+  grid-row: 1;
+  grid-column: 1 /span 4;
+}
+
+.movementActive {
+  background-color: green;
+}
+
 button {
   font-size: 3ch;
   font-weight: bold;
