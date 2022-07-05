@@ -1,0 +1,18 @@
+extends layout.pug
+
+block style
+  link(rel="stylesheet", href="/stylesheets/viewTickets.css")
+
+
+block content
+  h1 testing
+  l2 #{jobName}
+  each ticket in tickets
+    h1 #{ticket.ticket_number}
+    h2 #{ticket.city}
+
+
+block scripts
+  script.
+    TICKETS_JSON="#{ticketsJSON}"
+  script(src="/packed/viewTickets.js", type="text/javascript")

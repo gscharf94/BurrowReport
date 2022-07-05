@@ -6,6 +6,7 @@ module.exports = {
     index: __dirname + "/final/public/scripts/index.js",
     viewJobs: __dirname + "/final/public/scripts/viewJobs.js",
     inputProduction: __dirname + "/final/public/scripts/inputProduction.js",
+    viewTickets: __dirname + "/final/public/scripts/viewTickets.js"
   },
   output: {
     path: __dirname + "/final/public/packed/"

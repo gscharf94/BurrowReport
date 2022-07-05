@@ -7,7 +7,7 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.validUserLoggedIn = exports.getUserInfo = void 0;
+exports.parseJSON = exports.validUserLoggedIn = exports.getUserInfo = void 0;
 /**
  * gets the information for the current user
  * this doesn't validate to check if there is a valid cookie
@@ -37,6 +37,18 @@ function validUserLoggedIn() {
     }
 }
 exports.validUserLoggedIn = validUserLoggedIn;
+/**
+ * when sending an object through express -> pug -> page js
+ * you need to do it through JSON.strinfy() cause only strings go through
+ * and then there's this weird artifact that we can fix with this function
+ *
+ * @param {string} txt - the JSON.strinfiy() output that gest ported to the page js
+ * @returns {{}} - the object pased as an object
+ */
+function parseJSON(txt) {
+    return JSON.parse(txt.replace(/&quot;/g, '"'));
+}
+exports.parseJSON = parseJSON;
 
 
 /***/ }),
@@ -700,35 +712,11 @@ leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{
     noWrap: true,
 }).addTo(map);
 map.doubleClickZoom.disable();
+// this redraws the leaflet map after the navbar transition
+// if navbar isn't hidden then it does nothing
 setTimeout(() => {
     window.dispatchEvent(new Event('resize'));
 }, 251);
-// map.on('map-resize', function() {
-//   setTimeout(() => {
-//     console.log('hm')
-//     map.invalidateSize();
-//   }, 1100);
-// });
-// function getNavCookie2() : "true" | "false" {
-//   let cookies = document.cookie;
-//   let regex = /navBarToggle=(.+)\s*/;
-//   let cookieValResults = cookies.match(regex);
-//   let cookieVal : string = cookieValResults[1];
-//   console.log(`cookie: ${cookieVal}`);
-//   if (cookieVal == "true" || cookieVal == "false") {
-//     return cookieVal;
-//   } else {
-//     return "false";
-//   }
-// }
-// function test() {
-//   console.log('this happens');
-//   if (getNavCookie2() == "false") {
-//     console.log('this too');
-//     map.invalidateSize();
-//   }
-// }
-// test();
 window.map = map;
 function drawSavedBoresAndRocks() {
     for (const bore of boresAndRocks) {

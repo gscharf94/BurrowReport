@@ -25,3 +25,15 @@ export function validUserLoggedIn() : boolean {
     return false;
   }
 }
+
+/**
+ * when sending an object through express -> pug -> page js
+ * you need to do it through JSON.strinfy() cause only strings go through
+ * and then there's this weird artifact that we can fix with this function
+ *
+ * @param {string} txt - the JSON.strinfiy() output that gest ported to the page js
+ * @returns {{}} - the object pased as an object
+ */
+export function parseJSON(txt : string) : {} {
+  return JSON.parse(txt.replace(/&quot;/g, '"'));
+}

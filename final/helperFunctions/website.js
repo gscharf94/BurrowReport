@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validUserLoggedIn = exports.getUserInfo = void 0;
+exports.parseJSON = exports.validUserLoggedIn = exports.getUserInfo = void 0;
 /**
  * gets the information for the current user
  * this doesn't validate to check if there is a valid cookie
@@ -30,3 +30,15 @@ function validUserLoggedIn() {
     }
 }
 exports.validUserLoggedIn = validUserLoggedIn;
+/**
+ * when sending an object through express -> pug -> page js
+ * you need to do it through JSON.strinfy() cause only strings go through
+ * and then there's this weird artifact that we can fix with this function
+ *
+ * @param {string} txt - the JSON.strinfiy() output that gest ported to the page js
+ * @returns {{}} - the object pased as an object
+ */
+function parseJSON(txt) {
+    return JSON.parse(txt.replace(/&quot;/g, '"'));
+}
+exports.parseJSON = parseJSON;
