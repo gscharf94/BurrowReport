@@ -10,14 +10,20 @@ block content
       div(id=`${job.job_name}Container`).jobContainer
         p.jobName #{job.job_name}
         p.jobClient #{job.client}
-        a(href="#").addProduction Add Production
-        img(src="/images/icons/plus-square.svg").addProductionIcon
+        a(href=`#`).addProduction Add Production
+        div.addProductionContainer
+          img(src="/images/icons/plus-square.svg", onclick=`togglePageLinks('${job.job_name}')`).addProductionIcon
+          div.dropdownPageLinks
+            a(href="#").pageLink SH2
+            a(href="#").pageLink SH3
+            a(href="#").pageLink SH4
         a(href="#").viewProduction View Production
         img(src="/images/icons/hard-hat-solid.svg").viewProductionIcon
-        a(href="#").viewTickets View Tickets
+        a(href=`/viewTickets/${job.job_name}`).viewTickets View Tickets
         img(src="/images/icons/ticket.png").viewTicketsIcon
         a(href="#").downloadPrints Download Print
         img(src="/images/icons/download.png").downloadPrintsIcon
+
 
 block scripts
   script(src="/packed/viewJobs.js")
