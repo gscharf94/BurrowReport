@@ -9,7 +9,20 @@ const db_js_1 = require("../db.js");
 exports.router = express_1.default.Router();
 exports.router.get('/', (req, res) => {
     (async () => {
-        let jobs = await db_js_1.pool.query('SELECT * FROM jobs');
-        res.render('viewJobs', { jobs: jobs.rows });
+        let jobsResults = await db_js_1.pool.query('SELECT * FROM jobs');
+        let pagesResults = await db_js_1.pool.query('SELECT * FROM pages');
+        let jobs = jobsResults.rows;
+        let pages = pagesResults.rows;
+        for (const job of jobs) {
+            let jobPages = [];
+            for (const page of pages) {
+                if (page.job_name == job.job_name) {
+                    jobPages.push(page.page_number);
+                }
+            }
+            jobPages.sort();
+            job.pages = jobPages;
+        }
+        res.render('viewJobs', { jobs: jobs });
     })();
 });

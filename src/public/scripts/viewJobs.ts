@@ -1,5 +1,9 @@
-interface window {
-  togglePageLinks : (jobName : string) => void;
+import { parseJSON } from '../../helperFunctions/website.js';
+
+declare global {
+  interface Window {
+    togglePageLinks : (jobName : string) => void;
+  }
 }
 
 window.togglePageLinks = togglePageLinks;

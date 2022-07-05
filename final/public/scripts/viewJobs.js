@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 window.togglePageLinks = togglePageLinks;
 function togglePageLinks(jobName) {
     let jobContainer = document.getElementById(`${jobName}Container`);
