@@ -42,24 +42,32 @@ const ICONS = {
         iconAnchor: [6, 6],
     }),
 };
-const VAULTICONTRANS = {
+const VAULT_ICON_TRANS = {
     0: ICONS.dt20,
     1: ICONS.dt30,
     2: ICONS.dt36,
 };
-const VAULTNAMETRANS = {
+const VAULT_NAME_TRANS = {
     0: "DT20",
     1: "DT30",
     2: "DT36",
 };
+const LINE_ZOOM_LEVELS = {
+    2: 6,
+    3: 7,
+    4: 8,
+    5: 9,
+    6: 10,
+    7: 11,
+};
 // need to ignore typescript here cause it doesn't understand
 // that i'm getting fed this info from the html 
 //@ts-ignore
-const JOBNAME = jobNamePug;
+const JOB_NAME = jobNamePug;
 //@ts-ignore
-const PAGENUMBER = Number(pageNumberPug);
+const PAGE_NUMBER = Number(pageNumberPug);
 //@ts-ignore
-const TOTALPAGES = parseJSON(totalPagesForJobPug);
+const TOTAL_PAGES = parseJSON(totalPagesForJobPug);
 //@ts-ignore
 let boresAndRocks = parseJSON(boresAndRocksJSON);
 //@ts-ignore
@@ -96,6 +104,12 @@ class BoreObject {
         else {
             this.line = new MapLine(this.coordinates, {}, false);
         }
+        this.bindPopup();
+    }
+    changeWeightOnZoom(zoomLevel) {
+        this.line.weight = LINE_ZOOM_LEVELS[zoomLevel];
+        this.line.hideObject();
+        (this.line.editable) ? this.line.createSelf() : this.line.createSelfNoMarkers();
         this.bindPopup();
     }
     generatePopupHTML() {
@@ -155,8 +169,8 @@ class BoreObject {
                 rock: this.rock,
                 work_date: this.work_date,
                 crew_name: USERINFO.username,
-                job_name: JOBNAME,
-                page_number: PAGENUMBER,
+                job_name: JOB_NAME,
+                page_number: PAGE_NUMBER,
                 object_type: "bore",
                 id: this.id,
             };
@@ -214,7 +228,7 @@ class VaultObject {
         this.drawMarker();
     }
     drawMarker() {
-        this.marker = new MapMarker(this.coordinate, false, VAULTICONTRANS[this.vault_size]);
+        this.marker = new MapMarker(this.coordinate, false, VAULT_ICON_TRANS[this.vault_size]);
         this.bindPopup();
     }
     bindPopup() {
@@ -225,7 +239,7 @@ class VaultObject {
     <div class="infoPopup">
       <h3 class="popupCrewName">${this.crew_name}</h3>
       <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
-      <h3 class="popupFootage">${VAULTNAMETRANS[this.vault_size]}</h3>
+      <h3 class="popupFootage">${VAULT_NAME_TRANS[this.vault_size]}</h3>
       <a class="popupEdit" onclick="editObject('vault', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
       <a class="popupDelete" onclick="deleteObject('vaults', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
     </div>
@@ -264,10 +278,10 @@ class VaultObject {
             this.tmp_coordinate = [-100, -100];
             let postObject = {
                 coordinate: this.coordinate,
-                job_name: JOBNAME,
+                job_name: JOB_NAME,
                 crew_name: USERINFO.username,
                 id: this.id,
-                page_number: PAGENUMBER,
+                page_number: PAGE_NUMBER,
                 work_date: this.work_date,
                 size: this.vault_size,
                 object_type: "vault",
@@ -278,7 +292,7 @@ class VaultObject {
             };
             sendPostRequest('editData', postObject, cb);
             this.marker.draggable = false;
-            this.marker.icon = VAULTICONTRANS[this.vault_size];
+            this.marker.icon = VAULT_ICON_TRANS[this.vault_size];
             this.marker.hideObject();
             this.marker.createSelf();
             this.bindPopup();
@@ -290,7 +304,7 @@ class VaultObject {
             this.coordinate = [this.tmp_coordinate[0], this.tmp_coordinate[1]];
             this.tmp_coordinate = [-100, -100];
             this.marker.point = this.coordinate;
-            this.marker.icon = VAULTICONTRANS[this.vault_size];
+            this.marker.icon = VAULT_ICON_TRANS[this.vault_size];
             this.marker.hideObject();
             this.marker.createSelf();
             this.bindPopup();
@@ -643,13 +657,13 @@ window.boresAndRocks = [];
 window.vaults = [];
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 3);
 leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
-    attribution: `${JOBNAME} - PAGE# ${PAGENUMBER}`,
+    attribution: `${JOB_NAME} - PAGE# ${PAGE_NUMBER}`,
     minZoom: 2,
     maxZoom: 7,
     tileSize: 512,
     //@ts-ignore
-    job: JOBNAME,
-    page: PAGENUMBER,
+    job: JOB_NAME,
+    page: PAGE_NUMBER,
     noWrap: true,
 }).addTo(map);
 map.doubleClickZoom.disable();
@@ -759,6 +773,12 @@ function addBoreStart() {
         let latlng = event.latlng;
         line.addPoint([latlng.lat, latlng.lng]);
     });
+    map.on('zoomend', (event) => {
+        let newZoom = map.getZoom();
+        line.weight = LINE_ZOOM_LEVELS[newZoom];
+        line.hideObject();
+        line.createSelf();
+    });
     let cancelButton = document.getElementById('cancel');
     const cancelOneTime = () => {
         line.clearSelf();
@@ -802,15 +822,15 @@ function addBoreStart() {
             rock: false,
             work_date: getDateValue(),
             crew_name: USERINFO.username,
-            job_name: JOBNAME,
-            page_number: PAGENUMBER,
+            job_name: JOB_NAME,
+            page_number: PAGE_NUMBER,
             object_type: "bore",
         };
         const requestCallback = (res) => {
             let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
             let newBoreObject = new BoreObject({
-                job_name: JOBNAME,
-                page_number: PAGENUMBER,
+                job_name: JOB_NAME,
+                page_number: PAGE_NUMBER,
                 page_id: pageId,
                 work_date: postObject.work_date,
                 crew_name: USERINFO.username,
@@ -903,15 +923,15 @@ function addRockStart() {
             footage: getFootageValue(),
             rock: true,
             work_date: getDateValue(),
-            job_name: JOBNAME,
-            page_number: PAGENUMBER,
+            job_name: JOB_NAME,
+            page_number: PAGE_NUMBER,
             crew_name: USERINFO.username,
         };
         const requestCallback = (res) => {
             let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
             let newBoreObject = new BoreObject({
-                job_name: JOBNAME,
-                page_number: PAGENUMBER,
+                job_name: JOB_NAME,
+                page_number: PAGE_NUMBER,
                 page_id: pageId,
                 work_date: postObject.work_date,
                 crew_name: USERINFO.username,
@@ -984,16 +1004,16 @@ function addVaultStart() {
                 size: size,
                 coordinate: marker.point,
                 work_date: getDateValue(),
-                job_name: JOBNAME,
-                page_number: PAGENUMBER,
+                job_name: JOB_NAME,
+                page_number: PAGE_NUMBER,
                 crew_name: USERINFO.username,
                 object_type: "vault",
             };
             const requestCallback = (res) => {
                 let [vaultId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
                 let newVaultObject = new VaultObject({
-                    job_name: JOBNAME,
-                    page_number: PAGENUMBER,
+                    job_name: JOB_NAME,
+                    page_number: PAGE_NUMBER,
                     page_id: pageId,
                     work_date: postObject.work_date,
                     crew_name: USERINFO.username,
@@ -1284,11 +1304,11 @@ function formatDateToInputElement(date) {
  */
 function determineBackAndForward() {
     let [backward, forward] = [false, false];
-    for (const page of TOTALPAGES) {
-        if (page.page_number > PAGENUMBER) {
+    for (const page of TOTAL_PAGES) {
+        if (page.page_number > PAGE_NUMBER) {
             forward = true;
         }
-        else if (page.page_number < PAGENUMBER) {
+        else if (page.page_number < PAGE_NUMBER) {
             backward = true;
         }
     }
@@ -1301,7 +1321,7 @@ function toggleMovementLinks() {
     if (forward) {
         forwardLink.classList.add('movementActive');
         forwardLink.addEventListener('click', () => {
-            window.location.href = `http://192.168.86.36:3000/inputProduction/${JOBNAME}/${PAGENUMBER + 1}`;
+            window.location.href = `http://192.168.86.36:3000/inputProduction/${JOB_NAME}/${PAGE_NUMBER + 1}`;
         });
     }
     else {
@@ -1310,13 +1330,22 @@ function toggleMovementLinks() {
     if (backward) {
         backwardLink.classList.add('movementActive');
         backwardLink.addEventListener('click', () => {
-            window.location.href = `http://192.168.86.36:3000/inputProduction/${JOBNAME}/${PAGENUMBER - 1}`;
+            window.location.href = `http://192.168.86.36:3000/inputProduction/${JOB_NAME}/${PAGE_NUMBER - 1}`;
         });
     }
     else {
         backwardLink.classList.remove('movementActive');
     }
 }
+function addZoomHandlers() {
+    map.on('zoomend', (event) => {
+        let newZoom = map.getZoom();
+        for (const bore of window.boresAndRocks) {
+            bore.changeWeightOnZoom(newZoom);
+        }
+    });
+}
+addZoomHandlers();
 drawSavedBoresAndRocks();
 drawSavedVaults();
 toggleMovementLinks();
