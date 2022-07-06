@@ -713,17 +713,16 @@ leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{
 }).addTo(map);
 map.doubleClickZoom.disable();
 centerMap();
+/**
+ * centers the map somewhere close to the nw point
+ * which will usually be a half-decent place to center
+ * because of the way we draw the tiles
+ *
+ * @returns {void}
+ */
 function centerMap() {
     let bounds = map.getBounds();
     let nw = bounds.getNorthWest();
-    let ne = bounds.getNorthEast();
-    let sw = bounds.getSouthWest();
-    let se = bounds.getSouthEast();
-    let center = {
-        lat: (nw.lat + ne.lat + sw.lat + se.lat) / 4,
-        lng: (nw.lng + ne.lng + sw.lng + se.lng) / 4,
-    };
-    // map.setView([center.lat, center.lng], 3);
     map.setView([nw.lat * .85, nw.lng * .85], 3);
 }
 // this redraws the leaflet map after the navbar transition

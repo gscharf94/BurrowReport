@@ -18,7 +18,9 @@ router.get('/', (req, res) => {
           jobPages.push(page.page_number);
         }
       }
-      jobPages.sort();
+      jobPages.sort((a, b) => {
+        return a - b;
+      });
       job.pages = jobPages;
     }
     res.render('viewJobs', { jobs: jobs });
