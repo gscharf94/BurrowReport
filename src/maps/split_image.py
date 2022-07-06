@@ -6,8 +6,14 @@ TILE_SIZE = 512
 folder_path = f'{os.getcwd()}/final/public/maps'
 
 def create_tiles(job_name, page_number):
-    image_path = f'{folder_path}/originals/{job_name}/{page_number}.jpg'
-    im = Image.open(image_path)
+    try: 
+        image_path = f'{folder_path}/originals/{job_name}/{page_number}.jpg'
+        im = Image.open(image_path)
+    except:
+        image_path = f'{folder_path}/originals/{job_name}/{page_number}.png'
+        im = Image.open(image_path)
+        im = im.convert('RGB')
+
     w, h = im.size
 
     save_tiles(im, 5, job_name, page_number)
@@ -73,14 +79,14 @@ def save_tiles(image, zoom, job_name, page_number):
 #     create_tiles(JOB_NAME, int(file.split(".")[0]));
 
 JOBS = [
-    "T404W",
-    "P4882",
-    "P4819",
-    "P4811",
-    "P4772",
-    "P4765",
-    "P4761",
-    "P4746",
+    # "T404W",
+    # "P4882",
+    # "P4819",
+    # "P4811",
+    # "P4772",
+    # "P4765",
+    # "P4761",
+    # "P4746",
     "MMP-10151953",
 ]
 
