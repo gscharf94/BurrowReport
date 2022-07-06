@@ -26,7 +26,6 @@ interface LineOptions {
   editable ?: boolean,
 }
 
-
 const ICONS = {
   lineMarker: L.icon({
     iconUrl: "/images/icons/lineMarker.png",

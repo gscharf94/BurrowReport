@@ -57,8 +57,6 @@ def save_tiles(image, zoom, job_name, page_number):
     h_splits = int(math.ceil(image.size[0]/TILE_SIZE))
     v_splits = int(math.ceil(image.size[1]/TILE_SIZE))
 
-    print(f'h: {h_splits} v: {v_splits}')
-
     create_folders(job_name, h_splits, zoom, page_number)
 
     for y in range(v_splits):
@@ -70,8 +68,24 @@ def save_tiles(image, zoom, job_name, page_number):
             tile = image.crop((l, t, r, b))
             tile.save(f'{folder_path}/tiled/{job_name}/{page_number}/{zoom}/{x}/{y}.jpg')
 
-JOB_NAME = "P4882"
-for file in os.listdir(f'{folder_path}/originals/P4882'):
-    create_tiles(JOB_NAME, int(file.split(".")[0]));
+# JOB_NAME = "P4882"
+# for file in os.listdir(f'{folder_path}/originals/P4882'):
+#     create_tiles(JOB_NAME, int(file.split(".")[0]));
 
-# create_tiles('T404W', 2)
+JOBS = [
+    "T404W",
+    "P4882",
+    "P4819",
+    "P4811",
+    "P4772",
+    "P4765",
+    "P4761",
+    "P4746",
+    "MMP-10151953",
+]
+
+for job in JOBS:
+    print(f'job: {job}')
+    for file in os.listdir(f'{folder_path}/originals/{job}'):
+        print(f'page: {file.split(".")[0]}')
+        create_tiles(job, int(file.split(".")[0]))
