@@ -878,7 +878,7 @@ function addBoreStart() : void {
     let latlng = event.latlng;
     line.addPoint([latlng.lat, latlng.lng]);
   });
-  map.on('zoomend', (event) => {
+  map.on('zoomend', () => {
     let newZoom = map.getZoom();
     line.weight = LINE_ZOOM_LEVELS[newZoom];
     line.hideObject();
@@ -1479,7 +1479,7 @@ function toggleMovementLinks() : void {
 
 
 function addZoomHandlers() {
-  map.on('zoomend', (event) => {
+  map.on('zoomend', () => {
     let newZoom = map.getZoom();
     for (const bore of window.boresAndRocks) {
       bore.changeWeightOnZoom(newZoom);
