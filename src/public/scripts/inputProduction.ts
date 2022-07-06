@@ -821,6 +821,7 @@ window.editObject = editObject;
 window.boresAndRocks = [];
 window.vaults = [];
 
+let renderer = L.canvas({ tolerance: 20 });
 let map = L.map('map').setView([58.8, -4.08], 3);
 L.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
   attribution: `${JOB_NAME} - PAGE# ${PAGE_NUMBER}`,
@@ -835,7 +836,6 @@ L.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg',
 map.doubleClickZoom.disable();
 centerMap();
 
-let renderer = L.canvas({ padding: 0.5, tolerance: 20 });
 
 /**
  * centers the map somewhere close to the nw point

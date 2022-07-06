@@ -715,6 +715,7 @@ window.deleteObject = deleteObject;
 window.editObject = editObject;
 window.boresAndRocks = [];
 window.vaults = [];
+let renderer = leaflet_1.default.canvas({ tolerance: 20 });
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 3);
 leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
     attribution: `${JOB_NAME} - PAGE# ${PAGE_NUMBER}`,
@@ -728,7 +729,6 @@ leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{
 }).addTo(map);
 map.doubleClickZoom.disable();
 centerMap();
-let renderer = leaflet_1.default.canvas({ padding: 0.5, tolerance: 20 });
 /**
  * centers the map somewhere close to the nw point
  * which will usually be a half-decent place to center
