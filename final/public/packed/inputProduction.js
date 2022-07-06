@@ -209,7 +209,7 @@ class BoreObject {
       <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
       <h3 class="popupFootage">${this.footage}ft</h3>
       <h3 class="popupRock">${(this.rock) ? "ROCK" : ""}</h3>
-      <a class="popupEdit" onclick="editObject('bore', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupEdit" onclick="editObject('bore', ${this.id}, ${this.rock})" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
       <a class="popupDelete" onclick="deleteObject('${(this.rock) ? 'rocks' : 'bores'}', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
     </div>
     `;
@@ -219,6 +219,8 @@ class BoreObject {
         this.line.mapObject.bindPopup(this.generatePopupHTML());
     }
     editLine() {
+        console.log(`this happens...`);
+        console.log(this);
         this.tmp_coordinates = [...this.coordinates];
         this.line.addLineMarkers();
         this.line.addTransparentLineMarkers();
@@ -1379,10 +1381,10 @@ function deleteObject(table, id) {
  * @param {number} id - number - the id of the object
  * @returns {void}
  */
-function editObject(objectType, id) {
+function editObject(objectType, id, rock) {
     if (objectType == "bore") {
         for (const bore of window.boresAndRocks) {
-            if (id == bore.id) {
+            if (id == bore.id && bore.rock == rock) {
                 bore.editLine();
             }
         }

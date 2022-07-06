@@ -197,7 +197,7 @@ class BoreObject {
       <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
       <h3 class="popupFootage">${this.footage}ft</h3>
       <h3 class="popupRock">${(this.rock) ? "ROCK" : ""}</h3>
-      <a class="popupEdit" onclick="editObject('bore', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupEdit" onclick="editObject('bore', ${this.id}, ${this.rock})" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
       <a class="popupDelete" onclick="deleteObject('${(this.rock) ? 'rocks' : 'bores'}', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
     </div>
     `
@@ -1168,7 +1168,6 @@ function addVaultStart() : void {
     const zoomHandler = () => {
       let zoomLevel = map.getZoom();
       marker.changeSizeOnZoom(zoomLevel, QUESTION_ZOOM_LEVELS);
-      console.log(`changing question mark zoom`);
     }
 
     map.on('zoomend', zoomHandler);
@@ -1477,11 +1476,11 @@ function deleteObject(table : 'vaults' | 'bores' | 'rocks', id : number) : void 
  * @param {number} id - number - the id of the object
  * @returns {void}
  */
-function editObject(objectType : 'vault' | 'bore', id : number) : void {
+function editObject(objectType : 'vault' | 'bore', id : number, rock : boolean) : void {
 
   if (objectType == "bore") {
     for (const bore of window.boresAndRocks) {
-      if (id == bore.id) {
+      if (id == bore.id && bore.rock == rock) {
         bore.editLine();
       }
     }
