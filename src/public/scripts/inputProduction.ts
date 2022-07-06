@@ -12,7 +12,7 @@ declare global {
     addVaultStart : () => void,
     cancelClick : () => void,
     deleteObject : (table : 'vaults' | 'bores' | 'rocks', id : number) => void,
-    editObject : (objectType : 'vault' | 'bore', id : number) => void;
+    editObject : (objectType : 'vault' | 'bore', id : number, rock : boolean) => void;
     boresAndRocks : BoreObject[],
     vaults : VaultObject[],
     map : L.Map;
@@ -525,7 +525,7 @@ class MapLine extends MapObject {
     if (this.points.length < 2) {
       return;
     }
-    this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed });
+    this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: renderer });
     this.addTransparentLineMarkers();
     if (updateLineMarkers) {
       this.addLineMarkers();
@@ -538,7 +538,7 @@ class MapLine extends MapObject {
    * later when it's being edited the markers can show back up
    */
   createSelfNoMarkers() {
-    this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed })
+    this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: renderer })
     this.showObject();
   }
 
@@ -813,6 +813,8 @@ L.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg',
 }).addTo(map);
 map.doubleClickZoom.disable();
 centerMap();
+
+let renderer = L.canvas({ padding: 0.5, tolerance: 20 });
 
 /**
  * centers the map somewhere close to the nw point

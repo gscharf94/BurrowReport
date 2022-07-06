@@ -437,7 +437,7 @@ class MapLine extends MapObject {
         if (this.points.length < 2) {
             return;
         }
-        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed });
+        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: renderer });
         this.addTransparentLineMarkers();
         if (updateLineMarkers) {
             this.addLineMarkers();
@@ -449,7 +449,7 @@ class MapLine extends MapObject {
      * later when it's being edited the markers can show back up
      */
     createSelfNoMarkers() {
-        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed });
+        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: renderer });
         this.showObject();
     }
     /**
@@ -708,6 +708,7 @@ leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{
 }).addTo(map);
 map.doubleClickZoom.disable();
 centerMap();
+let renderer = leaflet_1.default.canvas({ padding: 0.5, tolerance: 20 });
 /**
  * centers the map somewhere close to the nw point
  * which will usually be a half-decent place to center
