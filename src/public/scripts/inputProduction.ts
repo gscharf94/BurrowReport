@@ -730,7 +730,7 @@ window.editObject = editObject;
 window.boresAndRocks = [];
 window.vaults = [];
 
-let map = L.map('map').setView([58.8, -4.08], 4);
+let map = L.map('map').setView([58.8, -4.08], 3);
 L.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
   attribution: `${JOBNAME} - PAGE# ${PAGENUMBER}`,
   minZoom: 2,
@@ -742,6 +742,21 @@ L.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg',
   noWrap: true,
 }).addTo(map);
 map.doubleClickZoom.disable();
+centerMap();
+
+/**
+ * centers the map somewhere close to the nw point
+ * which will usually be a half-decent place to center
+ * because of the way we draw the tiles
+ *
+ * @returns {void}
+ */
+function centerMap() : void {
+  let bounds = map.getBounds();
+  let nw = bounds.getNorthWest();
+  map.setView([nw.lat * .85, nw.lng * .85], 3);
+}
+
 
 // this redraws the leaflet map after the navbar transition
 // if navbar isn't hidden then it does nothing
