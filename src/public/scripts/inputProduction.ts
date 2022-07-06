@@ -200,12 +200,22 @@ class BoreObject {
       <a class="popupEdit" onclick="editObject('bore', ${this.id}, ${this.rock})" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
       <a class="popupDelete" onclick="deleteObject('${(this.rock) ? 'rocks' : 'bores'}', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
     </div>
-    `
+    `;
     return html;
   }
 
   bindPopup() {
-    this.line.mapObject.bindPopup(this.generatePopupHTML());
+    let popup = L.popup({
+      className: 'leafletPopupContainer',
+      autoPan: false,
+      closeButton: true,
+    });
+    popup.setContent(this.generatePopupHTML());
+    this.line.mapObject.on('click', (event) => {
+      popup.setLatLng(event.latlng);
+      map.addLayer(popup);
+    });
+    // this.line.mapObject.bindPopup(this.generatePopupHTML());
   }
 
   editLine() {
@@ -332,7 +342,18 @@ class VaultObject {
   }
 
   bindPopup() {
-    this.marker.mapObject.bindPopup(this.generatePopupHTML());
+    let popup = L.popup({
+      className: "leafletPopupContainer",
+      autoPan: false,
+      closeButton: true,
+    });
+    popup.setContent(this.generatePopupHTML());
+    this.marker.mapObject.on('click', (event) => {
+      popup.setLatLng(event.latlng);
+      map.addLayer(popup);
+    });
+
+    // this.marker.mapObject.bindPopup(this.generatePopupHTML());
   }
 
   generatePopupHTML() {

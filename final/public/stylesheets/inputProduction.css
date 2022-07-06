@@ -187,8 +187,9 @@ label {
 
 .infoPopup {
   display: grid;
-  width: 150px;
   align-items: center;
+  width: 100%;
+  height: 90%;
 }
 
 .popupCrewName {
@@ -239,6 +240,25 @@ label {
 }
 
 .popupImage {
-  width: 30%;
+  width: 50px;
   align-self: center;
+  vertical-align: middle;
+}
+
+.infoPopup h3 {
+  font-size: 3ch;
+}
+
+.infoPopup a {
+  font-size: 3ch;
+}
+
+.leafletPopupContainer {
+  width: 300px;
+  height: fit-content;
+}
+
+.leafletPopupContainer .leaflet-popup-content-wrapper {
+  width: 100%;
+  height: 100%;
 }

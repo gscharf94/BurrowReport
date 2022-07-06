@@ -216,7 +216,17 @@ class BoreObject {
         return html;
     }
     bindPopup() {
-        this.line.mapObject.bindPopup(this.generatePopupHTML());
+        let popup = leaflet_1.default.popup({
+            className: 'leafletPopupContainer',
+            autoPan: false,
+            closeButton: true,
+        });
+        popup.setContent(this.generatePopupHTML());
+        this.line.mapObject.on('click', (event) => {
+            popup.setLatLng(event.latlng);
+            map.addLayer(popup);
+        });
+        // this.line.mapObject.bindPopup(this.generatePopupHTML());
     }
     editLine() {
         this.tmp_coordinates = [...this.coordinates];
@@ -324,7 +334,17 @@ class VaultObject {
         this.bindPopup();
     }
     bindPopup() {
-        this.marker.mapObject.bindPopup(this.generatePopupHTML());
+        let popup = leaflet_1.default.popup({
+            className: "leafletPopupContainer",
+            autoPan: false,
+            closeButton: true,
+        });
+        popup.setContent(this.generatePopupHTML());
+        this.marker.mapObject.on('click', (event) => {
+            popup.setLatLng(event.latlng);
+            map.addLayer(popup);
+        });
+        // this.marker.mapObject.bindPopup(this.generatePopupHTML());
     }
     generatePopupHTML() {
         let html = `
