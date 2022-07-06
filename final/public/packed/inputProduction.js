@@ -64,41 +64,51 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const leaflet_1 = __importDefault(__webpack_require__(243));
 const website_js_1 = __webpack_require__(939);
+const DEFAULT_ICON_SIZE = [14, 14];
+const DEFAULT_ICON_ANCHOR = [7, 7];
+const ICON_ZOOM_LEVELS = {
+    2: { size: [10, 10], anchor: [5, 5] },
+    3: { size: DEFAULT_ICON_SIZE, anchor: DEFAULT_ICON_ANCHOR },
+    4: { size: [18, 18], anchor: [9, 9] },
+    5: { size: [26, 26], anchor: [13, 13] },
+    6: { size: [44, 44], anchor: [22, 22] },
+    7: { size: [70, 70], anchor: [35, 35] },
+};
 const ICONS = {
     lineMarker: leaflet_1.default.icon({
         iconUrl: "/images/icons/lineMarker.png",
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
     }),
     lineMarkerTransparent: leaflet_1.default.icon({
         iconUrl: "/images/icons/lineMarkerTransparent.png",
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
-    }),
-    lineX: leaflet_1.default.icon({
-        iconUrl: "/images/icons/lineX.png",
         iconSize: [30, 30],
         iconAnchor: [15, 15],
     }),
+    lineX: leaflet_1.default.icon({
+        iconUrl: "/images/icons/lineX.png",
+        iconSize: DEFAULT_ICON_SIZE,
+        iconAnchor: DEFAULT_ICON_ANCHOR,
+    }),
     question: leaflet_1.default.icon({
         iconUrl: "/images/icons/question.png",
-        iconSize: [12, 12],
-        iconAnchor: [6, 6],
+        iconSize: DEFAULT_ICON_SIZE,
+        iconAnchor: DEFAULT_ICON_ANCHOR,
     }),
     dt20: leaflet_1.default.icon({
         iconUrl: "/images/icons/DT20.png",
-        iconSize: [12, 12],
-        iconAnchor: [6, 6],
+        iconSize: DEFAULT_ICON_SIZE,
+        iconAnchor: DEFAULT_ICON_ANCHOR,
     }),
     dt30: leaflet_1.default.icon({
         iconUrl: "/images/icons/DT30.png",
-        iconSize: [12, 12],
-        iconAnchor: [6, 6],
+        iconSize: DEFAULT_ICON_SIZE,
+        iconAnchor: DEFAULT_ICON_ANCHOR,
     }),
     dt36: leaflet_1.default.icon({
         iconUrl: "/images/icons/DT36.png",
-        iconSize: [12, 12],
-        iconAnchor: [6, 6],
+        iconSize: DEFAULT_ICON_SIZE,
+        iconAnchor: DEFAULT_ICON_ANCHOR,
     }),
 };
 const VAULT_ICON_TRANS = {
@@ -275,6 +285,7 @@ class VaultObject {
     coordinate;
     id;
     tmp_coordinate;
+    current_zoom;
     constructor(vaultInfo) {
         this.job_name = vaultInfo.job_name;
         this.page_number = vaultInfo.page_number;
@@ -284,6 +295,7 @@ class VaultObject {
         this.coordinate = vaultInfo.coordinate;
         this.vault_size = vaultInfo.vault_size;
         this.id = vaultInfo.id;
+        this.current_zoom = map.getZoom();
         this.drawMarker();
     }
     drawMarker() {
@@ -677,6 +689,13 @@ class MapMarker extends MapObject {
         this.icon = icon;
         this.createSelf();
     }
+    changeSizeOnZoom(newZoom) {
+        let newOptions = ICON_ZOOM_LEVELS[newZoom];
+        this.icon.options.iconSize = newOptions.size;
+        this.icon.options.iconAnchor = newOptions.anchor;
+        //@ts-ignore
+        this.mapObject.setIcon(this.icon);
+    }
     /**
      * it creates the map object for the marker
      * marker is simpler than line.. only needs 1 gps point
@@ -832,12 +851,13 @@ function addBoreStart() {
         let latlng = event.latlng;
         line.addPoint([latlng.lat, latlng.lng]);
     });
-    map.on('zoomend', (event) => {
+    const zoomHandler = () => {
         let newZoom = map.getZoom();
         line.weight = LINE_ZOOM_LEVELS[newZoom];
         line.hideObject();
         line.createSelf();
-    });
+    };
+    map.on('zoomend', zoomHandler);
     let cancelButton = document.getElementById('cancel');
     const cancelOneTime = () => {
         line.clearSelf();
@@ -906,6 +926,7 @@ function addBoreStart() {
         line.hideObject();
         initialization();
         map.off('click');
+        map.off('zoomend', zoomHandler);
         submitButton.removeEventListener('click', submitOneTime);
         cancelButton.removeEventListener('click', cancelOneTime);
     };
@@ -1039,6 +1060,11 @@ function addVaultStart() {
     const clickVaultOneTime = (event) => {
         let point = [event.latlng.lat, event.latlng.lng];
         let marker = new MapMarker(point, true, ICONS.question);
+        const zoomHandler = () => {
+            let zoomLevel = map.getZoom();
+            marker.changeSizeOnZoom(zoomLevel);
+        };
+        map.on('zoomend', zoomHandler);
         let cancelButton = document.getElementById('cancel');
         cancelButton.removeEventListener('click', tempCancel);
         const cancelOneTime = () => {
@@ -1097,6 +1123,7 @@ function addVaultStart() {
             marker.hideObject();
             initialization();
             map.off('click');
+            map.off('zoomend', zoomHandler);
             submitButton.removeEventListener('click', submitOneTime);
             cancelButton.removeEventListener('click', cancelOneTime);
         };
@@ -1397,10 +1424,13 @@ function toggleMovementLinks() {
     }
 }
 function addZoomHandlers() {
-    map.on('zoomend', (event) => {
+    map.on('zoomend', () => {
         let newZoom = map.getZoom();
         for (const bore of window.boresAndRocks) {
             bore.changeWeightOnZoom(newZoom);
+        }
+        for (const vault of window.vaults) {
+            vault.marker.changeSizeOnZoom(newZoom);
         }
     });
 }
