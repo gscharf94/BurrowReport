@@ -74,6 +74,14 @@ const ICON_ZOOM_LEVELS = {
     6: { size: [44, 44], anchor: [22, 22] },
     7: { size: [70, 70], anchor: [35, 35] },
 };
+const QUESTION_ZOOM_LEVELS = {
+    2: { size: [14, 14], anchor: [7, 7] },
+    3: { size: [18, 18], anchor: [9, 9] },
+    4: { size: [24, 24], anchor: [12, 12] },
+    5: { size: [32, 32], anchor: [16, 16] },
+    6: { size: [54, 54], anchor: [27, 27] },
+    7: { size: [86, 86], anchor: [43, 43] },
+};
 const ICONS = {
     lineMarker: leaflet_1.default.icon({
         iconUrl: "/images/icons/lineMarker.png",
@@ -87,8 +95,8 @@ const ICONS = {
     }),
     lineX: leaflet_1.default.icon({
         iconUrl: "/images/icons/lineX.png",
-        iconSize: DEFAULT_ICON_SIZE,
-        iconAnchor: DEFAULT_ICON_ANCHOR,
+        iconSize: [46, 46],
+        iconAnchor: [23, 23],
     }),
     question: leaflet_1.default.icon({
         iconUrl: "/images/icons/question.png",
@@ -122,12 +130,20 @@ const VAULT_NAME_TRANS = {
     2: "DT36",
 };
 const LINE_ZOOM_LEVELS = {
-    2: 6,
-    3: 7,
-    4: 8,
-    5: 9,
-    6: 10,
-    7: 11,
+    2: 7,
+    3: 8,
+    4: 9,
+    5: 10,
+    6: 11,
+    7: 12,
+};
+const ROCK_ZOOM_LEVELS = {
+    2: 4,
+    3: 5,
+    4: 6,
+    5: 7,
+    6: 8,
+    7: 9,
 };
 // need to ignore typescript here cause it doesn't understand
 // that i'm getting fed this info from the html 
@@ -168,15 +184,20 @@ class BoreObject {
     }
     drawLine() {
         if (this.rock) {
-            this.line = new MapLine(this.coordinates, { color: 'green', dashed: true, weight: 6 }, false);
+            this.line = new MapLine(this.coordinates, { color: 'green', dashed: true, weight: ROCK_ZOOM_LEVELS[map.getZoom()] }, false);
         }
         else {
-            this.line = new MapLine(this.coordinates, {}, false);
+            this.line = new MapLine(this.coordinates, { weight: LINE_ZOOM_LEVELS[map.getZoom()] }, false);
         }
         this.bindPopup();
     }
     changeWeightOnZoom(zoomLevel) {
-        this.line.weight = LINE_ZOOM_LEVELS[zoomLevel];
+        if (this.rock) {
+            this.line.weight = ROCK_ZOOM_LEVELS[zoomLevel];
+        }
+        else {
+            this.line.weight = LINE_ZOOM_LEVELS[zoomLevel];
+        }
         this.line.hideObject();
         (this.line.editable) ? this.line.createSelf() : this.line.createSelfNoMarkers();
         this.bindPopup();
@@ -689,8 +710,8 @@ class MapMarker extends MapObject {
         this.icon = icon;
         this.createSelf();
     }
-    changeSizeOnZoom(newZoom) {
-        let newOptions = ICON_ZOOM_LEVELS[newZoom];
+    changeSizeOnZoom(newZoom, trans) {
+        let newOptions = trans[newZoom];
         this.icon.options.iconSize = newOptions.size;
         this.icon.options.iconAnchor = newOptions.anchor;
         //@ts-ignore
@@ -846,7 +867,7 @@ function addBoreStart() {
         'addRock', 'addVault',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
-    let line = new MapLine([]);
+    let line = new MapLine([], { weight: LINE_ZOOM_LEVELS[map.getZoom()] });
     map.on('click', (event) => {
         let latlng = event.latlng;
         line.addPoint([latlng.lat, latlng.lng]);
@@ -974,11 +995,19 @@ function addRockStart() {
     let line = new MapLine([], {
         color: 'green',
         dashed: true,
+        weight: ROCK_ZOOM_LEVELS[map.getZoom()],
     });
     map.on('click', (event) => {
         let latlng = event.latlng;
         line.addPoint([latlng.lat, latlng.lng]);
     });
+    const zoomHandler = () => {
+        let newZoom = map.getZoom();
+        line.weight = ROCK_ZOOM_LEVELS[newZoom];
+        line.hideObject();
+        line.createSelf();
+    };
+    map.on('zoomend', zoomHandler);
     let cancelButton = document.getElementById('cancel');
     const cancelOneTime = () => {
         line.clearSelf();
@@ -1062,7 +1091,8 @@ function addVaultStart() {
         let marker = new MapMarker(point, true, ICONS.question);
         const zoomHandler = () => {
             let zoomLevel = map.getZoom();
-            marker.changeSizeOnZoom(zoomLevel);
+            marker.changeSizeOnZoom(zoomLevel, QUESTION_ZOOM_LEVELS);
+            console.log(`changing question mark zoom`);
         };
         map.on('zoomend', zoomHandler);
         let cancelButton = document.getElementById('cancel');
@@ -1430,7 +1460,7 @@ function addZoomHandlers() {
             bore.changeWeightOnZoom(newZoom);
         }
         for (const vault of window.vaults) {
-            vault.marker.changeSizeOnZoom(newZoom);
+            vault.marker.changeSizeOnZoom(newZoom, ICON_ZOOM_LEVELS);
         }
     });
 }
