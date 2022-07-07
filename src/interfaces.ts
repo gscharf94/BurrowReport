@@ -17,6 +17,7 @@ export interface UploadBoreObject extends UploadObject {
   coordinates : Coord[],
   footage : number,
   rock : boolean,
+  // bore_logs : BoreLogRow[],
 }
 
 export interface UploadVaultObject extends UploadObject {
@@ -73,4 +74,10 @@ export interface TicketInfo {
   active ?: boolean,
   state ?: States,
   old_tickets ?: string[],
+}
+
+export type BoreLogRow = {
+  row : number,
+  feet : number,
+  inches : number,
 }

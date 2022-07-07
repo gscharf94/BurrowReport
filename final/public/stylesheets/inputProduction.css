@@ -274,9 +274,39 @@ label {
   background-color: #F0F6FF;
   top: 10%;
   right: 15%;
-  display: grid;
+  display: none;
   grid-template-columns: 50% 50%;
   grid-template-rows: 10% 80% 10%;
+}
+
+#boreLogSubmit {
+  grid-row: 3;
+  grid-column: 2;
+  background-color: #005400;
+  color: white;
+  width: 80%;
+  margin: auto;
+  height: 60%;
+}
+
+#boreLogSubmit:active {
+  background-color: white;
+  color: black;
+}
+
+#boreLogCancel:active {
+  background-color: white;
+  color: black;
+}
+
+#boreLogCancel {
+  grid-row: 3;
+  grid-column: 1;
+  background-color: #af0000;
+  color: white;
+  width: 80%;
+  margin: auto;
+  height: 60%;
 }
 
 #boreLogHeader {

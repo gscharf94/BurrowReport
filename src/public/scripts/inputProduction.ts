@@ -1,7 +1,7 @@
 import L from 'leaflet';
 import {
   Coord, UploadBoreObject, UploadVaultObject,
-  DownloadBoreObject, DownloadVaultObject
+  DownloadBoreObject, DownloadVaultObject, BoreLogRow
 } from '../../interfaces';
 import { getUserInfo } from '../../helperFunctions/website.js';
 
@@ -986,11 +986,32 @@ function addBoreStart() : void {
     initialization();
     map.off('click');
     cancelButton.removeEventListener('click', cancelOneTime);
-    submitButton.removeEventListener('click', submitOneTime);
+    submitButton.removeEventListener('click', submitStage1);
   }
   cancelButton.addEventListener('click', cancelOneTime);
 
   let submitButton = document.getElementById('submit');
+
+  const submitStage1 = () => {
+    if (line.points.length < 2) {
+      alert('ERROR\n\nPlease finish drawing the line.');
+      return;
+    }
+    if (validateBoreInput() === false) {
+      return;
+    }
+    configureBoreLogContainer(getFootageValue());
+    let cancelButton = document.getElementById('boreLogCancel');
+    const cancelClick = () => {
+      let boreLogContainer = document.getElementById('boreLogContainer');
+      boreLogContainer.style.display = "none";
+      cancelButton.removeEventListener('click', cancelClick);
+    }
+    cancelButton.addEventListener('click', cancelClick);
+
+    let boreLogSubmit = document.getElementById('boreLogSubmit');
+    boreLogSubmit.addEventListener('click', submitStage2);
+  }
   /**
    * this callback happens once and then it deletes itself
    * 1 - it checks to make sure that both
@@ -1010,12 +1031,9 @@ function addBoreStart() : void {
    * 5 - and also deletes click event listner related to cancel.. otherwise
    *     we will delete all lines if we ever click cancel, lol
    */
-  const submitOneTime = () => {
-    if (line.points.length < 2) {
-      alert('ERROR\n\nPlease finish drawing the line.');
-      return;
-    }
-    if (validateBoreInput() === false) {
+  const submitStage2 = () => {
+    if (!validateBoreLogValues()) {
+      alert('Please enter bore log values');
       return;
     }
     let postObject : UploadBoreObject = {
@@ -1050,10 +1068,10 @@ function addBoreStart() : void {
     initialization();
     map.off('click');
     map.off('zoomend', zoomHandler);
-    submitButton.removeEventListener('click', submitOneTime);
+    submitButton.removeEventListener('click', submitStage2);
     cancelButton.removeEventListener('click', cancelOneTime);
   }
-  submitButton.addEventListener('click', submitOneTime);
+  submitButton.addEventListener('click', submitStage1);
 }
 
 /**
@@ -1624,9 +1642,86 @@ function getHalfwayPoint(pointA : Coord, pointB : Coord) : Coord {
   return [gpsPoint.lat, gpsPoint.lng];
 }
 
+function configureBoreLogContainer(footage : number) {
+  let mainContainer = document.getElementById('boreLogContainer');
+  mainContainer.style.display = "grid";
+  let inputContainer = document.getElementById('inputContainer');
+  inputContainer.innerHTML = generateBoreLogHTML(footage);
+}
+
+/**
+ * the number of elements in the bore log container depends on the
+ * footage.. so we create the appropriate number of elements
+ *
+ * @param {number} footage - the total feet, which will be /10
+ * @returns {string} - the html that replaces the innerHTML of element
+ */
+function generateBoreLogHTML(footage : number) : string {
+  let numberOfRows = Math.floor(footage / 10);
+  if (footage % 10 !== 0) {
+    numberOfRows++;
+  }
+  let html = "";
+  for (let i = 0; i < numberOfRows; i++) {
+    html += `
+      <div class="ftinContainer">
+        <h1 class="counter"> ${i * 10}- </h1>
+        <input class="ftInput" type="number"></input>
+        <p class="ftText"> ' </p>
+        <input class="inInput" type="number"></input>
+        <p class="inText"> " </p>
+      </div>
+    `
+  }
+  return html;
+}
+
+/**
+ * goes through each of the bore log inputs and makes sure everything
+ * is a number
+ *
+ * @returns {boolean} - true if values are good, false if not
+ */
+function validateBoreLogValues() : boolean {
+  let feetInputs = document.querySelectorAll<HTMLInputElement>('.ftInput');
+  let inchesInputs = document.querySelectorAll<HTMLInputElement>('.inInput');
+  for (let i = 0; i < feetInputs.length; i++) {
+    if (isNaN(Number(feetInputs[i].value)) || feetInputs[i].value == "") {
+      return false;
+    } else if (isNaN(Number(inchesInputs[i].value)) || inchesInputs[i].value == "") {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * this goes through every row inputted into the bore log
+ * and puts it into a list which will be sent to the database
+ *
+ * @returns {BoreLogRow[]} - BoreLogRow[] - the data from the aggregate inputs
+ */
+function parseBoreLogValues() : BoreLogRow[] {
+  let logs = [];
+  let feetInputs = document.querySelectorAll<HTMLInputElement>('.ftInput');
+  let inchesInputs = document.querySelectorAll<HTMLInputElement>('.inInput');
+  for (let i = 0; i < feetInputs.length; i++) {
+    let row : BoreLogRow = {
+      row: i,
+      feet: Number(feetInputs[i].value),
+      inches: Number(inchesInputs[i].value),
+    };
+    logs.push(row);
+  }
+  return logs;
+}
+
 
 addZoomHandlers();
 drawSavedBoresAndRocks();
 drawSavedVaults();
 toggleMovementLinks();
 initialization();
+
+
+// configureBoreLogContainer(52);
