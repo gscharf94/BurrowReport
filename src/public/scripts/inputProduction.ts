@@ -205,17 +205,17 @@ class BoreObject {
   }
 
   bindPopup() {
-    let popup = L.popup({
-      className: 'leafletPopupContainer',
-      autoPan: false,
-      closeButton: true,
-    });
-    popup.setContent(this.generatePopupHTML());
-    this.line.mapObject.on('click', (event) => {
-      popup.setLatLng(event.latlng);
-      map.addLayer(popup);
-    });
-    // this.line.mapObject.bindPopup(this.generatePopupHTML());
+    // let popup = L.popup({
+    //   className: 'leafletPopupContainer',
+    //   autoPan: false,
+    //   closeButton: true,
+    // });
+    // popup.setContent(this.generatePopupHTML());
+    // this.line.mapObject.on('click', (event) => {
+    //   popup.setLatLng(event.latlng);
+    //   map.addLayer(popup);
+    // });
+    this.line.mapObject.bindPopup(this.generatePopupHTML());
   }
 
   editLine() {
@@ -342,18 +342,18 @@ class VaultObject {
   }
 
   bindPopup() {
-    let popup = L.popup({
-      className: "leafletPopupContainer",
-      autoPan: false,
-      closeButton: true,
-    });
-    popup.setContent(this.generatePopupHTML());
-    this.marker.mapObject.on('click', (event) => {
-      popup.setLatLng(event.latlng);
-      map.addLayer(popup);
-    });
+    // let popup = L.popup({
+    //   className: "leafletPopupContainer",
+    //   autoPan: false,
+    //   closeButton: true,
+    // });
+    // popup.setContent(this.generatePopupHTML());
+    // this.marker.mapObject.on('click', (event) => {
+    //   popup.setLatLng(event.latlng);
+    //   map.addLayer(popup);
+    // });
 
-    // this.marker.mapObject.bindPopup(this.generatePopupHTML());
+    this.marker.mapObject.bindPopup(this.generatePopupHTML());
   }
 
   generatePopupHTML() {

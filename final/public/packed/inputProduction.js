@@ -216,17 +216,17 @@ class BoreObject {
         return html;
     }
     bindPopup() {
-        let popup = leaflet_1.default.popup({
-            className: 'leafletPopupContainer',
-            autoPan: false,
-            closeButton: true,
-        });
-        popup.setContent(this.generatePopupHTML());
-        this.line.mapObject.on('click', (event) => {
-            popup.setLatLng(event.latlng);
-            map.addLayer(popup);
-        });
-        // this.line.mapObject.bindPopup(this.generatePopupHTML());
+        // let popup = L.popup({
+        //   className: 'leafletPopupContainer',
+        //   autoPan: false,
+        //   closeButton: true,
+        // });
+        // popup.setContent(this.generatePopupHTML());
+        // this.line.mapObject.on('click', (event) => {
+        //   popup.setLatLng(event.latlng);
+        //   map.addLayer(popup);
+        // });
+        this.line.mapObject.bindPopup(this.generatePopupHTML());
     }
     editLine() {
         this.tmp_coordinates = [...this.coordinates];
@@ -334,17 +334,17 @@ class VaultObject {
         this.bindPopup();
     }
     bindPopup() {
-        let popup = leaflet_1.default.popup({
-            className: "leafletPopupContainer",
-            autoPan: false,
-            closeButton: true,
-        });
-        popup.setContent(this.generatePopupHTML());
-        this.marker.mapObject.on('click', (event) => {
-            popup.setLatLng(event.latlng);
-            map.addLayer(popup);
-        });
-        // this.marker.mapObject.bindPopup(this.generatePopupHTML());
+        // let popup = L.popup({
+        //   className: "leafletPopupContainer",
+        //   autoPan: false,
+        //   closeButton: true,
+        // });
+        // popup.setContent(this.generatePopupHTML());
+        // this.marker.mapObject.on('click', (event) => {
+        //   popup.setLatLng(event.latlng);
+        //   map.addLayer(popup);
+        // });
+        this.marker.mapObject.bindPopup(this.generatePopupHTML());
     }
     generatePopupHTML() {
         let html = `
@@ -517,7 +517,6 @@ class MapLine extends MapObject {
             return;
         }
         this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: renderer });
-        // this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed });
         this.addTransparentLineMarkers();
         if (updateLineMarkers) {
             this.addLineMarkers();
@@ -530,7 +529,6 @@ class MapLine extends MapObject {
      */
     createSelfNoMarkers() {
         this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: renderer });
-        // this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed })
         this.showObject();
     }
     /**
@@ -787,7 +785,6 @@ leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{
     job: JOB_NAME,
     page: PAGE_NUMBER,
     noWrap: true,
-    // renderer: renderer,
 }).addTo(map);
 map.doubleClickZoom.disable();
 centerMap();

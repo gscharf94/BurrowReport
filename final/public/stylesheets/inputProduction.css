@@ -190,6 +190,7 @@ label {
   align-items: center;
   width: 100%;
   height: 90%;
+  background-color: white;
 }
 
 .popupCrewName {
@@ -256,9 +257,11 @@ label {
 .leafletPopupContainer {
   width: 300px;
   height: fit-content;
+  background-color: white;
 }
 
 .leafletPopupContainer .leaflet-popup-content-wrapper {
   width: 100%;
   height: 100%;
+  background-color: white;
 }
