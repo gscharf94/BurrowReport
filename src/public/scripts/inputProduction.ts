@@ -547,11 +547,35 @@ class MapLine extends MapObject {
       return;
     }
     this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: renderer });
-    this.addTransparentLineMarkers();
+    if (this.transparentLineMarkers.length != 0) {
+      this.updateTransparentLineMarkers();
+    } else {
+      this.addTransparentLineMarkers();
+    }
     if (updateLineMarkers) {
       this.addLineMarkers();
     }
     this.showObject();
+  }
+
+  updateTransparentLineMarkers() {
+    for (let i = 0; i < this.points.length - 1; i++) {
+      let pointA = this.points[i];
+      let pointB = this.points[i + 1];
+      let halfwayPoint : Coord = [
+        (pointA[0] + pointB[0]) / 2,
+        (pointA[1] + pointB[1]) / 2,
+      ];
+      //@ts-ignore
+      this.transparentLineMarkers[i].mapObject.setLatLng(halfwayPoint);
+      // let marker = new MapMarker(halfwayPoint, true, ICONS.lineMarkerTransparent);
+      // this.transparentLineMarkers.push(marker);
+      // marker.mapObject.on('click dragstart', (event) => {
+      //   let point = event.target.getLatLng();
+      //   let coord : Coord = [point.lat, point.lng];
+      //   this.addPoint(coord, i + 1);
+      // });
+    }
   }
 
   /**
@@ -580,6 +604,7 @@ class MapLine extends MapObject {
       }
       return;
     }
+    this.removeTransparentLineMarkers();
     this.hideObject();
     this.points.splice(index, 0, pos);
     this.createSelf();
@@ -599,6 +624,7 @@ class MapLine extends MapObject {
       this.points = [];
       return;
     }
+    this.removeTransparentLineMarkers();
     this.hideObject();
     this.points.splice(index, 1);
     this.createSelf();
@@ -809,6 +835,13 @@ class MapMarker extends MapObject {
    */
   updatePoint(newPos : { lat : number, lng : number }) {
     this.point = [newPos.lat, newPos.lng];
+
+    // this.updateMapPoint();
+  }
+
+  updateMapPoint() {
+    //@ts-ignore
+    this.mapObject.setLatLng(this.point)
   }
 }
 
