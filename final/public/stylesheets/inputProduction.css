@@ -265,3 +265,78 @@ label {
   height: 100%;
   background-color: white;
 }
+
+#boreLogContainer {
+  position: absolute;
+  width: 57%;
+  height: 75%;
+  z-index: 1002;
+  background-color: #F0F6FF;
+  top: 10%;
+  right: 15%;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: 10% 80% 10%;
+}
+
+#boreLogHeader {
+  grid-column: 1 /span 2;
+  grid-row: 1;
+  text-align: center;
+  font-size: 5ch;
+}
+
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  grid-column: 1/span 2;
+  overflow-y: auto;
+}
+
+.ftinContainer {
+  width: 50%;
+  display: grid;
+  grid-template-columns: 30% 25% 10% 25% 10%;
+  margin: auto;
+  margin-bottom: 15px;
+}
+
+.ftinContainer p {
+  font-size: 5ch;
+  margin: 0;
+  text-align: left;
+}
+
+
+.ftInput {
+  grid-column: 2;
+}
+
+.inInput {
+  grid-column: 4;
+}
+
+.inText {
+  grid-column: 5;
+}
+
+.ftText {
+  grid-column: 3;
+}
+
+.counter {
+  grid-column: 1;
+  text-align: left;
+  margin: auto;
+}
+
+.ftinContainer input {
+  width: 100%;
+  font-size: 5ch;
+  height: 50px;
+  background-color: var(--color-4);
+  text-align: center;
+  border: none;
+  font-weight: bold;
+}
