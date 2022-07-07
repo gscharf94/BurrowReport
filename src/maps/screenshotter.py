@@ -11,11 +11,16 @@ import pyautogui as pg
 import time
 import os
 
-PAGES = 13
+PAGES = 3
 OUTPUT_PATH = "/home/gustavo/Pictures/Screenshots"
 
-NW = (22, 172)
-NE = (2546, 1072)
+# NW = (22, 172)
+# NE = (2546, 1072)
+# NW = (341, 168)
+# NE = (1890, 1347)
+NW = (42, 171)
+NE = (2538, 1059)
+
 W = NE[0]-NW[0]
 H = NE[1]-NW[1]
 
@@ -31,6 +36,11 @@ def move_down():
     pg.press('down')
     time.sleep(1.5)
 
+# def move_down():
+#     pg.press('n')
+#     pg.press('n')
+#     time.sleep(1.5)
+
 def get_pos():
     count_down(1)
     print(pg.position())
@@ -39,6 +49,8 @@ def take_screenshot(nw, ne, i):
     os.system(f'maim -g {W}x{H}+{NW[0]}+{NW[1]} {OUTPUT_PATH}/{i}.png')
     time.sleep(1)
 
+
+# get_pos()
 
 count_down(5)
 
