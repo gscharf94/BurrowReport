@@ -530,21 +530,9 @@ class MapLine extends MapObject {
     }
     updateTransparentLineMarkers() {
         for (let i = 0; i < this.points.length - 1; i++) {
-            let pointA = this.points[i];
-            let pointB = this.points[i + 1];
-            let halfwayPoint = [
-                (pointA[0] + pointB[0]) / 2,
-                (pointA[1] + pointB[1]) / 2,
-            ];
+            let midPoint = getHalfwayPoint(this.points[i], this.points[i + 1]);
             //@ts-ignore
-            this.transparentLineMarkers[i].mapObject.setLatLng(halfwayPoint);
-            // let marker = new MapMarker(halfwayPoint, true, ICONS.lineMarkerTransparent);
-            // this.transparentLineMarkers.push(marker);
-            // marker.mapObject.on('click dragstart', (event) => {
-            //   let point = event.target.getLatLng();
-            //   let coord : Coord = [point.lat, point.lng];
-            //   this.addPoint(coord, i + 1);
-            // });
+            this.transparentLineMarkers[i].mapObject.setLatLng(midPoint);
         }
     }
     /**
@@ -668,13 +656,8 @@ class MapLine extends MapObject {
     addTransparentLineMarkers() {
         this.removeTransparentLineMarkers();
         for (let i = 0; i < this.points.length - 1; i++) {
-            let pointA = this.points[i];
-            let pointB = this.points[i + 1];
-            let halfwayPoint = [
-                (pointA[0] + pointB[0]) / 2,
-                (pointA[1] + pointB[1]) / 2,
-            ];
-            let marker = new MapMarker(halfwayPoint, true, ICONS.lineMarkerTransparent);
+            let midPoint = getHalfwayPoint(this.points[i], this.points[i + 1]);
+            let marker = new MapMarker(midPoint, true, ICONS.lineMarkerTransparent);
             this.transparentLineMarkers.push(marker);
             marker.mapObject.on('click dragstart', (event) => {
                 let point = event.target.getLatLng();
@@ -1515,6 +1498,26 @@ function addZoomHandlers() {
             vault.marker.changeSizeOnZoom(newZoom, ICON_ZOOM_LEVELS);
         }
     });
+}
+/**
+ * ok so we wanna get a halfway point between two points
+ * but we're on a mercator projection... so can't do it with gps
+ * thankfully map.project and map.unproject gives us a nice ability
+ * to do this without using complicated trig
+ *
+ * @param {Coord} pointA - Coord - [number, number] which is lat/lng
+ * @param {Coord} pointB - Coord - same thing.. but the other point
+ * @returns {Coord} - the midway point Coord of the two
+ */
+function getHalfwayPoint(pointA, pointB) {
+    let a = map.project(pointA);
+    let b = map.project(pointB);
+    let c = [
+        (a.x + b.x) / 2,
+        (a.y + b.y) / 2,
+    ];
+    let gpsPoint = map.unproject(c);
+    return [gpsPoint.lat, gpsPoint.lng];
 }
 addZoomHandlers();
 drawSavedBoresAndRocks();
