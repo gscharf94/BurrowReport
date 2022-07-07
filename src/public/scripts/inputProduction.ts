@@ -1500,7 +1500,7 @@ function deleteObject(table : 'vaults' | 'bores' | 'rocks', id : number) : void 
  * @returns {void}
  */
 function editObject(objectType : 'vault' | 'bore', id : number, rock : boolean) : void {
-
+  map.closePopup();
   if (objectType == "bore") {
     for (const bore of window.boresAndRocks) {
       if (id == bore.id && bore.rock == rock) {

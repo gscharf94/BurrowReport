@@ -1400,6 +1400,7 @@ function deleteObject(table, id) {
  * @returns {void}
  */
 function editObject(objectType, id, rock) {
+    map.closePopup();
     if (objectType == "bore") {
         for (const bore of window.boresAndRocks) {
             if (id == bore.id && bore.rock == rock) {
