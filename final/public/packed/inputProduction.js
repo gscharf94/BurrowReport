@@ -821,6 +821,43 @@ class MapMarker extends MapObject {
         //@ts-ignore
         this.mapObject.setLatLng(this.point);
     }
+    readyToSubmit() {
+        if (!this.point) {
+            alert('ERROR\n\nPlease finish placing the vault.');
+            return false;
+        }
+        if (validateVaultInput() === false) {
+            return false;
+        }
+        return true;
+    }
+    submitSelf() {
+        let postObject = {
+            size: getVaultValue(),
+            coordinate: this.point,
+            work_date: getDateValue(),
+            job_name: JOB_NAME,
+            crew_name: USERINFO.username,
+            page_number: PAGE_NUMBER,
+            object_type: "vault",
+        };
+        let callback = (res) => {
+            let [vaultId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
+            let newVaultObject = new VaultObject({
+                job_name: JOB_NAME,
+                page_number: PAGE_NUMBER,
+                page_id: pageId,
+                work_date: postObject.work_date,
+                crew_name: USERINFO.username,
+                id: vaultId,
+                coordinate: this.point,
+                vault_size: postObject.size,
+            });
+            window.vaults.push(newVaultObject);
+            this.hideObject();
+        };
+        this.sendSelfPost(postObject, callback);
+    }
 }
 window.addBoreStart = addBoreStart;
 window.addRockStart = addRockStart;
@@ -1081,12 +1118,16 @@ function addVaultStart() {
         'addRock', 'addBore',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
-    const tempCancel = () => {
+    let cancelButton = document.getElementById('cancel');
+    let submitButton = document.getElementById('submit');
+    cancelButton.addEventListener('click', () => {
         initialization();
         map.off('click');
-    };
-    let cancelButton = document.getElementById('cancel');
-    cancelButton.addEventListener('click', tempCancel);
+        clearAllEventListeners(['submit', 'cancel']);
+    });
+    submitButton.addEventListener('click', () => {
+        alert('Please place the vault');
+    });
     const clickVaultOneTime = (event) => {
         let point = [event.latlng.lat, event.latlng.lng];
         let marker = new MapMarker(point, true, ICONS.question);
@@ -1095,69 +1136,25 @@ function addVaultStart() {
             marker.changeSizeOnZoom(zoomLevel, QUESTION_ZOOM_LEVELS);
         };
         map.on('zoomend', zoomHandler);
+        clearAllEventListeners(['cancel', 'submit']);
         let cancelButton = document.getElementById('cancel');
-        cancelButton.removeEventListener('click', tempCancel);
-        const cancelOneTime = () => {
+        let submitButton = document.getElementById('submit');
+        cancelButton.addEventListener('click', () => {
             marker.hideObject();
             initialization();
             map.off('click');
-            cancelButton.removeEventListener('click', cancelOneTime);
-            submitButton.removeEventListener('click', submitOneTime);
-        };
-        cancelButton.addEventListener('click', cancelOneTime);
-        let submitButton = document.getElementById('submit');
-        const submitOneTime = () => {
-            if (!marker.point) {
-                alert('ERROR\n\nPlease finish placing the vault.');
+            clearAllEventListeners(['cancel', 'submit']);
+        });
+        submitButton.addEventListener('click', () => {
+            if (!marker.readyToSubmit()) {
                 return;
             }
-            if (validateVaultInput() === false) {
-                return;
-            }
-            let size = getVaultValue();
-            let postObject = {
-                size: size,
-                coordinate: marker.point,
-                work_date: getDateValue(),
-                job_name: JOB_NAME,
-                page_number: PAGE_NUMBER,
-                crew_name: USERINFO.username,
-                object_type: "vault",
-            };
-            const requestCallback = (res) => {
-                let [vaultId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
-                let newVaultObject = new VaultObject({
-                    job_name: JOB_NAME,
-                    page_number: PAGE_NUMBER,
-                    page_id: pageId,
-                    work_date: postObject.work_date,
-                    crew_name: USERINFO.username,
-                    id: vaultId,
-                    coordinate: marker.point,
-                    vault_size: postObject.size,
-                });
-                window.vaults.push(newVaultObject);
-            };
-            sendPostRequest('inputData', postObject, requestCallback);
-            switch (size) {
-                case 0:
-                    marker.icon = ICONS.dt20;
-                    break;
-                case 1:
-                    marker.icon = ICONS.dt30;
-                    break;
-                case 2:
-                    marker.icon = ICONS.dt36;
-                    break;
-            }
-            marker.hideObject();
+            marker.submitSelf();
             initialization();
             map.off('click');
             map.off('zoomend', zoomHandler);
-            submitButton.removeEventListener('click', submitOneTime);
-            cancelButton.removeEventListener('click', cancelOneTime);
-        };
-        submitButton.addEventListener('click', submitOneTime);
+            clearAllEventListeners(['cancel', 'submit']);
+        });
         map.off('click', clickVaultOneTime);
     };
     map.on('click', clickVaultOneTime);
