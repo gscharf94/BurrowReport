@@ -12,6 +12,7 @@ declare global {
     addVaultStart : () => void,
     cancelClick : () => void,
     incrementBoreLogRow : (sourceElement : HTMLElement) => void;
+    decrementBoreLogRow : (sourceElement : HTMLElement) => void;
     deleteObject : (table : 'vaults' | 'bores' | 'rocks', id : number) => void,
     editObject : (objectType : 'vault' | 'bore', id : number, rock : boolean) => void;
     boresAndRocks : BoreObject[],
@@ -920,6 +921,7 @@ window.cancelClick = cancelClick;
 window.deleteObject = deleteObject;
 window.editObject = editObject;
 window.incrementBoreLogRow = incrementBoreLogRow;
+window.decrementBoreLogRow = decrementBoreLogRow;
 window.boresAndRocks = [];
 window.vaults = [];
 
@@ -1619,7 +1621,7 @@ function generateBoreLogHTML(footage : number) : string {
         <input class="inInput" type="number"></input>
         <p class="inText">"</p>
         <button onclick="incrementBoreLogRow(this)" class="incrementButton">+</button>
-        <button class="decrementButton">-</button>
+        <button onclick="decrementBoreLogRow(this)" class="decrementButton">-</button>
       </div>
     `
   }
@@ -1647,6 +1649,34 @@ function incrementBoreLogRow(sourceElement : HTMLElement) {
   ftInput.value = `${ft}`;
   inInput.value = `${inches}`;
 
+  updateAllFollowingRows(sourceElement);
+}
+
+function decrementBoreLogRow(sourceElement : HTMLElement) {
+  let ftInput = sourceElement.closest('.ftinContainer').querySelector<HTMLInputElement>('.ftInput');
+  let inInput = sourceElement.closest('.ftinContainer').querySelector<HTMLInputElement>('.inInput');
+
+  if (ftInput.value === "" && inInput.value === "") {
+    return;
+  }
+
+  let [ft, inches] = [Number(ftInput.value), Number(inInput.value)];
+  if (ft == 0 && inches == 0) {
+    return;
+  }
+  inches--;
+  if (inches < 0) {
+    if (ft == 0) {
+      ft = 0;
+      inches = 0;
+    } else {
+      inches = 11;
+      ft--;
+    }
+  }
+
+  ftInput.value = `${ft}`;
+  inInput.value = `${inches}`;
   updateAllFollowingRows(sourceElement);
 }
 
@@ -1683,13 +1713,3 @@ initialization();
 
 let boreLog = document.getElementById('inputs');
 boreLog.innerHTML = generateBoreLogHTML(250);
-
-let test = document.querySelectorAll('.ftinContainer');
-for (const row of test) {
-  let rowFt = row.querySelector<HTMLInputElement>('.ftInput');
-  let rowIn = row.querySelector<HTMLInputElement>('.inInput');
-  rowFt.addEventListener('change', (event) => {
-    //@ts-ignore
-    updateAllFollowingRows(event.srcElement);
-  })
-}

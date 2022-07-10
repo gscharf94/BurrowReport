@@ -329,6 +329,7 @@ label {
   height: 80%;
   width: 80%;
   margin: auto;
+  box-shadow: rgba(53, 58, 71, .2) 0px 2px 3px 0px;
 }
 
 .incrementButton:active {

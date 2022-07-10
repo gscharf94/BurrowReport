@@ -866,6 +866,7 @@ window.cancelClick = cancelClick;
 window.deleteObject = deleteObject;
 window.editObject = editObject;
 window.incrementBoreLogRow = incrementBoreLogRow;
+window.decrementBoreLogRow = decrementBoreLogRow;
 window.boresAndRocks = [];
 window.vaults = [];
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
@@ -1506,7 +1507,7 @@ function generateBoreLogHTML(footage) {
         <input class="inInput" type="number"></input>
         <p class="inText">"</p>
         <button onclick="incrementBoreLogRow(this)" class="incrementButton">+</button>
-        <button class="decrementButton">-</button>
+        <button onclick="decrementBoreLogRow(this)" class="decrementButton">-</button>
       </div>
     `;
     }
@@ -1531,8 +1532,32 @@ function incrementBoreLogRow(sourceElement) {
     inInput.value = `${inches}`;
     updateAllFollowingRows(sourceElement);
 }
+function decrementBoreLogRow(sourceElement) {
+    let ftInput = sourceElement.closest('.ftinContainer').querySelector('.ftInput');
+    let inInput = sourceElement.closest('.ftinContainer').querySelector('.inInput');
+    if (ftInput.value === "" && inInput.value === "") {
+        return;
+    }
+    let [ft, inches] = [Number(ftInput.value), Number(inInput.value)];
+    if (ft == 0 && inches == 0) {
+        return;
+    }
+    inches--;
+    if (inches < 0) {
+        if (ft == 0) {
+            ft = 0;
+            inches = 0;
+        }
+        else {
+            inches = 11;
+            ft--;
+        }
+    }
+    ftInput.value = `${ft}`;
+    inInput.value = `${inches}`;
+    updateAllFollowingRows(sourceElement);
+}
 function updateAllFollowingRows(sourceElement) {
-    console.log(sourceElement);
     let ftInput = sourceElement.closest('.ftinContainer').querySelector('.ftInput');
     let inInput = sourceElement.closest('.ftinContainer').querySelector('.inInput');
     let rowCount = sourceElement.closest('.ftinContainer').querySelector('.rowCounter');

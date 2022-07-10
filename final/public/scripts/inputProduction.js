@@ -807,6 +807,7 @@ window.cancelClick = cancelClick;
 window.deleteObject = deleteObject;
 window.editObject = editObject;
 window.incrementBoreLogRow = incrementBoreLogRow;
+window.decrementBoreLogRow = decrementBoreLogRow;
 window.boresAndRocks = [];
 window.vaults = [];
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
@@ -1447,7 +1448,7 @@ function generateBoreLogHTML(footage) {
         <input class="inInput" type="number"></input>
         <p class="inText">"</p>
         <button onclick="incrementBoreLogRow(this)" class="incrementButton">+</button>
-        <button class="decrementButton">-</button>
+        <button onclick="decrementBoreLogRow(this)" class="decrementButton">-</button>
       </div>
     `;
     }
@@ -1467,6 +1468,31 @@ function incrementBoreLogRow(sourceElement) {
     if (inches > 11) {
         inches = 0;
         ft++;
+    }
+    ftInput.value = `${ft}`;
+    inInput.value = `${inches}`;
+    updateAllFollowingRows(sourceElement);
+}
+function decrementBoreLogRow(sourceElement) {
+    let ftInput = sourceElement.closest('.ftinContainer').querySelector('.ftInput');
+    let inInput = sourceElement.closest('.ftinContainer').querySelector('.inInput');
+    if (ftInput.value === "" && inInput.value === "") {
+        return;
+    }
+    let [ft, inches] = [Number(ftInput.value), Number(inInput.value)];
+    if (ft == 0 && inches == 0) {
+        return;
+    }
+    inches--;
+    if (inches < 0) {
+        if (ft == 0) {
+            ft = 0;
+            inches = 0;
+        }
+        else {
+            inches = 11;
+            ft--;
+        }
     }
     ftInput.value = `${ft}`;
     inInput.value = `${inches}`;
@@ -1499,12 +1525,3 @@ toggleMovementLinks();
 initialization();
 let boreLog = document.getElementById('inputs');
 boreLog.innerHTML = generateBoreLogHTML(250);
-let test = document.querySelectorAll('.ftinContainer');
-for (const row of test) {
-    let rowFt = row.querySelector('.ftInput');
-    let rowIn = row.querySelector('.inInput');
-    rowFt.addEventListener('change', (event) => {
-        //@ts-ignore
-        updateAllFollowingRows(event.srcElement);
-    });
-}
