@@ -1615,7 +1615,7 @@ function generateBoreLogHTML(footage : number) : string {
   for (let i = 0; i < numberOfRows; i++) {
     html += `
       <div class="ftinContainer">
-        <h1 class="rowCounter"> ${i * 10}-</h1>
+        <h1 class="rowCounter"> ${(i + 1) * 10}-</h1>
         <input class="ftInput" type="number"></input>
         <p class="ftText">'</p>
         <input class="inInput" type="number"></input>
@@ -1704,6 +1704,13 @@ function updateAllFollowingRows(sourceElement : HTMLElement) {
   }
 }
 
+function configureBoreLogContainer(footage : number) {
+  let container = document.getElementById('boreLogContainer');
+  container.style.display = "flex";
+  let inputs = document.getElementById('inputs');
+  inputs.innerHTML = generateBoreLogHTML(footage);
+}
+
 
 addZoomHandlers();
 drawSavedBoresAndRocks();
@@ -1711,5 +1718,5 @@ drawSavedVaults();
 toggleMovementLinks();
 initialization();
 
-let boreLog = document.getElementById('inputs');
-boreLog.innerHTML = generateBoreLogHTML(250);
+
+configureBoreLogContainer(35);

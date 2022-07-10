@@ -1501,7 +1501,7 @@ function generateBoreLogHTML(footage) {
     for (let i = 0; i < numberOfRows; i++) {
         html += `
       <div class="ftinContainer">
-        <h1 class="rowCounter"> ${i * 10}-</h1>
+        <h1 class="rowCounter"> ${(i + 1) * 10}-</h1>
         <input class="ftInput" type="number"></input>
         <p class="ftText">'</p>
         <input class="inInput" type="number"></input>
@@ -1577,22 +1577,18 @@ function updateAllFollowingRows(sourceElement) {
         rowIn.value = `${inches}`;
     }
 }
+function configureBoreLogContainer(footage) {
+    let container = document.getElementById('boreLogContainer');
+    container.style.display = "flex";
+    let inputs = document.getElementById('inputs');
+    inputs.innerHTML = generateBoreLogHTML(footage);
+}
 addZoomHandlers();
 drawSavedBoresAndRocks();
 drawSavedVaults();
 toggleMovementLinks();
 initialization();
-let boreLog = document.getElementById('inputs');
-boreLog.innerHTML = generateBoreLogHTML(250);
-let test = document.querySelectorAll('.ftinContainer');
-for (const row of test) {
-    let rowFt = row.querySelector('.ftInput');
-    let rowIn = row.querySelector('.inInput');
-    rowFt.addEventListener('change', (event) => {
-        //@ts-ignore
-        updateAllFollowingRows(event.srcElement);
-    });
-}
+configureBoreLogContainer(35);
 
 
 /***/ }),
