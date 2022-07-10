@@ -806,6 +806,7 @@ window.addVaultStart = addVaultStart;
 window.cancelClick = cancelClick;
 window.deleteObject = deleteObject;
 window.editObject = editObject;
+window.incrementBoreLogRow = incrementBoreLogRow;
 window.boresAndRocks = [];
 window.vaults = [];
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
@@ -1145,6 +1146,14 @@ function validateFootageValue() {
         return true;
     }
 }
+function checkIfInputIsNumber(value) {
+    if (isNaN(Number(value)) || value == "") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
 /**
  * makes sure that there's a valid date
  * in the date input element, it's either going to be a valid date
@@ -1437,12 +1446,51 @@ function generateBoreLogHTML(footage) {
         <p class="ftText">'</p>
         <input class="inInput" type="number"></input>
         <p class="inText">"</p>
-        <button class="incrementButton">+</button>
+        <button onclick="incrementBoreLogRow(this)" class="incrementButton">+</button>
         <button class="decrementButton">-</button>
       </div>
     `;
     }
     return html;
+}
+function incrementBoreLogRow(sourceElement) {
+    let ftInput = sourceElement.closest('.ftinContainer').querySelector('.ftInput');
+    let inInput = sourceElement.closest('.ftinContainer').querySelector('.inInput');
+    if (ftInput.value === "" && inInput.value === "") {
+        ftInput.value = "0";
+        inInput.value = "1";
+        updateAllFollowingRows(sourceElement);
+        return;
+    }
+    let [ft, inches] = [Number(ftInput.value), Number(inInput.value)];
+    inches++;
+    if (inches > 11) {
+        inches = 0;
+        ft++;
+    }
+    ftInput.value = `${ft}`;
+    inInput.value = `${inches}`;
+    updateAllFollowingRows(sourceElement);
+}
+function updateAllFollowingRows(sourceElement) {
+    let ftInput = sourceElement.closest('.ftinContainer').querySelector('.ftInput');
+    let inInput = sourceElement.closest('.ftinContainer').querySelector('.inInput');
+    let rowCount = sourceElement.closest('.ftinContainer').querySelector('.rowCounter');
+    let [ft, inches] = [Number(ftInput.value), Number(inInput.value)];
+    let sourceRow = Number(rowCount.textContent.split("-")[0]);
+    let inputs = document.getElementById('inputs');
+    let rows = inputs.querySelectorAll('.ftinContainer');
+    for (const row of rows) {
+        let rowCounter = row.querySelector('.rowCounter');
+        let rowVal = Number(rowCounter.textContent.split("-")[0]);
+        if (rowVal < sourceRow) {
+            continue;
+        }
+        let rowFt = row.querySelector('.ftInput');
+        let rowIn = row.querySelector('.inInput');
+        rowFt.value = `${ft}`;
+        rowIn.value = `${inches}`;
+    }
 }
 addZoomHandlers();
 drawSavedBoresAndRocks();
@@ -1451,3 +1499,12 @@ toggleMovementLinks();
 initialization();
 let boreLog = document.getElementById('inputs');
 boreLog.innerHTML = generateBoreLogHTML(250);
+let test = document.querySelectorAll('.ftinContainer');
+for (const row of test) {
+    let rowFt = row.querySelector('.ftInput');
+    let rowIn = row.querySelector('.inInput');
+    rowFt.addEventListener('change', (event) => {
+        //@ts-ignore
+        updateAllFollowingRows(event.srcElement);
+    });
+}
