@@ -1737,6 +1737,9 @@ function configureBoreLogContainer(footage : number) {
   let container = document.getElementById('boreLogContainer');
   let inputs = document.getElementById('inputs');
   let toggle = document.getElementById('boreLogToggle');
+  if (toggle.style.backgroundColor == "green") {
+    return;
+  }
   inputs.innerHTML = generateBoreLogHTML(footage);
 
   const closeContainer = () => {
@@ -1747,11 +1750,13 @@ function configureBoreLogContainer(footage : number) {
     container.style.display = "none";
     toggle.style.backgroundColor = "green";
     console.log(parseBoreLogValues());
+    clearAllEventListeners(['boreLogSubmit', 'boreLogCancel']);
   }
   const closeContainerAndClear = () => {
     inputs.innerHTML = "";
     container.style.display = "none";
     toggle.style.backgroundColor = "red";
+    clearAllEventListeners(['boreLogSubmit', 'boreLogCancel']);
   }
 
   let submit = document.getElementById('boreLogSubmit');

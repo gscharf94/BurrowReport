@@ -1597,7 +1597,7 @@ function parseBoreLogValues() {
     let feetInputs = document.querySelectorAll('.ftInput');
     let inchesInput = document.querySelectorAll('.inInput');
     for (let i = 0; i < feetInputs.length; i++) {
-        let row = [i, Number(feetInputs[i].value), Number(inchesInput[i].value)];
+        let row = [Number(feetInputs[i].value), Number(inchesInput[i].value)];
         output.push(row);
     }
     return output;
@@ -1606,6 +1606,9 @@ function configureBoreLogContainer(footage) {
     let container = document.getElementById('boreLogContainer');
     let inputs = document.getElementById('inputs');
     let toggle = document.getElementById('boreLogToggle');
+    if (toggle.style.backgroundColor == "green") {
+        return;
+    }
     inputs.innerHTML = generateBoreLogHTML(footage);
     const closeContainer = () => {
         if (!validateBoreLogValues()) {
@@ -1615,11 +1618,13 @@ function configureBoreLogContainer(footage) {
         container.style.display = "none";
         toggle.style.backgroundColor = "green";
         console.log(parseBoreLogValues());
+        clearAllEventListeners(['boreLogSubmit', 'boreLogCancel']);
     };
     const closeContainerAndClear = () => {
         inputs.innerHTML = "";
         container.style.display = "none";
         toggle.style.backgroundColor = "red";
+        clearAllEventListeners(['boreLogSubmit', 'boreLogCancel']);
     };
     let submit = document.getElementById('boreLogSubmit');
     let cancel = document.getElementById('boreLogCancel');
