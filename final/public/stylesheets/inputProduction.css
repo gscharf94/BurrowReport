@@ -1,3 +1,8 @@
+:root {
+  --borelog-row-height: 80px;
+  --borelog-gap: 15px;
+}
+
 #map {
   height: 100%;
 }
@@ -264,4 +269,131 @@ label {
   width: 100%;
   height: 100%;
   background-color: white;
+}
+
+#boreLogContainer {
+  position: absolute;
+  width: 57%;
+  height: 75%;
+  z-index: 1002;
+  background-color: var(--color-4);
+  top: 10%;
+  right: 15%;
+  display: flex;
+  flex-direction: column;
+  grid-template-columns: 50% 50%;
+}
+
+#inputs {
+  display: flex;
+  flex-direction: column;
+  /* flex-wrap: wrap; */
+  overflow-y: auto;
+  /* gap: 15px; */
+}
+
+.ftinContainer {
+  display: grid;
+  grid-template-columns: 23% 20% 5% 20% 5% 13.5% 13.5%;
+  margin: auto;
+  padding-top: var(--borelog-gap);
+  padding-bottom: var(--borelog-gap);
+  align-content: center;
+  width: 100%;
+  height: var(--borelog-row-height);
+}
+
+.ftinContainer p {
+  font-size: 6.5ch;
+  margin: auto;
+  margin-top: 0;
+  text-align: left;
+  height: var(--borelog-row-height);
+  /* margin-top: var(--borelog-gap); */
+  /* margin-bottom: var(--borelog-gap); */
+  /* align-self: center; */
+  display: inline-flex;
+  align-items: center;
+}
+
+.ftinContainer button {
+  /* height: var(--borelog-row-height); */
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* background-color: var(--color-4); */
+  font-size: 6ch;
+  /* margin-top: var(--borelog-gap); */
+  /* margin-bottom: var(--borelog-gap); */
+  height: 80%;
+  width: 80%;
+  margin: auto;
+}
+
+.incrementButton:active {
+  background-color: green;
+  color: white;
+}
+
+.decrementButton:active {
+  background-color: red;
+  color: white;
+}
+
+.incrementButton {
+  grid-column: 6;
+  background-color: #79d679;
+}
+
+.decrementButton {
+  grid-column: 7;
+  background-color: #ee7979;
+}
+
+.ftInput {
+  grid-column: 2;
+}
+
+.inInput {
+  grid-column: 4;
+}
+
+.inText {
+  grid-column: 5;
+}
+
+.ftText {
+  grid-column: 3;
+}
+
+.rowCounter {
+  grid-column: 1;
+  text-align: left;
+  margin: auto;
+  margin-top: 0px;
+  font-size: 7ch;
+}
+
+.ftinContainer input {
+  height: calc(var(--borelog-row-height) - 15px);
+  width: 80%;
+  font-size: 7ch;
+  text-align: center;
+  justify-self: right;
+  /* margin-top: var(--borelog-gap); */
+  /* margin-bottom: var(--borelog-gap); */
+  align-self: center;
+  border: none;
+  background-color: #ABB4C5;
+  box-shadow: rgba(53, 58, 71, .2) 0px 2px 3px 0px;
+  border-radius: 5px;
+}
+
+.ftinContainer h1 {
+  height: var(--borelog-row-height);
+  /* margin-top: var(--borelog-gap); */
+  /* margin-bottom: var(--borelog-gap); */
+  display: inline-flex;
+  align-items: center;
 }

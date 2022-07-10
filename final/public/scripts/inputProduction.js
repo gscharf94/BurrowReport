@@ -1423,8 +1423,31 @@ function getHalfwayPoint(pointA, pointB) {
     let gpsPoint = map.unproject(c);
     return [gpsPoint.lat, gpsPoint.lng];
 }
+function generateBoreLogHTML(footage) {
+    let numberOfRows = Math.floor(footage / 10);
+    if (footage % 10 !== 0) {
+        numberOfRows++;
+    }
+    let html = "";
+    for (let i = 0; i < numberOfRows; i++) {
+        html += `
+      <div class="ftinContainer">
+        <h1 class="rowCounter"> ${i * 10}-</h1>
+        <input class="ftInput" type="number"></input>
+        <p class="ftText">'</p>
+        <input class="inInput" type="number"></input>
+        <p class="inText">"</p>
+        <button class="incrementButton">+</button>
+        <button class="decrementButton">-</button>
+      </div>
+    `;
+    }
+    return html;
+}
 addZoomHandlers();
 drawSavedBoresAndRocks();
 drawSavedVaults();
 toggleMovementLinks();
 initialization();
+let boreLog = document.getElementById('inputs');
+boreLog.innerHTML = generateBoreLogHTML(250);
