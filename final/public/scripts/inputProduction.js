@@ -111,6 +111,7 @@ class BoreObject {
     tmp_coordinates;
     rock;
     id;
+    bore_logs;
     constructor(boreInfo) {
         this.job_name = boreInfo.job_name;
         this.page_number = boreInfo.page_number;
@@ -121,6 +122,7 @@ class BoreObject {
         this.coordinates = boreInfo.coordinates;
         this.rock = boreInfo.rock;
         this.id = boreInfo.id;
+        this.bore_logs = boreInfo.bore_logs;
         this.drawLine();
     }
     drawLine() {
@@ -169,6 +171,18 @@ class BoreObject {
         // });
         this.line.mapObject.bindPopup(this.generatePopupHTML());
     }
+    applyBoreLog() {
+        configureBoreLogContainer(this.bore_logs.length * 10);
+        let containers = document.querySelectorAll('.ftinContainer');
+        for (let i = 0; i < this.bore_logs.length; i++) {
+            let [ft, inches] = this.bore_logs[i];
+            console.log(`ft: ${ft} inches: ${inches}`);
+            let ftInput = containers[i].querySelector('.ftInput');
+            let inInput = containers[i].querySelector('.inInput');
+            ftInput.value = String(ft);
+            inInput.value = String(inches);
+        }
+    }
     editLine() {
         this.tmp_coordinates = [...this.coordinates];
         this.line.addLineMarkers();
@@ -179,13 +193,16 @@ class BoreObject {
         let elementsToShow = [
             'footageLabel', 'footageInput',
             'dateLabel', 'dateInput',
-            'submit', 'cancel'
+            'submit', 'cancel', 'boreLogToggle',
         ];
         let elementsToHide = [
             'addBore', 'addVault', 'addRock',
             'vaultLabel', 'vaultSelect'
         ];
         hideAndShowElements(elementsToShow, elementsToHide);
+        let toggle = document.getElementById('boreLogToggle');
+        this.applyBoreLog();
+        toggle.style.backgroundColor = "green";
         let footageInput = document.getElementById('footageInput');
         let dateInput = document.getElementById('dateInput');
         footageInput.value = String(this.footage);
@@ -200,10 +217,15 @@ class BoreObject {
             if (validateBoreInput() === false) {
                 return;
             }
+            if (validateBoreLogValues() === false) {
+                alert('Please enter valid bore log values.');
+                return;
+            }
             this.coordinates = this.line.points;
             this.tmp_coordinates = [];
             this.footage = getFootageValue();
             this.work_date = getDateValue();
+            this.bore_logs = [...parseBoreLogValues()];
             let postObject = {
                 coordinates: this.coordinates,
                 footage: this.footage,
@@ -214,6 +236,7 @@ class BoreObject {
                 page_number: PAGE_NUMBER,
                 object_type: "bore",
                 id: this.id,
+                bore_log: this.bore_logs,
             };
             const cb = (res) => {
                 console.log(`edit request for ${(this.rock) ? 'rock' : 'bore'} id: ${this.id}has been received and this is response:\n`);
@@ -663,6 +686,7 @@ class MapLine extends MapObject {
             crew_name: USERINFO.username,
             page_number: PAGE_NUMBER,
             object_type: "bore",
+            bore_log: parseBoreLogValues(),
         };
         const requestCallback = (res) => {
             let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
@@ -676,6 +700,7 @@ class MapLine extends MapObject {
                 coordinates: [...this.points],
                 footage: postObject.footage,
                 rock: postObject.rock,
+                bore_logs: postObject.bore_log,
             });
             window.boresAndRocks.push(newBoreObject);
             this.clearSelf();
@@ -688,6 +713,10 @@ class MapLine extends MapObject {
             return false;
         }
         if (validateBoreInput() === false) {
+            return false;
+        }
+        if (validateBoreLogValues() === false) {
+            alert('Please enter a valid bore log.');
             return false;
         }
         return true;
@@ -886,6 +915,24 @@ function initialization() {
     let boreLogToggle = document.getElementById('boreLogToggle');
     boreLogToggle.style.backgroundColor = "red";
     resetInputs();
+}
+/**
+ * I started using the initialization function as an update function
+ * so now I have to make a real initialization that only runs once
+ * otherwise i will be setting this event listener a bunch of times
+ * or have to spend extra processing time to clear it every time
+ *
+ * @returns {void}
+ */
+function singleInitialization() {
+    initialization();
+    let footInput = document.getElementById('footageInput');
+    footInput.addEventListener('input', () => {
+        let boreLogToggle = document.getElementById('boreLogToggle');
+        boreLogToggle.style.backgroundColor = "red";
+        let inputs = document.getElementById('inputs');
+        inputs.innerHTML = "";
+    });
 }
 /**
  * takes in two lists of element ids
@@ -1526,6 +1573,9 @@ function updateAllFollowingRows(sourceElement) {
 function validateBoreLogValues() {
     let feetInputs = document.querySelectorAll('.ftInput');
     let inchesInput = document.querySelectorAll('.inInput');
+    if (feetInputs.length == 0) {
+        return false;
+    }
     for (let i = 0; i < feetInputs.length; i++) {
         if (!checkIfInputIsNumber(feetInputs[i].value) || !checkIfInputIsNumber(inchesInput[i].value)) {
             return false;
@@ -1548,9 +1598,11 @@ function configureBoreLogContainer(footage) {
     let inputs = document.getElementById('inputs');
     let toggle = document.getElementById('boreLogToggle');
     if (toggle.style.backgroundColor == "green") {
-        return;
+        //pass
     }
-    inputs.innerHTML = generateBoreLogHTML(footage);
+    else {
+        inputs.innerHTML = generateBoreLogHTML(footage);
+    }
     const closeContainer = () => {
         if (!validateBoreLogValues()) {
             alert('Please enter valid numbers for the bore log.');
@@ -1558,7 +1610,6 @@ function configureBoreLogContainer(footage) {
         }
         container.style.display = "none";
         toggle.style.backgroundColor = "green";
-        console.log(parseBoreLogValues());
         clearAllEventListeners(['boreLogSubmit', 'boreLogCancel']);
     };
     const closeContainerAndClear = () => {
@@ -1590,4 +1641,4 @@ addZoomHandlers();
 drawSavedBoresAndRocks();
 drawSavedVaults();
 toggleMovementLinks();
-initialization();
+singleInitialization();

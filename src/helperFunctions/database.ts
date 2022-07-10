@@ -1,4 +1,4 @@
-import { TicketResponse, Coord, UploadBoreObject, UploadVaultObject } from '../interfaces';
+import { TicketResponse, Coord, UploadBoreObject, UploadVaultObject, BoreLogRow } from '../interfaces';
 import { pool } from '../db.js';
 
 /**
@@ -43,7 +43,8 @@ export function updateBore(boreInfo : UploadBoreObject) : void {
     SET
       coordinates='${formatCoordsToPsql(boreInfo.coordinates)}',
       footage=${boreInfo.footage},
-      work_date='${formatDateToPsql(new Date(boreInfo.work_date))}'
+      work_date='${formatDateToPsql(new Date(boreInfo.work_date))}',
+      bore_logs='${formatCoordsToPsql(boreInfo.bore_log)}'
     WHERE
       id=${boreInfo.id};
   `
@@ -132,7 +133,8 @@ export async function insertBore(boreData : UploadBoreObject) : Promise<[number,
         work_date,
         footage,
         coordinates,
-        crew_name
+        crew_name,
+        bore_logs
       )
     VALUES
       (
@@ -142,7 +144,8 @@ export async function insertBore(boreData : UploadBoreObject) : Promise<[number,
       '${formatDateToPsql(new Date(boreData.work_date))}',
       ${boreData.footage},
       '${formatCoordsToPsql(boreData.coordinates)}',
-      '${boreData.crew_name}'
+      '${boreData.crew_name}',
+      '${formatCoordsToPsql(boreData.bore_log)}'
       )
       RETURNING id;
   `
@@ -165,6 +168,7 @@ export function formatDateToPsql(date : Date) : string {
   let year = date.getFullYear();
   return `${year}-${month}-${day}`;
 }
+
 
 /**
  * psql accepts arrays in weird formats
@@ -219,7 +223,7 @@ export function formatTimestampToPsql(date : Date = new Date()) : string {
  * @param {Coord[]} coords - Coord[] - array of len 2 tuples of floats
  * @returns {string} - string to input into psql INSERT
  */
-export function formatCoordsToPsql(coords : Coord[]) : string {
+export function formatCoordsToPsql(coords : Coord[] | BoreLogRow[]) : string {
   let output = `{`;
   for (const coord of coords) {
     output += `{${coord[0]}, ${coord[1]}},`;

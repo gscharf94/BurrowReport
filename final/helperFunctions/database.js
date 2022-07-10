@@ -43,7 +43,8 @@ function updateBore(boreInfo) {
     SET
       coordinates='${formatCoordsToPsql(boreInfo.coordinates)}',
       footage=${boreInfo.footage},
-      work_date='${formatDateToPsql(new Date(boreInfo.work_date))}'
+      work_date='${formatDateToPsql(new Date(boreInfo.work_date))}',
+      bore_logs='${formatCoordsToPsql(boreInfo.bore_log)}'
     WHERE
       id=${boreInfo.id};
   `;
@@ -132,7 +133,8 @@ async function insertBore(boreData) {
         work_date,
         footage,
         coordinates,
-        crew_name
+        crew_name,
+        bore_logs
       )
     VALUES
       (
@@ -142,7 +144,8 @@ async function insertBore(boreData) {
       '${formatDateToPsql(new Date(boreData.work_date))}',
       ${boreData.footage},
       '${formatCoordsToPsql(boreData.coordinates)}',
-      '${boreData.crew_name}'
+      '${boreData.crew_name}',
+      '${formatCoordsToPsql(boreData.bore_log)}'
       )
       RETURNING id;
   `;

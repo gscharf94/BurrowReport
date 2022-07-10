@@ -8,6 +8,7 @@ export const router = express.Router();
 
 router.post('/', (req, res, next) => {
   console.log('data input post request');
+  console.log(req.body);
   (async () => {
     if (req.body.object_type == "bore") {
       let object_data : UploadBoreObject = req.body;

@@ -9,6 +9,7 @@ const database_js_1 = require("../helperFunctions/database.js");
 exports.router = express_1.default.Router();
 exports.router.post('/', (req, res, next) => {
     console.log('data input post request');
+    console.log(req.body);
     (async () => {
         if (req.body.object_type == "bore") {
             let object_data = req.body;
