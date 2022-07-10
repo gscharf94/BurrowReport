@@ -463,6 +463,9 @@ class MapObject {
         this.mapObject.addTo(map);
         this.hidden = false;
     }
+    sendSelfPost(postObject, callback) {
+        sendPostRequest('inputData', postObject, callback);
+    }
 }
 class MapLine extends MapObject {
     /**
@@ -709,6 +712,35 @@ class MapLine extends MapObject {
             });
         }
     }
+    submitSelf(rock) {
+        let postObject = {
+            coordinates: [...this.points],
+            footage: getFootageValue(),
+            rock: rock,
+            work_date: getDateValue(),
+            job_name: JOB_NAME,
+            crew_name: USERINFO.username,
+            page_number: PAGE_NUMBER,
+            object_type: "bore",
+        };
+        const requestCallback = (res) => {
+            let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
+            let newBoreObject = new BoreObject({
+                job_name: JOB_NAME,
+                page_number: PAGE_NUMBER,
+                page_id: pageId,
+                work_date: postObject.work_date,
+                crew_name: USERINFO.username,
+                id: boreId,
+                coordinates: [...this.points],
+                footage: postObject.footage,
+                rock: postObject.rock,
+            });
+            window.boresAndRocks.push(newBoreObject);
+            this.clearSelf();
+        };
+        this.sendSelfPost(postObject, requestCallback);
+    }
 }
 class MapMarker extends MapObject {
     /**
@@ -880,6 +912,18 @@ function hideAndShowElements(toShow, toHide) {
     });
 }
 /**
+ * this takes in an element id, makes a clone of it and replaces it
+ * this is to clear all event listeners so we dont have to keep track
+ *
+ * @param {string} elementId - string - element id
+ * @returns {void}
+ */
+function clearAllEventListeners(elementId) {
+    let oldElement = document.getElementById(elementId);
+    let newElement = oldElement.cloneNode(true);
+    oldElement.parentNode.replaceChild(newElement, oldElement);
+}
+/**
  * the user has clicked on the add bore button so now we start the process
  * of adding a bore...
  * 1 - we show/hide the correct elements
@@ -951,35 +995,7 @@ function addBoreStart() {
         if (validateBoreInput() === false) {
             return;
         }
-        let postObject = {
-            coordinates: line.points,
-            footage: getFootageValue(),
-            rock: false,
-            work_date: getDateValue(),
-            crew_name: USERINFO.username,
-            job_name: JOB_NAME,
-            page_number: PAGE_NUMBER,
-            object_type: "bore",
-        };
-        const requestCallback = (res) => {
-            let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
-            let newBoreObject = new BoreObject({
-                job_name: JOB_NAME,
-                page_number: PAGE_NUMBER,
-                page_id: pageId,
-                work_date: postObject.work_date,
-                crew_name: USERINFO.username,
-                id: boreId,
-                coordinates: line.points,
-                footage: postObject.footage,
-                rock: postObject.rock,
-            });
-            window.boresAndRocks.push(newBoreObject);
-        };
-        sendPostRequest('inputData', postObject, requestCallback);
-        line.removeLineMarkers();
-        line.removeTransparentLineMarkers();
-        line.hideObject();
+        line.submitSelf(false);
         initialization();
         map.off('click');
         map.off('zoomend', zoomHandler);
