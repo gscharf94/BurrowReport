@@ -427,3 +427,13 @@ label {
   margin-right: auto;
   border-radius: 5px;
 }
+
+#boreLogToggle {
+  grid-column: 4;
+  grid-row: 2;
+  height: 80%;
+  width: 80%;
+  font-size: 2ch;
+  padding: 0px;
+  background-color: red;
+}

@@ -74,3 +74,6 @@ export interface TicketInfo {
   state ?: States,
   old_tickets ?: string[],
 }
+
+//                       [feet  , inches]
+export type BoreLogRow = [number, number];

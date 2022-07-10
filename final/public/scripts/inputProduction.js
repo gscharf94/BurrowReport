@@ -808,6 +808,7 @@ window.deleteObject = deleteObject;
 window.editObject = editObject;
 window.incrementBoreLogRow = incrementBoreLogRow;
 window.decrementBoreLogRow = decrementBoreLogRow;
+window.toggleBoreLog = toggleBoreLog;
 window.boresAndRocks = [];
 window.vaults = [];
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
@@ -874,12 +875,16 @@ function initialization() {
         'dateLabel', 'dateInput',
         'footageLabel', 'footageInput',
         'vaultLabel', 'vaultSelect',
-        'cancel', 'submit',
+        'cancel', 'submit', 'boreLogToggle'
     ];
     const elementsToShow = [
         'addBore', 'addVault', 'addRock',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
+    let boreLogContainer = document.getElementById('boreLogContainer');
+    boreLogContainer.style.display = "none";
+    let boreLogToggle = document.getElementById('boreLogToggle');
+    boreLogToggle.style.backgroundColor = "red";
     resetInputs();
 }
 /**
@@ -931,7 +936,7 @@ function addBoreStart() {
     const elementsToShow = [
         'footageLabel', 'footageInput',
         'dateLabel', 'dateInput',
-        'cancel', 'submit'
+        'cancel', 'submit', 'boreLogToggle',
     ];
     const elementsToHide = [
         'vaultLabel', 'vaultSelect',
@@ -1001,7 +1006,7 @@ function addRockStart() {
     const elementsToShow = [
         'footageLabel', 'footageInput',
         'dateLabel', 'dateInput',
-        'cancel', 'submit'
+        'cancel', 'submit', 'boreLogToggle',
     ];
     const elementsToHide = [
         'vaultLabel', 'vaultSelect',
@@ -1058,7 +1063,7 @@ function addVaultStart() {
     ];
     const elementsToHide = [
         'footageLabel', 'footageInput',
-        'addRock', 'addBore',
+        'addRock', 'addBore', 'boreLogToggle',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
     let cancelButton = document.getElementById('cancel');
@@ -1140,11 +1145,11 @@ function resetInputs() {
  */
 function validateFootageValue() {
     let footageInput = document.getElementById('footageInput');
-    if (isNaN(Number(footageInput.value)) || footageInput.value == "") {
-        return false;
+    if (checkIfInputIsNumber(footageInput.value)) {
+        return true;
     }
     else {
-        return true;
+        return false;
     }
 }
 function checkIfInputIsNumber(value) {
@@ -1518,15 +1523,66 @@ function updateAllFollowingRows(sourceElement) {
         rowIn.value = `${inches}`;
     }
 }
+function validateBoreLogValues() {
+    let feetInputs = document.querySelectorAll('.ftInput');
+    let inchesInput = document.querySelectorAll('.inInput');
+    for (let i = 0; i < feetInputs.length; i++) {
+        if (!checkIfInputIsNumber(feetInputs[i].value) || !checkIfInputIsNumber(inchesInput[i].value)) {
+            return false;
+        }
+    }
+    return true;
+}
+function parseBoreLogValues() {
+    let output = [];
+    let feetInputs = document.querySelectorAll('.ftInput');
+    let inchesInput = document.querySelectorAll('.inInput');
+    for (let i = 0; i < feetInputs.length; i++) {
+        let row = [Number(feetInputs[i].value), Number(inchesInput[i].value)];
+        output.push(row);
+    }
+    return output;
+}
 function configureBoreLogContainer(footage) {
     let container = document.getElementById('boreLogContainer');
-    container.style.display = "flex";
     let inputs = document.getElementById('inputs');
+    let toggle = document.getElementById('boreLogToggle');
     inputs.innerHTML = generateBoreLogHTML(footage);
+    const closeContainer = () => {
+        if (!validateBoreLogValues()) {
+            alert('Please enter valid numbers for the bore log.');
+            return;
+        }
+        container.style.display = "none";
+        toggle.style.backgroundColor = "green";
+        console.log(parseBoreLogValues());
+    };
+    const closeContainerAndClear = () => {
+        inputs.innerHTML = "";
+        container.style.display = "none";
+        toggle.style.backgroundColor = "red";
+    };
+    let submit = document.getElementById('boreLogSubmit');
+    let cancel = document.getElementById('boreLogCancel');
+    submit.addEventListener('click', closeContainer);
+    cancel.addEventListener('click', closeContainerAndClear);
+}
+function toggleBoreLog() {
+    let container = document.getElementById('boreLogContainer');
+    if (container.style.display == "none") {
+        if (!validateFootageValue()) {
+            alert('Please enter a total footage.');
+            return;
+        }
+        configureBoreLogContainer(getFootageValue());
+        container.style.display = "flex";
+    }
+    else {
+        container.style.display = "none;";
+    }
 }
 addZoomHandlers();
 drawSavedBoresAndRocks();
 drawSavedVaults();
 toggleMovementLinks();
 initialization();
-configureBoreLogContainer(35);
