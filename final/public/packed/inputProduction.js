@@ -741,6 +741,16 @@ class MapLine extends MapObject {
         };
         this.sendSelfPost(postObject, requestCallback);
     }
+    readyToSubmit() {
+        if (this.points.length < 2) {
+            alert('ERROR\n\nPlease finish drawing the line.');
+            return false;
+        }
+        if (validateBoreInput() === false) {
+            return false;
+        }
+        return true;
+    }
 }
 class MapMarker extends MapObject {
     /**
@@ -915,13 +925,15 @@ function hideAndShowElements(toShow, toHide) {
  * this takes in an element id, makes a clone of it and replaces it
  * this is to clear all event listeners so we dont have to keep track
  *
- * @param {string} elementId - string - element id
+ * @param {string[]} ids - string[] - element ids
  * @returns {void}
  */
-function clearAllEventListeners(elementId) {
-    let oldElement = document.getElementById(elementId);
-    let newElement = oldElement.cloneNode(true);
-    oldElement.parentNode.replaceChild(newElement, oldElement);
+function clearAllEventListeners(ids) {
+    for (const id of ids) {
+        let oldElement = document.getElementById(id);
+        let newElement = oldElement.cloneNode(true);
+        oldElement.parentNode.replaceChild(newElement, oldElement);
+    }
 }
 /**
  * the user has clicked on the add bore button so now we start the process
@@ -958,51 +970,24 @@ function addBoreStart() {
         line.createSelf();
     };
     map.on('zoomend', zoomHandler);
+    let submitButton = document.getElementById('submit');
     let cancelButton = document.getElementById('cancel');
-    const cancelOneTime = () => {
+    cancelButton.addEventListener('click', () => {
         line.clearSelf();
         initialization();
         map.off('click');
-        cancelButton.removeEventListener('click', cancelOneTime);
-        submitButton.removeEventListener('click', submitOneTime);
-    };
-    cancelButton.addEventListener('click', cancelOneTime);
-    let submitButton = document.getElementById('submit');
-    /**
-     * this callback happens once and then it deletes itself
-     * 1 - it checks to make sure that both
-     *       a) there are enough points to make a line
-     *       b) there are valid inputs in the input fields
-     *     if neither, then it exits and does not delete itself
-     *
-     * 2 - if these two conditions are met, it creates a post object
-     *     which then gets sent as a post request to the server
-     *     with the relevant data about the bore
-     *
-     * 3 - it deletes the points on the line and removes it from the map
-     *     it also deletes the event handler for the map that creates points
-     *     when being clicked. it also resets the inputs for the next item
-     *
-     * 4 - then finally it deletes itself. quite a beauty aint she
-     * 5 - and also deletes click event listner related to cancel.. otherwise
-     *     we will delete all lines if we ever click cancel, lol
-     */
-    const submitOneTime = () => {
-        if (line.points.length < 2) {
-            alert('ERROR\n\nPlease finish drawing the line.');
-            return;
-        }
-        if (validateBoreInput() === false) {
+        clearAllEventListeners(['submit', 'cancel']);
+    });
+    submitButton.addEventListener('click', () => {
+        if (!line.readyToSubmit()) {
             return;
         }
         line.submitSelf(false);
         initialization();
         map.off('click');
         map.off('zoomend', zoomHandler);
-        submitButton.removeEventListener('click', submitOneTime);
-        cancelButton.removeEventListener('click', cancelOneTime);
-    };
-    submitButton.addEventListener('click', submitOneTime);
+        clearAllEventListeners(['submit', 'cancel']);
+    });
 }
 /**
  * basically takes a url on the website or a full url and sends
@@ -1060,58 +1045,23 @@ function addRockStart() {
     };
     map.on('zoomend', zoomHandler);
     let cancelButton = document.getElementById('cancel');
-    const cancelOneTime = () => {
+    let submitButton = document.getElementById('submit');
+    cancelButton.addEventListener('click', () => {
         line.clearSelf();
         initialization();
         map.off('click');
-        cancelButton.removeEventListener('click', cancelOneTime);
-        submitButton.removeEventListener('click', submitOneTime);
-    };
-    cancelButton.addEventListener('click', cancelOneTime);
-    let submitButton = document.getElementById('submit');
-    const submitOneTime = () => {
-        if (line.points.length < 2) {
-            alert('ERROR\n\nPlease finish drawing the line.');
+        clearAllEventListeners(['submit', 'cancel']);
+    });
+    submitButton.addEventListener('click', () => {
+        if (!line.readyToSubmit()) {
             return;
         }
-        if (validateBoreInput() === false) {
-            return;
-        }
-        let postObject = {
-            object_type: "bore",
-            coordinates: line.points,
-            footage: getFootageValue(),
-            rock: true,
-            work_date: getDateValue(),
-            job_name: JOB_NAME,
-            page_number: PAGE_NUMBER,
-            crew_name: USERINFO.username,
-        };
-        const requestCallback = (res) => {
-            let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
-            let newBoreObject = new BoreObject({
-                job_name: JOB_NAME,
-                page_number: PAGE_NUMBER,
-                page_id: pageId,
-                work_date: postObject.work_date,
-                crew_name: USERINFO.username,
-                id: boreId,
-                coordinates: line.points,
-                footage: postObject.footage,
-                rock: postObject.rock,
-            });
-            window.boresAndRocks.push(newBoreObject);
-        };
-        sendPostRequest('inputData', postObject, requestCallback);
-        line.removeLineMarkers();
-        line.removeTransparentLineMarkers();
-        line.hideObject();
+        line.submitSelf(true);
         initialization();
         map.off('click');
-        submitButton.removeEventListener('click', submitOneTime);
-        cancelButton.removeEventListener('click', cancelOneTime);
-    };
-    submitButton.addEventListener('click', submitOneTime);
+        map.off('zoomend', zoomHandler);
+        clearAllEventListeners(['submit', 'cancel']);
+    });
 }
 /**
  * the user has clicked on the add vault button so now we start the process
