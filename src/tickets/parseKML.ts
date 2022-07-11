@@ -34,8 +34,21 @@ function parseCoords(text : string) : Coord[] {
     let [lat, lng] = row.split(",")
     coords.push([Number(lat), Number(lng)]);
   }
-
   return coords;
+}
+
+async function checkIfTicketExists(ticketNumber : string) : Promise<boolean> {
+  let query = `
+    SELECT * FROM tickets
+    WHERE
+      ticket_number='${ticketNumber}';
+  `;
+  let response = await pool.query(query);
+  if (response.rows.length == 0) {
+    return false;
+  } else if (response.rows.length == 1) {
+    return true;
+  }
 }
 
 /**
@@ -48,14 +61,19 @@ function parseCoords(text : string) : Coord[] {
  * @param {string} jobName - string - the name of job to uploaded into
  * @returns {void}
  */
-async function updateDatabase(ticket : string, coords : Coord[], jobName : string) : Promise<void> {
-  let state = await getJobState(jobName);
-
+async function updateDatabase(ticket : string, coords : Coord[], jobName : string, state : States) : Promise<void> {
   let query = `
     INSERT INTO tickets(ticket_number, coordinates, job_name, state)
     VALUES('${ticket}', '${formatCoordsToPsql(coords)}', '${jobName}', '${state}');
   `
-  pool.query(query);
+  pool.query(query, (err, resp) => {
+    if (err) {
+      console.log(`error inserting ticket: ${ticket}`);
+      console.log(err);
+    } else {
+      console.log(`inserted ticket: ${ticket}`);
+    }
+  });
 }
 
 /**
@@ -68,8 +86,7 @@ async function updateDatabase(ticket : string, coords : Coord[], jobName : strin
  * @param {string} jobName - string job name
  * @returns {void}
  */
-function parseKml(jobName : string) : void {
-
+async function parseKml(jobName : string) : Promise<void> {
   let text = fs.readFileSync(`final/tickets/kmls/${jobName}.kml`, 'utf8');
 
   let coordinateRegex = /<coordinates>([\s.\d,-]*)/g;
@@ -80,11 +97,12 @@ function parseKml(jobName : string) : void {
   let ticketResult = text.matchAll(ticketRegex);
   let tickets = [...ticketResult].map(val => val[1]);
 
+  let state = await getJobState(jobName);
   for (let i = 0; i < tickets.length; i++) {
-    updateDatabase(tickets[i], coords[i], jobName);
+    if (!await checkIfTicketExists(tickets[i])) {
+      updateDatabase(tickets[i], coords[i], jobName, state);
+    }
   }
 }
 
-// parseKml('T691W');
-// parseKml('P4811');
-// parseKml('P4819');
+parseKml('P4882');

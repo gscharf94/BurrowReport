@@ -35,6 +35,20 @@ function parseCoords(text) {
     }
     return coords;
 }
+async function checkIfTicketExists(ticketNumber) {
+    let query = `
+    SELECT * FROM tickets
+    WHERE
+      ticket_number='${ticketNumber}';
+  `;
+    let response = await db_js_1.pool.query(query);
+    if (response.rows.length == 0) {
+        return false;
+    }
+    else if (response.rows.length == 1) {
+        return true;
+    }
+}
 /**
  * runs a query command to enter these tickets into the database
  * these tickets then need to be populated with data by running
@@ -45,13 +59,20 @@ function parseCoords(text) {
  * @param {string} jobName - string - the name of job to uploaded into
  * @returns {void}
  */
-async function updateDatabase(ticket, coords, jobName) {
-    let state = await getJobState(jobName);
+async function updateDatabase(ticket, coords, jobName, state) {
     let query = `
     INSERT INTO tickets(ticket_number, coordinates, job_name, state)
     VALUES('${ticket}', '${(0, database_js_1.formatCoordsToPsql)(coords)}', '${jobName}', '${state}');
   `;
-    db_js_1.pool.query(query);
+    db_js_1.pool.query(query, (err, resp) => {
+        if (err) {
+            console.log(`error inserting ticket: ${ticket}`);
+            console.log(err);
+        }
+        else {
+            console.log(`inserted ticket: ${ticket}`);
+        }
+    });
 }
 /**
  * takes in a kml file which should be in a folder
@@ -63,7 +84,7 @@ async function updateDatabase(ticket, coords, jobName) {
  * @param {string} jobName - string job name
  * @returns {void}
  */
-function parseKml(jobName) {
+async function parseKml(jobName) {
     let text = fs_1.default.readFileSync(`final/tickets/kmls/${jobName}.kml`, 'utf8');
     let coordinateRegex = /<coordinates>([\s.\d,-]*)/g;
     let coordinateResult = text.matchAll(coordinateRegex);
@@ -71,10 +92,11 @@ function parseKml(jobName) {
     let ticketRegex = /<name>(\d*)<\/name>/g;
     let ticketResult = text.matchAll(ticketRegex);
     let tickets = [...ticketResult].map(val => val[1]);
+    let state = await getJobState(jobName);
     for (let i = 0; i < tickets.length; i++) {
-        updateDatabase(tickets[i], coords[i], jobName);
+        if (!await checkIfTicketExists(tickets[i])) {
+            updateDatabase(tickets[i], coords[i], jobName, state);
+        }
     }
 }
-// parseKml('T691W');
-// parseKml('P4811');
-// parseKml('P4819');
+parseKml('P4882');
