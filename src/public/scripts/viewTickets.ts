@@ -1,8 +1,10 @@
 import { parseJSON } from '../../helperFunctions/website.js';
+import { TicketInfo } from '../../interfaces';
+import { MapLine } from '../../classes/leafletClasses.js';
 import L from 'leaflet';
 
 //@ts-ignore
-const tickets = parseJSON(TICKETS_JSON);
+const tickets : TicketInfo[] = parseJSON(TICKETS_JSON);
 
 let map = L.map('map');
 
@@ -15,3 +17,12 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
   accessToken: 'pk.eyJ1IjoiZ3NjaGFyZjk0IiwiYSI6ImNreWd2am9mODBjbnMyb29sNjZ2Mnd1OW4ifQ.1cSadM_VR54gigTAsVVGng'
 }).addTo(map);
 map.setView([0, 0], 5);
+
+
+let line = new MapLine(map, {
+  points: [[0, 1], [2, 3], [-1, 4]],
+  dashed: false,
+  color: 'purple',
+});
+console.log(line);
+// let line = new MapLine([[0, 0], [1, 1], [3, -2]]);

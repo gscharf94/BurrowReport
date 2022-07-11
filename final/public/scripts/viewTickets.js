@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const website_js_1 = require("../../helperFunctions/website.js");
+const leafletClasses_js_1 = require("../../classes/leafletClasses.js");
 const leaflet_1 = __importDefault(require("leaflet"));
 //@ts-ignore
 const tickets = (0, website_js_1.parseJSON)(TICKETS_JSON);
@@ -17,3 +18,10 @@ leaflet_1.default.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
     accessToken: 'pk.eyJ1IjoiZ3NjaGFyZjk0IiwiYSI6ImNreWd2am9mODBjbnMyb29sNjZ2Mnd1OW4ifQ.1cSadM_VR54gigTAsVVGng'
 }).addTo(map);
 map.setView([0, 0], 5);
+let line = new leafletClasses_js_1.MapLine(map, {
+    points: [[0, 1], [2, 3], [-1, 4]],
+    dashed: false,
+    color: 'purple',
+});
+console.log(line);
+// let line = new MapLine([[0, 0], [1, 1], [3, -2]]);
