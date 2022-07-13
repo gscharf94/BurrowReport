@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTicketInfo = void 0;
+exports.getTicketInfo = exports.updateTicketInfo = void 0;
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const db_js_1 = require("../db.js");
 const webScraping_js_1 = require("../helperFunctions/webScraping.js");
@@ -37,14 +37,18 @@ function updateTicketInfo(info) {
   `;
     db_js_1.pool.query(query);
 }
+exports.updateTicketInfo = updateTicketInfo;
 async function getTicketInfoFlorida(ticket) {
+    return {
+        ticket_number: 'test',
+    };
 }
 /**
  * takes a ticket number and gets all the info from it online
  * this one is specifically for Kentucky
  *
  * @param {string} ticket - string - ticket number
- * @returns {Promise<void>} - void - should be TicketInfo
+ * @returns {Promise<TicketInfo>} - TicketInfo - the information for the ticket
  */
 async function getTicketInfoKentucky(ticket) {
     const browser = await puppeteer_1.default.launch({
@@ -90,8 +94,8 @@ async function getTicketInfoKentucky(ticket) {
         description: parsedInfo.description,
         responses: responses,
     };
-    updateTicketInfo(ticketInfo);
     browser.close();
+    return ticketInfo;
 }
 function parseTicketTextKentucky(text) {
     let streetRegex = /Street  : (.*)/;
@@ -122,7 +126,7 @@ function parseTicketTextKentucky(text) {
  *
  * @param {string} ticket - string - ticket number
  * @param {States} state - States - the state the ticket is based in
- * @returns {Promise<void>} - should be TicketInfo
+ * @returns {Promise<TicketInfo>} - the info for the ticket TicketInfo
  */
 async function getTicketInfo(ticket, state) {
     if (state == "Kentucky") {
@@ -133,6 +137,3 @@ async function getTicketInfo(ticket, state) {
     }
 }
 exports.getTicketInfo = getTicketInfo;
-let testTickets = ["2206050166", "2206050156"];
-getTicketInfo(testTickets[0], 'Kentucky');
-getTicketInfo(testTickets[1], 'Kentucky');

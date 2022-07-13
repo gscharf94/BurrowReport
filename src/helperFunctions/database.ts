@@ -1,4 +1,4 @@
-import { TicketResponse, Coord, UploadBoreObject, UploadVaultObject, BoreLogRow } from '../interfaces';
+import { TicketResponse, Coord, UploadBoreObject, UploadVaultObject, BoreLogRow, States } from '../interfaces';
 import { pool } from '../db.js';
 
 /**
@@ -282,4 +282,27 @@ export function updateTicketRefresh(oldTicket : string, newTicket : string) : vo
 
     pool.query(query);
   });
+}
+
+export async function getJobTickets(jobName : string) : Promise<string[]> {
+  let query = `
+    SELECT ticket_number FROM tickets
+    WHERE
+      job_name='${jobName}';
+  `
+  let result = await pool.query(query);
+  return result.rows.map(val => val.ticket_number);
+}
+/**
+ * does a query to the database to figure out which state the
+ * job is associated with, so that we can add it to the tickets
+ * for convenience.. so we don't have to do weird inner joins
+ *
+ * @param {string} jobName - string - the job name
+ * @returns {Promise<States>} - promise that should be a state for the job
+ */
+export async function getJobState(jobName : string) : Promise<States> {
+  let query = `SELECT * FROM jobs WHERE job_name='${jobName}';`;
+  let response = await pool.query(query);
+  return response.rows[0].state;
 }

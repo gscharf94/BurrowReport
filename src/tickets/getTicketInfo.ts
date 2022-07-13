@@ -18,7 +18,7 @@ const GLOBALDELAY = 50;
  * @param {TicketInfo} info - TicketInfo - the data for the ticket
  * @returns {void} - doesnt return anything.. just sends sql query
  */
-function updateTicketInfo(info : TicketInfo) : void {
+export function updateTicketInfo(info : TicketInfo) : void {
   let query = `
     UPDATE tickets
     SET
@@ -39,8 +39,10 @@ function updateTicketInfo(info : TicketInfo) : void {
 
 
 
-async function getTicketInfoFlorida(ticket : string) : Promise<void> {
-
+async function getTicketInfoFlorida(ticket : string) : Promise<TicketInfo> {
+  return {
+    ticket_number: 'test',
+  };
 }
 
 /**
@@ -48,9 +50,9 @@ async function getTicketInfoFlorida(ticket : string) : Promise<void> {
  * this one is specifically for Kentucky
  *
  * @param {string} ticket - string - ticket number
- * @returns {Promise<void>} - void - should be TicketInfo
+ * @returns {Promise<TicketInfo>} - TicketInfo - the information for the ticket
  */
-async function getTicketInfoKentucky(ticket : string) : Promise<void> {
+async function getTicketInfoKentucky(ticket : string) : Promise<TicketInfo> {
   const browser = await puppeteer.launch({
     headless: HEADLESS,
     slowMo: GLOBALDELAY,
@@ -102,8 +104,8 @@ async function getTicketInfoKentucky(ticket : string) : Promise<void> {
     responses: responses,
   };
 
-  updateTicketInfo(ticketInfo);
   browser.close();
+  return ticketInfo;
 }
 
 function parseTicketTextKentucky(text : string) : { city : string, street : string, cross_street : string, input_date : Date, expiration_date : Date, description : string } {
@@ -142,18 +144,12 @@ function parseTicketTextKentucky(text : string) : { city : string, street : stri
  *
  * @param {string} ticket - string - ticket number
  * @param {States} state - States - the state the ticket is based in
- * @returns {Promise<void>} - should be TicketInfo
+ * @returns {Promise<TicketInfo>} - the info for the ticket TicketInfo
  */
-export async function getTicketInfo(ticket : string, state : States) : Promise<void> {
+export async function getTicketInfo(ticket : string, state : States) : Promise<TicketInfo> {
   if (state == "Kentucky") {
     return await getTicketInfoKentucky(ticket);
   } else if (state == "Florida") {
     return await getTicketInfoFlorida(ticket);
   }
 }
-
-let testTickets = ["2206050166", "2206050156"];
-
-
-getTicketInfo(testTickets[0], 'Kentucky');
-getTicketInfo(testTickets[1], 'Kentucky');

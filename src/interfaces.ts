@@ -77,5 +77,22 @@ export interface TicketInfo {
   old_tickets ?: string[],
 }
 
+export interface TicketInfoDownload {
+  ticket_number : string,
+  city ?: string,
+  street ?: string,
+  cross_street ?: string,
+  input_date ?: Date,
+  expiration_date ?: Date,
+  job_name ?: string,
+  description ?: string,
+  responses ?: string[],
+  last_update ?: Date,
+  coordinates ?: Coord[],
+  active ?: boolean,
+  state ?: States,
+  old_tickets ?: string[],
+}
+
 //                       [feet  , inches]
 export type BoreLogRow = [number, number];

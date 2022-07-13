@@ -7,19 +7,6 @@ const fs_1 = __importDefault(require("fs"));
 const db_js_1 = require("../db.js");
 const database_js_1 = require("../helperFunctions/database.js");
 /**
- * does a query to the database to figure out which state the
- * job is associated with, so that we can add it to the tickets
- * for convenience.. so we don't have to do weird inner joins
- *
- * @param {string} jobName - string - the job name
- * @returns {Promise<States>} - promise that should be a state for the job
- */
-async function getJobState(jobName) {
-    let query = `SELECT * FROM jobs WHERE job_name='${jobName}';`;
-    let response = await db_js_1.pool.query(query);
-    return response.rows[0].state;
-}
-/**
  * the regex function splits up the kml into chunks
  * this takes a chunk and extracts the coords from the string
  *
@@ -30,7 +17,7 @@ function parseCoords(text) {
     let split = text.trim().split("\n");
     let coords = [];
     for (const row of split) {
-        let [lat, lng] = row.split(",");
+        let [lng, lat] = row.split(",");
         coords.push([Number(lat), Number(lng)]);
     }
     return coords;
@@ -92,7 +79,7 @@ async function parseKml(jobName) {
     let ticketRegex = /<name>(\d*)<\/name>/g;
     let ticketResult = text.matchAll(ticketRegex);
     let tickets = [...ticketResult].map(val => val[1]);
-    let state = await getJobState(jobName);
+    let state = await (0, database_js_1.getJobState)(jobName);
     for (let i = 0; i < tickets.length; i++) {
         if (!await checkIfTicketExists(tickets[i])) {
             updateDatabase(tickets[i], coords[i], jobName, state);

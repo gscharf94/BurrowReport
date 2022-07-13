@@ -1,22 +1,7 @@
 import fs from 'fs';
 import { pool } from '../db.js';
 import { Coord, States } from '../interfaces';
-import { formatCoordsToPsql } from '../helperFunctions/database.js';
-
-/**
- * does a query to the database to figure out which state the
- * job is associated with, so that we can add it to the tickets
- * for convenience.. so we don't have to do weird inner joins
- *
- * @param {string} jobName - string - the job name
- * @returns {Promise<States>} - promise that should be a state for the job
- */
-async function getJobState(jobName : string) : Promise<States> {
-  let query = `SELECT * FROM jobs WHERE job_name='${jobName}';`;
-  let response = await pool.query(query);
-  return response.rows[0].state;
-}
-
+import { formatCoordsToPsql, getJobState } from '../helperFunctions/database.js';
 
 /**
  * the regex function splits up the kml into chunks
@@ -31,7 +16,7 @@ function parseCoords(text : string) : Coord[] {
   let coords : Coord[] = [];
 
   for (const row of split) {
-    let [lat, lng] = row.split(",")
+    let [lng, lat] = row.split(",")
     coords.push([Number(lat), Number(lng)]);
   }
   return coords;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.updateVault = exports.updateBore = exports.deleteObject = exports.getPageId = void 0;
+exports.getJobState = exports.getJobTickets = exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.updateVault = exports.updateBore = exports.deleteObject = exports.getPageId = void 0;
 const db_js_1 = require("../db.js");
 /**
  * takes a job name and a page number and returns a page id
@@ -279,3 +279,27 @@ function updateTicketRefresh(oldTicket, newTicket) {
     });
 }
 exports.updateTicketRefresh = updateTicketRefresh;
+async function getJobTickets(jobName) {
+    let query = `
+    SELECT ticket_number FROM tickets
+    WHERE
+      job_name='${jobName}';
+  `;
+    let result = await db_js_1.pool.query(query);
+    return result.rows.map(val => val.ticket_number);
+}
+exports.getJobTickets = getJobTickets;
+/**
+ * does a query to the database to figure out which state the
+ * job is associated with, so that we can add it to the tickets
+ * for convenience.. so we don't have to do weird inner joins
+ *
+ * @param {string} jobName - string - the job name
+ * @returns {Promise<States>} - promise that should be a state for the job
+ */
+async function getJobState(jobName) {
+    let query = `SELECT * FROM jobs WHERE job_name='${jobName}';`;
+    let response = await db_js_1.pool.query(query);
+    return response.rows[0].state;
+}
+exports.getJobState = getJobState;

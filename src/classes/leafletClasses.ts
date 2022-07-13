@@ -1,6 +1,6 @@
 import L from 'leaflet';
-import { Coord } from '../interfaces';
-
+import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload } from '../interfaces';
+import { checkResponses } from '../helperFunctions/tickets.js';
 
 class MapObject<T extends L.Layer> {
   hidden : boolean;
@@ -25,6 +25,133 @@ class MapObject<T extends L.Layer> {
   // sendSelfPostRequest
 }
 
+export class TicketObject {
+  ticket_number : string;
+  city : string;
+  street : string;
+  cross_street : string;
+  input_date : Date;
+  expiration_date : Date;
+  job_name : string;
+  description : string;
+  responses : TicketResponse[];
+  last_update : Date;
+  coordinates : Coord[];
+  active : boolean;
+  state : States;
+  old_tickets : string[];
+  line : MapLine;
+  map : L.Map;
+  status : [number, number];
+
+  constructor(map : L.Map, info : TicketInfoDownload) {
+    this.ticket_number = info.ticket_number;
+    this.coordinates = info.coordinates;
+    this.map = map;
+    this.responses = this.parseResponses(info.responses);
+    this.status = checkResponses(this.responses);
+
+    this.createLine();
+    this.bindPopup();
+  }
+
+  parseResponses(responses : string[]) : TicketResponse[] {
+    let parsedResponses : TicketResponse[] = [];
+    for (const response of responses) {
+      let row : TicketResponse = {
+        utility_name: response[0],
+        utility_type: response[1],
+        response: response[2],
+        contact: response[3],
+        alternate_contact: response[4],
+        emergency_contact: response[5],
+        notes: response[6],
+      }
+      parsedResponses.push(row);
+    }
+    return parsedResponses;
+  }
+
+  createLine() {
+    this.line = new MapLine(this.map, {
+      points: this.coordinates,
+      color: this.determineColor(this.status),
+    });
+  }
+
+  changeColor(color : string) {
+    this.line.changeColor(color);
+    this.bindPopup();
+  }
+
+  determineColor([clear, pending] : [number, number]) : string {
+    if (pending == 0) {
+      return 'rgb(3, 255, 56)';
+    }
+    if (pending == 1) {
+      return 'rgb(3, 153, 35)';
+    }
+    if (clear == 0) {
+      return 'rgb(255, 0, 0)';
+    }
+    if (Math.abs(pending - clear) == 2) {
+      return 'rgb(255, 255, 0)';
+    } else {
+      return 'orange';
+    }
+  }
+
+  bindPopup() {
+    this.line.mapObject.bindPopup(this.generatePopupHTML());
+  }
+
+  generatePopupTableHTML() : string {
+    let html = `
+      <table class="responseTable">
+      `;
+    for (const resp of this.responses) {
+      let name : string;
+      let rowClass : string;
+      if (resp.response.search('Marke') != -1) {
+        name = "Marked";
+        rowClass = "clear"
+      } else if (resp.response.search('Clea') != -1) {
+        name = "Clear";
+        rowClass = "clear"
+      } else if (resp.response == "") {
+        name = "No Response"
+        rowClass = "noResponse"
+      } else if (resp.response.search('Exca') != -1) {
+        name = "Pending"
+        rowClass = "pending"
+      }
+      else {
+        name = resp.response.slice(0, 15);
+      }
+      html += `
+        <tr class="${rowClass}">
+          <td>${resp.utility_name}</td>
+          <td>${name}</td>
+          <td><input onclick="filterByUtility('${resp.utility_name}')" type="checkbox"></input></td>
+        </tr>
+      `
+    }
+    html += '</table>';
+    return html;
+  }
+
+  generatePopupHTML() : string {
+    // add exp date
+    let html = `
+      <div class="infoPopup">
+        <h3 class="popupTicketNumber">${this.ticket_number}</h3>
+        ${this.generatePopupTableHTML()}
+      </div>
+    `
+    return html;
+  }
+}
+
 type MapLineOptions = {
   points : Coord[],
   color ?: string,
@@ -37,6 +164,7 @@ export class MapLine extends MapObject<L.Polyline> {
   color : string;
   weight : number;
   dashed : string;
+  originalColor : string;
 
   constructor(
     map : L.Map,
@@ -52,6 +180,18 @@ export class MapLine extends MapObject<L.Polyline> {
     (dashed) ? this.dashed = "10 10" : this.dashed = "";
     this.createPolyline();
     this.addSelf();
+  }
+
+  resetLine() {
+    this.removeSelf();
+    this.createPolyline();
+    this.addSelf();
+  }
+
+  changeColor(color : string) {
+    this.originalColor = this.color;
+    this.color = color;
+    this.resetLine();
   }
 
   createPolyline() {
