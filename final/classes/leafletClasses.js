@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MapLine = exports.TicketObject = void 0;
 const leaflet_1 = __importDefault(require("leaflet"));
 const tickets_js_1 = require("../helperFunctions/tickets.js");
+const website_js_1 = require("../helperFunctions/website.js");
 class MapObject {
     hidden;
     mapObject;
@@ -40,13 +41,16 @@ class TicketObject {
     old_tickets;
     line;
     map;
+    lineRenderer;
     status;
-    constructor(map, info) {
+    constructor(map, renderer, info) {
         this.ticket_number = info.ticket_number;
         this.coordinates = info.coordinates;
         this.map = map;
         this.responses = this.parseResponses(info.responses);
         this.status = (0, tickets_js_1.checkResponses)(this.responses);
+        this.lineRenderer = renderer;
+        this.expiration_date = info.expiration_date;
         this.createLine();
         this.bindPopup();
     }
@@ -67,7 +71,7 @@ class TicketObject {
         return parsedResponses;
     }
     createLine() {
-        this.line = new MapLine(this.map, {
+        this.line = new MapLine(this.map, this.lineRenderer, {
             points: this.coordinates,
             color: this.determineColor(this.status),
         });
@@ -94,7 +98,7 @@ class TicketObject {
         }
     }
     bindPopup() {
-        this.line.mapObject.bindPopup(this.generatePopupHTML(), { closeOnClick: false, autoClose: false });
+        this.line.mapObject.bindPopup(this.generatePopupHTML(), {});
     }
     generatePopupTableHTML() {
         let html = `
@@ -137,7 +141,10 @@ class TicketObject {
         // add exp date
         let html = `
       <div class="infoPopup">
+        <div class="ticketHeaders">
         <h3 class="popupTicketNumber">${this.ticket_number}</h3>
+        <h3 class="popupExpDate">${(0, website_js_1.formatDate)(this.expiration_date)}</h3>
+        </div>
         ${this.generatePopupTableHTML()}
       </div>
     `;
@@ -151,11 +158,13 @@ class MapLine extends MapObject {
     weight;
     dashed;
     originalColor;
-    constructor(map, { points, color = 'purple', weight = 8, dashed = false }) {
+    renderer;
+    constructor(map, renderer, { points, color = 'purple', weight = 8, dashed = false }) {
         super(map);
         this.points = points;
         this.color = color;
         this.weight = weight;
+        this.renderer = renderer;
         (dashed) ? this.dashed = "10 10" : this.dashed = "";
         this.createPolyline();
         this.addSelf();
@@ -175,8 +184,7 @@ class MapLine extends MapObject {
             alert('not enough points');
             return;
         }
-        // add renderer
-        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed });
+        this.mapObject = leaflet_1.default.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: this.renderer });
     }
 }
 exports.MapLine = MapLine;

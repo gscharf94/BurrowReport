@@ -1,6 +1,7 @@
 import L from 'leaflet';
 import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload } from '../interfaces';
 import { checkResponses } from '../helperFunctions/tickets.js';
+import { formatDate } from '../helperFunctions/website.js';
 
 class MapObject<T extends L.Layer> {
   hidden : boolean;
@@ -42,14 +43,17 @@ export class TicketObject {
   old_tickets : string[];
   line : MapLine;
   map : L.Map;
+  lineRenderer : L.Canvas;
   status : [number, number];
 
-  constructor(map : L.Map, info : TicketInfoDownload) {
+  constructor(map : L.Map, renderer : L.Canvas, info : TicketInfoDownload) {
     this.ticket_number = info.ticket_number;
     this.coordinates = info.coordinates;
     this.map = map;
     this.responses = this.parseResponses(info.responses);
     this.status = checkResponses(this.responses);
+    this.lineRenderer = renderer;
+    this.expiration_date = info.expiration_date;
 
     this.createLine();
     this.bindPopup();
@@ -73,7 +77,7 @@ export class TicketObject {
   }
 
   createLine() {
-    this.line = new MapLine(this.map, {
+    this.line = new MapLine(this.map, this.lineRenderer, {
       points: this.coordinates,
       color: this.determineColor(this.status),
     });
@@ -102,7 +106,7 @@ export class TicketObject {
   }
 
   bindPopup() {
-    this.line.mapObject.bindPopup(this.generatePopupHTML(), { closeOnClick: false, autoClose: false });
+    this.line.mapObject.bindPopup(this.generatePopupHTML(), {});
   }
 
   generatePopupTableHTML() : string {
@@ -144,7 +148,10 @@ export class TicketObject {
     // add exp date
     let html = `
       <div class="infoPopup">
+        <div class="ticketHeaders">
         <h3 class="popupTicketNumber">${this.ticket_number}</h3>
+        <h3 class="popupExpDate">${formatDate(this.expiration_date)}</h3>
+        </div>
         ${this.generatePopupTableHTML()}
       </div>
     `
@@ -165,9 +172,10 @@ export class MapLine extends MapObject<L.Polyline> {
   weight : number;
   dashed : string;
   originalColor : string;
+  renderer : L.Canvas;
 
   constructor(
-    map : L.Map,
+    map : L.Map, renderer : L.Canvas,
     {
       points, color = 'purple', weight = 8, dashed = false
     } : {
@@ -177,6 +185,7 @@ export class MapLine extends MapObject<L.Polyline> {
     this.points = points;
     this.color = color;
     this.weight = weight;
+    this.renderer = renderer;
     (dashed) ? this.dashed = "10 10" : this.dashed = "";
     this.createPolyline();
     this.addSelf();
@@ -199,7 +208,6 @@ export class MapLine extends MapObject<L.Polyline> {
       alert('not enough points');
       return;
     }
-    // add renderer
-    this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed })
+    this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: this.renderer })
   }
 }

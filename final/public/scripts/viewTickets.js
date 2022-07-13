@@ -12,11 +12,12 @@ const tickets = (0, website_js_1.parseJSON)(TICKETS_JSON);
 let ticketObjects = [];
 window.filterByUtility = filterByUtility;
 window.clearUtilityFilter = clearUtilityFilter;
+let renderer = leaflet_1.default.canvas({ tolerance: 20 });
 let map = leaflet_1.default.map('map');
 populateTicketArray(tickets);
 leaflet_1.default.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 18,
+    attribution: 'TICKETS',
+    maxZoom: 20,
     id: 'mapbox/streets-v11',
     tileSize: 512,
     zoomOffset: -1,
@@ -25,7 +26,7 @@ leaflet_1.default.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
 map.setView(getAverageGPS(tickets), 17);
 function populateTicketArray(tickets) {
     for (const ticket of tickets) {
-        ticketObjects.push(new leafletClasses_js_1.TicketObject(map, ticket));
+        ticketObjects.push(new leafletClasses_js_1.TicketObject(map, renderer, ticket));
     }
 }
 function getAverageGPS(tickets) {
@@ -72,4 +73,18 @@ function clearUtilityFilter() {
     for (const ticket of ticketObjects) {
         ticket.changeColor(ticket.line.originalColor);
     }
+}
+/**
+ * formats a date to display in the common
+ * MM - DD - YYYY format
+ *
+ * @param {Date} date - Date the date object to be formatted
+ * @returns {string} - string - 'MM-DD-YYYY'
+ */
+function formatDate(date) {
+    date = new Date(date);
+    let year = date.getFullYear();
+    let month = String(date.getMonth() + 1).padStart(2, "0");
+    let day = String(date.getDate()).padStart(2, "0");
+    return `${month}-${day}-${year}`;
 }

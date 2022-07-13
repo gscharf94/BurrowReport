@@ -7,7 +7,7 @@
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseJSON = exports.validUserLoggedIn = exports.getUserInfo = void 0;
+exports.formatDate = exports.parseJSON = exports.validUserLoggedIn = exports.getUserInfo = void 0;
 /**
  * gets the information for the current user
  * this doesn't validate to check if there is a valid cookie
@@ -49,6 +49,21 @@ function parseJSON(txt) {
     return JSON.parse(txt.replace(/&quot;/g, '"'));
 }
 exports.parseJSON = parseJSON;
+/**
+ * formats a date to display in the common
+ * MM - DD - YYYY format
+ *
+ * @param {Date} date - Date the date object to be formatted
+ * @returns {string} - string - 'MM-DD-YYYY'
+ */
+function formatDate(date) {
+    date = new Date(date);
+    let year = date.getFullYear();
+    let month = String(date.getMonth() + 1).padStart(2, "0");
+    let day = String(date.getDate()).padStart(2, "0");
+    return `${month}-${day}-${year}`;
+}
+exports.formatDate = formatDate;
 
 
 /***/ })

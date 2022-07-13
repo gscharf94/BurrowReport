@@ -18,12 +18,13 @@ declare global {
 window.filterByUtility = filterByUtility;
 window.clearUtilityFilter = clearUtilityFilter;
 
+let renderer = L.canvas({ tolerance: 20 });
 let map = L.map('map');
 populateTicketArray(tickets);
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-  maxZoom: 18,
+  attribution: 'TICKETS',
+  maxZoom: 20,
   id: 'mapbox/streets-v11',
   tileSize: 512,
   zoomOffset: -1,
@@ -33,7 +34,7 @@ map.setView(getAverageGPS(tickets), 17);
 
 function populateTicketArray(tickets : TicketInfoDownload[]) {
   for (const ticket of tickets) {
-    ticketObjects.push(new TicketObject(map, ticket));
+    ticketObjects.push(new TicketObject(map, renderer, ticket));
   }
 }
 
@@ -82,4 +83,19 @@ function clearUtilityFilter() {
   for (const ticket of ticketObjects) {
     ticket.changeColor(ticket.line.originalColor);
   }
+}
+
+/**
+ * formats a date to display in the common
+ * MM - DD - YYYY format 
+ *
+ * @param {Date} date - Date the date object to be formatted
+ * @returns {string} - string - 'MM-DD-YYYY'
+ */
+function formatDate(date : Date) : string {
+  date = new Date(date);
+  let year = date.getFullYear();
+  let month = String(date.getMonth() + 1).padStart(2, "0");
+  let day = String(date.getDate()).padStart(2, "0");
+  return `${month}-${day}-${year}`;
 }

@@ -37,3 +37,18 @@ export function validUserLoggedIn() : boolean {
 export function parseJSON(txt : string) : {} {
   return JSON.parse(txt.replace(/&quot;/g, '"'));
 }
+
+/**
+ * formats a date to display in the common
+ * MM - DD - YYYY format 
+ *
+ * @param {Date} date - Date the date object to be formatted
+ * @returns {string} - string - 'MM-DD-YYYY'
+ */
+export function formatDate(date : Date) : string {
+  date = new Date(date);
+  let year = date.getFullYear();
+  let month = String(date.getMonth() + 1).padStart(2, "0");
+  let day = String(date.getDate()).padStart(2, "0");
+  return `${month}-${day}-${year}`;
+}

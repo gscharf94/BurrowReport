@@ -10,7 +10,22 @@
 .popupTicketNumber {
   text-align: center;
   font-size: 5ch;
+  grid-column: 1;
 }
+
+.ticketHeaders {
+  display: grid;
+  grid-template-columns: 65% 35%;
+}
+
+.popupExpDate {
+  grid-column: 2;
+  font-size: 4ch;
+  text-align: center;
+  margin: auto;
+}
+
+
 
 .responseTable {
   width: 95%;
@@ -107,4 +122,8 @@
   border: none;
   border-radius: 5px;
   font-weight: bold;
+}
+
+.leaflet-control-attribution {
+  display: none;
 }
