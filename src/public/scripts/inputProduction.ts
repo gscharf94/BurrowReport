@@ -3,7 +3,9 @@ import {
   Coord, UploadBoreObject, UploadVaultObject,
   DownloadBoreObject, DownloadVaultObject, BoreLogRow
 } from '../../interfaces';
-import { getUserInfo } from '../../helperFunctions/website.js';
+import { getUserInfo, redirectToLoginPage } from '../../helperFunctions/website.js';
+
+redirectToLoginPage();
 
 declare global {
   interface Window {

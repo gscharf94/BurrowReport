@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const website_js_1 = require("../../helperFunctions/website.js");
+(0, website_js_1.redirectToLoginPage)();
 window.togglePageLinks = togglePageLinks;
 function togglePageLinks(jobName) {
     let jobContainer = document.getElementById(`${jobName}Container`);

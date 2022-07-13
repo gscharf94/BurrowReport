@@ -1,8 +1,10 @@
-import { parseJSON } from '../../helperFunctions/website.js';
+import { parseJSON, redirectToLoginPage } from '../../helperFunctions/website.js';
 import { TicketInfoDownload, Coord } from '../../interfaces';
 import { MapLine, TicketObject } from '../../classes/leafletClasses.js';
 import { checkResponse, checkResponses } from '../../helperFunctions/tickets.js';
 import L from 'leaflet';
+
+redirectToLoginPage();
 
 //@ts-ignore
 const tickets : TicketInfoDownload[] = parseJSON(TICKETS_JSON);
@@ -83,19 +85,4 @@ function clearUtilityFilter() {
   for (const ticket of ticketObjects) {
     ticket.changeColor(ticket.line.originalColor);
   }
-}
-
-/**
- * formats a date to display in the common
- * MM - DD - YYYY format 
- *
- * @param {Date} date - Date the date object to be formatted
- * @returns {string} - string - 'MM-DD-YYYY'
- */
-function formatDate(date : Date) : string {
-  date = new Date(date);
-  let year = date.getFullYear();
-  let month = String(date.getMonth() + 1).padStart(2, "0");
-  let day = String(date.getDate()).padStart(2, "0");
-  return `${month}-${day}-${year}`;
 }

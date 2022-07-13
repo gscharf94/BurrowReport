@@ -7,6 +7,7 @@ const website_js_1 = require("../../helperFunctions/website.js");
 const leafletClasses_js_1 = require("../../classes/leafletClasses.js");
 const tickets_js_1 = require("../../helperFunctions/tickets.js");
 const leaflet_1 = __importDefault(require("leaflet"));
+(0, website_js_1.redirectToLoginPage)();
 //@ts-ignore
 const tickets = (0, website_js_1.parseJSON)(TICKETS_JSON);
 let ticketObjects = [];
@@ -73,18 +74,4 @@ function clearUtilityFilter() {
     for (const ticket of ticketObjects) {
         ticket.changeColor(ticket.line.originalColor);
     }
-}
-/**
- * formats a date to display in the common
- * MM - DD - YYYY format
- *
- * @param {Date} date - Date the date object to be formatted
- * @returns {string} - string - 'MM-DD-YYYY'
- */
-function formatDate(date) {
-    date = new Date(date);
-    let year = date.getFullYear();
-    let month = String(date.getMonth() + 1).padStart(2, "0");
-    let day = String(date.getDate()).padStart(2, "0");
-    return `${month}-${day}-${year}`;
 }

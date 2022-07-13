@@ -26,6 +26,13 @@ export function validUserLoggedIn() : boolean {
   }
 }
 
+export function redirectToLoginPage() {
+  if (!validUserLoggedIn()) {
+    alert('Please log in.. redirecting page..');
+    window.location.href = "http://192.168.86.36:3000";
+  }
+}
+
 /**
  * when sending an object through express -> pug -> page js
  * you need to do it through JSON.strinfy() cause only strings go through

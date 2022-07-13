@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const leaflet_1 = __importDefault(require("leaflet"));
 const website_js_1 = require("../../helperFunctions/website.js");
+(0, website_js_1.redirectToLoginPage)();
 const DEFAULT_ICON_SIZE = [14, 14];
 const DEFAULT_ICON_ANCHOR = [7, 7];
 const ICON_ZOOM_LEVELS = {

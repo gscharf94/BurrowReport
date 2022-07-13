@@ -1,4 +1,6 @@
-import { parseJSON } from '../../helperFunctions/website.js';
+import { parseJSON, redirectToLoginPage } from '../../helperFunctions/website.js';
+
+redirectToLoginPage();
 
 declare global {
   interface Window {

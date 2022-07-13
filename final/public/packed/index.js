@@ -7,7 +7,7 @@
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatDate = exports.parseJSON = exports.validUserLoggedIn = exports.getUserInfo = void 0;
+exports.formatDate = exports.parseJSON = exports.redirectToLoginPage = exports.validUserLoggedIn = exports.getUserInfo = void 0;
 /**
  * gets the information for the current user
  * this doesn't validate to check if there is a valid cookie
@@ -37,6 +37,13 @@ function validUserLoggedIn() {
     }
 }
 exports.validUserLoggedIn = validUserLoggedIn;
+function redirectToLoginPage() {
+    if (!validUserLoggedIn()) {
+        alert('Please log in.. redirecting page..');
+        window.location.href = "http://192.168.86.36:3000";
+    }
+}
+exports.redirectToLoginPage = redirectToLoginPage;
 /**
  * when sending an object through express -> pug -> page js
  * you need to do it through JSON.strinfy() cause only strings go through
