@@ -47,8 +47,14 @@
 
 .movementArrow {
   width: 70px;
-  background-color: gray;
+  /* background-color: gray; */
   pointer-events: none;
+  /* border-radius: 15px; */
+  /* box-shadow: 3px 3px 3px #c4b8b8; */
+}
+
+.movementArrow:active {
+  /* background-color: #3bf047; */
 }
 
 #backward {
@@ -73,7 +79,7 @@
 }
 
 .movementActive {
-  background-color: green;
+  /* background-color: green; */
   cursor: pointer;
   pointer-events: auto;
 }

@@ -1519,20 +1519,24 @@ function toggleMovementLinks() {
     let backwardLink = document.getElementById('backward');
     if (forward) {
         forwardLink.classList.add('movementActive');
+        forwardLink.src = "/images/icons/forward_green.svg";
         forwardLink.addEventListener('click', () => {
             window.location.href = `http://192.168.86.36:3000/inputProduction/${JOB_NAME}/${PAGE_NUMBER + 1}`;
         });
     }
     else {
+        forwardLink.src = "/images/icons/forward_gray.svg";
         forwardLink.classList.remove('movementActive');
     }
     if (backward) {
         backwardLink.classList.add('movementActive');
+        backwardLink.src = "/images/icons/backward_green.svg";
         backwardLink.addEventListener('click', () => {
             window.location.href = `http://192.168.86.36:3000/inputProduction/${JOB_NAME}/${PAGE_NUMBER - 1}`;
         });
     }
     else {
+        backwardLink.src = "/images/icons/backward_gray.svg";
         backwardLink.classList.remove('movementActive');
     }
 }
