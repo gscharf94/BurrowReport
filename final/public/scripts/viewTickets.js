@@ -11,7 +11,7 @@ const leaflet_1 = __importDefault(require("leaflet"));
 const tickets = (0, website_js_1.parseJSON)(TICKETS_JSON);
 let ticketObjects = [];
 window.filterByUtility = filterByUtility;
-console.log(tickets);
+window.clearUtilityFilter = clearUtilityFilter;
 let map = leaflet_1.default.map('map');
 populateTicketArray(tickets);
 leaflet_1.default.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -40,7 +40,19 @@ function getAverageGPS(tickets) {
     }
     return [pos[0] / counter, pos[1] / counter];
 }
+function toggleControls() {
+    let controls = document.getElementById('controls');
+    if (controls.style.display == "none" || controls.style.display == "") {
+        controls.style.display = "grid";
+    }
+    else {
+        controls.style.display = "none";
+    }
+}
 function filterByUtility(utilityName) {
+    toggleControls();
+    let filterHeader = document.getElementById('filterHeader');
+    filterHeader.textContent = utilityName;
     for (const ticket of ticketObjects) {
         for (const response of ticket.responses) {
             if (response.utility_name == utilityName) {
@@ -53,5 +65,11 @@ function filterByUtility(utilityName) {
                 break;
             }
         }
+    }
+}
+function clearUtilityFilter() {
+    toggleControls();
+    for (const ticket of ticketObjects) {
+        ticket.changeColor(ticket.line.originalColor);
     }
 }

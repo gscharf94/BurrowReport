@@ -41,7 +41,8 @@ async function refreshTicketKentucky(ticket, page) {
     await (0, webScraping_js_1.clickAndWaitSelector)(page, ticketMenuButtonSelector, 1500);
     await (0, webScraping_js_1.clickAndWaitSelector)(page, copyTicketButtonSelector, 2000);
     try {
-        const agreeButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ticket-details > div > div > div > div:nth-child(2) > iq-icon-button:nth-child(1) > button > div";
+        // const agreeButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ticket-details > div > div > div > div:nth-child(2) > iq-icon-button:nth-child(1) > button > div";
+        const agreeButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ng-component > div > div > div > div:nth-child(2) > iq-icon-button:nth-child(1) > button > div";
         await (0, webScraping_js_1.clickAndWaitSelector)(page, agreeButtonSelector, 0);
     }
     catch {
@@ -92,14 +93,9 @@ async function refreshTickets(tickets, state) {
     }
 }
 exports.refreshTickets = refreshTickets;
-let tickets = [
-    '2206062389',
-    '2206062376',
-    '2206062381',
-    '2206062436',
-    '2206062393',
-    '2206062400',
-    '2206062395',
-    '2206062397',
-];
-refreshTickets(tickets, 'Kentucky');
+// (async () => {
+//   let p4761 = await getJobTickets('P4761');
+//   let oldTicks = [];
+//   refreshTickets(p4761, "Kentucky");
+// })();
+// refreshTickets(tickets, 'Kentucky');

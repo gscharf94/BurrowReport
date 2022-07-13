@@ -2,6 +2,7 @@ import puppeteer from 'puppeteer';
 import { RefreshedTickets, States } from '../interfaces';
 import { typeAndWaitSelector, clickAndWaitSelector } from '../helperFunctions/webScraping.js';
 import { updateTicketRefresh } from '../helperFunctions/database.js';
+import { getJobTickets } from '../helperFunctions/database.js';
 
 const HEADLESS = true;
 const GLOBALDELAY = 50;
@@ -48,7 +49,8 @@ async function refreshTicketKentucky(ticket : string, page : puppeteer.Page) : P
   await clickAndWaitSelector(page, copyTicketButtonSelector, 2000);
 
   try {
-    const agreeButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ticket-details > div > div > div > div:nth-child(2) > iq-icon-button:nth-child(1) > button > div";
+    // const agreeButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ticket-details > div > div > div > div:nth-child(2) > iq-icon-button:nth-child(1) > button > div";
+    const agreeButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ng-component > div > div > div > div:nth-child(2) > iq-icon-button:nth-child(1) > button > div";
     await clickAndWaitSelector(page, agreeButtonSelector, 0);
   } catch {
     console.log('not the first ticket');
@@ -105,15 +107,10 @@ export async function refreshTickets(tickets : string[], state : States) : Promi
   }
 }
 
-let tickets = [
-  '2206062389',
-  '2206062376',
-  '2206062381',
-  '2206062436',
-  '2206062393',
-  '2206062400',
-  '2206062395',
-  '2206062397',
-];
+// (async () => {
+//   let p4761 = await getJobTickets('P4761');
+//   let oldTicks = [];
+//   refreshTickets(p4761, "Kentucky");
+// })();
 
-refreshTickets(tickets, 'Kentucky');
+// refreshTickets(tickets, 'Kentucky');

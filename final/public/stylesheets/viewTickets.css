@@ -65,3 +65,46 @@
 .noResponse {
   background-color: #ff8383;
 }
+
+#controls {
+  display: none;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  width: 61vw;
+  height: 15vh;
+  position: absolute;
+  bottom: 0%;
+  right: 0%;
+  z-index: 1999;
+  justify-items: center;
+  align-items: center;
+}
+
+.control {
+  pointer-events: none;
+}
+
+.controlChild {
+  pointer-events: auto;
+}
+
+#filterHeader {
+  grid-row: 1;
+  grid-column: 5 /span 2;
+  text-align: center;
+  width: 75%;
+  font-size: 3ch;
+}
+
+#clearFilterButton {
+  grid-row: 2;
+  grid-column: 5 /span 2;
+  width: 60%;
+  height: 60px;
+  background-color: blue;
+  color: white;
+  font-size: 2.5ch;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+}

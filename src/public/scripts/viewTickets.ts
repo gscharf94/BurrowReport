@@ -11,12 +11,12 @@ let ticketObjects : TicketObject[] = [];
 declare global {
   interface Window {
     filterByUtility : (color : string) => void;
+    clearUtilityFilter : () => void;
   }
 }
 
 window.filterByUtility = filterByUtility;
-
-console.log(tickets);
+window.clearUtilityFilter = clearUtilityFilter;
 
 let map = L.map('map');
 populateTicketArray(tickets);
@@ -50,7 +50,19 @@ function getAverageGPS(tickets : TicketInfoDownload[]) : Coord {
   return [pos[0] / counter, pos[1] / counter];
 }
 
+function toggleControls() {
+  let controls = document.getElementById('controls');
+  if (controls.style.display == "none" || controls.style.display == "") {
+    controls.style.display = "grid";
+  } else {
+    controls.style.display = "none";
+  }
+}
+
 function filterByUtility(utilityName : string) {
+  toggleControls();
+  let filterHeader = document.getElementById('filterHeader');
+  filterHeader.textContent = utilityName;
   for (const ticket of ticketObjects) {
     for (const response of ticket.responses) {
       if (response.utility_name == utilityName) {
@@ -62,5 +74,12 @@ function filterByUtility(utilityName : string) {
         break;
       }
     }
+  }
+}
+
+function clearUtilityFilter() {
+  toggleControls();
+  for (const ticket of ticketObjects) {
+    ticket.changeColor(ticket.line.originalColor);
   }
 }

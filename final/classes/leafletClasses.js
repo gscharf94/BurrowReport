@@ -94,7 +94,7 @@ class TicketObject {
         }
     }
     bindPopup() {
-        this.line.mapObject.bindPopup(this.generatePopupHTML());
+        this.line.mapObject.bindPopup(this.generatePopupHTML(), { closeOnClick: false, autoClose: false });
     }
     generatePopupTableHTML() {
         let html = `
