@@ -11,18 +11,8 @@ import pyautogui as pg
 import time
 import os
 
-PAGES = 3
+PAGES = 2
 OUTPUT_PATH = "/home/gustavo/Pictures/Screenshots"
-
-# NW = (22, 172)
-# NE = (2546, 1072)
-# NW = (341, 168)
-# NE = (1890, 1347)
-NW = (42, 171)
-NE = (2538, 1059)
-
-W = NE[0]-NW[0]
-H = NE[1]-NW[1]
 
 def count_down(n):
     print(f'COUNTDOWN... T-{n}s')
@@ -30,33 +20,41 @@ def count_down(n):
         print(f'{n-i}...')
         time.sleep(1)
 
-def move_down():
-    pg.press('n')
-    pg.press('right')
-    pg.press('down')
-    time.sleep(1.5)
-
 # def move_down():
 #     pg.press('n')
-#     pg.press('n')
+#     pg.press('right')
+#     pg.press('down')
 #     time.sleep(1.5)
 
+def move_down():
+    pg.press('n')
+    time.sleep(0.3)
+    pg.press('n')
+    time.sleep(1.5)
+
 def get_pos():
-    count_down(1)
-    print(pg.position())
+    input('put mouse over NW corner')
+    pos = pg.position()
+    NW = [pos.x, pos.y]
+    input('put mouse over SE corner')
+    pos = pg.position()
+    SE = [pos.x, pos.y]
+    print(f'NW: {NW}\nSE: {SE}')
+    return [NW, SE]
 
 def take_screenshot(nw, ne, i):
     os.system(f'maim -g {W}x{H}+{NW[0]}+{NW[1]} {OUTPUT_PATH}/{i}.png')
     time.sleep(1)
 
 
-# get_pos()
+NW, SE = get_pos()
+
+W = SE[0] - NW[0]
+H = SE[1] - NW[1]
+
+print('make sure pdf is in focus')
 
 count_down(5)
-
 for i in range(PAGES):
+    take_screenshot(NW, SE, i+1)
     move_down()
-    take_screenshot(NW, NE, i+1)
-
-# count_down(2)
-# take_screenshot(NW, NE, 10)
