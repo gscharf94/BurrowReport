@@ -15,7 +15,7 @@ block content
           img(src="/images/icons/plus-square.svg", onclick=`togglePageLinks('${job.job_name}')`).addProductionIcon
           div.dropdownPageLinks
             each page in job.pages
-              a(href=`/inputProduction/${job.job_name}/${page}`).pageLink SH#{page}
+              a(href=`/inputProduction/${job.client}/${job.job_name}/${page}`).pageLink SH#{page}
         a(href="#").viewProduction View Production
         img(src="/images/icons/hard-hat-solid.svg").viewProductionIcon
         a(href=`/viewTickets/${job.job_name}`).viewTickets View Tickets

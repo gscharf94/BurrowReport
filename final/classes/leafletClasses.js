@@ -23,6 +23,11 @@ class MapObject {
         this.mapObject.addTo(this.map);
         this.hidden = false;
     }
+    sendSelfPostRequest(requestType, postObject, callback) {
+        let url;
+        (requestType == "new") ? url = "inputData" : url = "editData";
+        (0, website_js_1.sendPostRequest)(url, postObject, callback);
+    }
 }
 class TicketObject {
     ticket_number;

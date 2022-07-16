@@ -7,8 +7,8 @@ exports.router = void 0;
 const express_1 = __importDefault(require("express"));
 const db_js_1 = require("../db.js");
 exports.router = express_1.default.Router();
-exports.router.get('/:jobName/:pageNumber', (req, res) => {
-    const [jobName, pageNumber] = [req.params.jobName, req.params.pageNumber];
+exports.router.get('/:clientName/:jobName/:pageNumber', (req, res) => {
+    const [jobName, pageNumber, clientName] = [req.params.jobName, req.params.pageNumber, req.params.clientName];
     (async () => {
         let boreQuery = `
       SELECT * FROM bores
@@ -46,12 +46,20 @@ exports.router.get('/:jobName/:pageNumber', (req, res) => {
         job_name='${jobName}';
     `;
         let pagesResult = await db_js_1.pool.query(pagesQuery);
+        let clientOptions = `
+      SELECT * FROM client_options
+      WHERE
+        client_name='${clientName}';
+    `;
+        let optionsResult = await db_js_1.pool.query(clientOptions);
         res.render('inputProduction', {
             jobName: jobName,
             pageNumber: pageNumber,
+            client: clientName,
             vaults: JSON.stringify(vaultsResult.rows),
             boresAndRocks: JSON.stringify(boresAndRocks),
             totalPagesForJob: JSON.stringify(pagesResult.rows),
+            clientOptions: JSON.stringify(optionsResult.rows),
         });
     })();
 });

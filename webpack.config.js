@@ -12,6 +12,6 @@ module.exports = {
     path: __dirname + "/final/public/packed/"
   },
   optimization: {
-    minimize: false,
+    minimize: true,
   }
 }

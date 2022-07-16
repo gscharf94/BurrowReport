@@ -1,7 +1,7 @@
 import L from 'leaflet';
 import {
   Coord, UploadBoreObject, UploadVaultObject,
-  DownloadBoreObject, DownloadVaultObject, BoreLogRow
+  DownloadBoreObject, DownloadVaultObject, BoreLogRow, ClientOptions
 } from '../../interfaces';
 import { getUserInfo, redirectToLoginPage } from '../../helperFunctions/website.js';
 
@@ -139,11 +139,16 @@ const JOB_NAME : string = jobNamePug;
 const PAGE_NUMBER : number = Number(pageNumberPug);
 //@ts-ignore
 const TOTAL_PAGES : { page_number : number }[] = parseJSON(totalPagesForJobPug);
+//@ts-ignore
+const CLIENT_OPTIONS : ClientOptions[] = parseJSON(clientOptionsJSON);
+
 
 //@ts-ignore
 let boresAndRocks : DownloadBoreObject[] = parseJSON(boresAndRocksJSON);
 //@ts-ignore
 let vaults : DownloadVaultObject[] = parseJSON(vaultsJSON);
+
+console.log(CLIENT_OPTIONS);
 
 const USERINFO = getUserInfo();
 
@@ -940,6 +945,7 @@ class MapMarker extends MapObject {
         id: vaultId,
         coordinate: this.point,
         vault_size: postObject.size,
+        billing_code: "DTXX",
       });
       window.vaults.push(newVaultObject);
       this.hideObject();

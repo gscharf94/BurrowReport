@@ -1,7 +1,7 @@
 import L from 'leaflet';
 import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload } from '../interfaces';
 import { checkResponses } from '../helperFunctions/tickets.js';
-import { formatDate } from '../helperFunctions/website.js';
+import { formatDate, sendPostRequest } from '../helperFunctions/website.js';
 
 class MapObject<T extends L.Layer> {
   hidden : boolean;
@@ -21,6 +21,12 @@ class MapObject<T extends L.Layer> {
   addSelf() {
     this.mapObject.addTo(this.map);
     this.hidden = false;
+  }
+
+  sendSelfPostRequest(requestType : 'new' | 'edit', postObject : {}, callback : (res : string) => void) {
+    let url : string;
+    (requestType == "new") ? url = "inputData" : url = "editData";
+    sendPostRequest(url, postObject, callback);
   }
 
   // sendSelfPostRequest

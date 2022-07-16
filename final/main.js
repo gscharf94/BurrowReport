@@ -31,5 +31,5 @@ app.use('/deleteData', deleteDataPOST_js_1.router);
 app.use('/editData', editDataPOST_js_1.router);
 app.use('/viewTickets', viewTickets_js_1.router);
 app.listen(PORT, () => {
-    console.log(`listening @ http://localhost:3000`);
+    console.log(`listening @ http://192.168.86.36:3000`);
 });

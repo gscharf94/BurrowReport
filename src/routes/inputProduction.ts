@@ -3,8 +3,8 @@ import { pool } from '../db.js';
 
 export const router = express.Router();
 
-router.get('/:jobName/:pageNumber', (req, res) => {
-  const [jobName, pageNumber] = [req.params.jobName, req.params.pageNumber];
+router.get('/:clientName/:jobName/:pageNumber', (req, res) => {
+  const [jobName, pageNumber, clientName] = [req.params.jobName, req.params.pageNumber, req.params.clientName];
   (async () => {
     let boreQuery = `
       SELECT * FROM bores
@@ -47,12 +47,21 @@ router.get('/:jobName/:pageNumber', (req, res) => {
     `;
     let pagesResult = await pool.query(pagesQuery);
 
+    let clientOptions = `
+      SELECT * FROM client_options
+      WHERE
+        client_name='${clientName}';
+    `
+    let optionsResult = await pool.query(clientOptions);
+
     res.render('inputProduction', {
       jobName: jobName,
       pageNumber: pageNumber,
+      client: clientName,
       vaults: JSON.stringify(vaultsResult.rows),
       boresAndRocks: JSON.stringify(boresAndRocks),
       totalPagesForJob: JSON.stringify(pagesResult.rows),
+      clientOptions: JSON.stringify(optionsResult.rows),
     });
   })();
 });

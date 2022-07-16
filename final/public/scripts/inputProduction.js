@@ -96,9 +96,12 @@ const PAGE_NUMBER = Number(pageNumberPug);
 //@ts-ignore
 const TOTAL_PAGES = parseJSON(totalPagesForJobPug);
 //@ts-ignore
+const CLIENT_OPTIONS = parseJSON(clientOptionsJSON);
+//@ts-ignore
 let boresAndRocks = parseJSON(boresAndRocksJSON);
 //@ts-ignore
 let vaults = parseJSON(vaultsJSON);
+console.log(CLIENT_OPTIONS);
 const USERINFO = (0, website_js_1.getUserInfo)();
 class BoreObject {
     line;
@@ -823,6 +826,7 @@ class MapMarker extends MapObject {
                 id: vaultId,
                 coordinate: this.point,
                 vault_size: postObject.size,
+                billing_code: "DTXX",
             });
             window.vaults.push(newVaultObject);
             this.hideObject();

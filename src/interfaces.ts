@@ -44,6 +44,9 @@ export interface DownloadBoreObject extends DownloadObject {
 export interface DownloadVaultObject extends DownloadObject {
   coordinate : Coord,
   vault_size : number,
+
+  // this needs to be moved to DownloadObject but we just testing
+  billing_code : string,
 }
 
 export type Coord = [number, number];
@@ -96,3 +99,13 @@ export interface TicketInfoDownload {
 
 //                       [feet  , inches]
 export type BoreLogRow = [number, number];
+
+export interface ClientOptions {
+  id : number,
+  client_name : string,
+  map_object_type : 'LINE' | 'MARKER',
+  primary_color : string,
+  billing_code : string,
+  billing_description : string,
+  dashed : boolean,
+}

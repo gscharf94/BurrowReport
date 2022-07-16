@@ -59,3 +59,25 @@ export function formatDate(date : Date) : string {
   let day = String(date.getDate()).padStart(2, "0");
   return `${month}-${day}-${year}`;
 }
+
+/**
+ * basically takes a url on the website or a full url and sends
+ * a post request with whatever data is in body
+ *
+ * TODO: move this out of this file because it's a helper function and
+ *       can help with others. super useful function
+ *
+ * @param {string} url - string - the url, relative to current page or full path
+ * @param {Object} body - {} - any object that will get stringified and sent 
+ */
+export function sendPostRequest(url : string, body : {}, callback : (res : string) => void) {
+  let req = new XMLHttpRequest();
+  req.open('POST', `http://192.168.86.36:3000/${url}`);
+  req.setRequestHeader("Content-type", "application/json");
+  req.send(JSON.stringify(body));
+  req.onreadystatechange = function() {
+    if (req.readyState == XMLHttpRequest.DONE) {
+      callback(req.responseText);
+    }
+  }
+}
