@@ -7,7 +7,7 @@
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.sendPostRequest = exports.formatDate = exports.parseJSON = exports.redirectToLoginPage = exports.validUserLoggedIn = exports.getUserInfo = void 0;
+exports.clearAllEventListeners = exports.sendPostRequest = exports.formatDate = exports.parseJSON = exports.redirectToLoginPage = exports.validUserLoggedIn = exports.getUserInfo = void 0;
 /**
  * gets the information for the current user
  * this doesn't validate to check if there is a valid cookie
@@ -93,6 +93,22 @@ function sendPostRequest(url, body, callback) {
     };
 }
 exports.sendPostRequest = sendPostRequest;
+/**
+ * this takes in an element id, makes a clone of it and replaces it
+ * this is to clear all event listeners so we dont have to keep track
+ *
+ * @param {string[]} ids - string[] - element ids
+ * @returns {void}
+ */
+function clearAllEventListeners(ids) {
+    console.log('CLEAR ALL');
+    for (const id of ids) {
+        let oldElement = document.getElementById(id);
+        let newElement = oldElement.cloneNode(true);
+        oldElement.parentNode.replaceChild(newElement, oldElement);
+    }
+}
+exports.clearAllEventListeners = clearAllEventListeners;
 
 
 /***/ })

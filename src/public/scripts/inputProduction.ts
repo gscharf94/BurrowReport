@@ -3,8 +3,8 @@ import {
   Coord, UploadBoreObject, UploadVaultObject,
   DownloadBoreObject, DownloadVaultObject, BoreLogRow, ClientOptions
 } from '../../interfaces';
-import { getUserInfo, redirectToLoginPage } from '../../helperFunctions/website.js';
-import { MapLine as MapLineTest, MapMarker as MapMarkerTest } from '../../classes/leafletClasses.js';
+import { getUserInfo, redirectToLoginPage, clearAllEventListeners } from '../../helperFunctions/website.js';
+import { MapLine as MapLineTest, MapMarker as MapMarkerTest, MapObject as MapObjectTest } from '../../classes/leafletClasses.js';
 
 redirectToLoginPage();
 
@@ -1071,10 +1071,6 @@ function singleInitialization() : void {
     inputs.innerHTML = "";
   });
 
-  let boreSelect = <HTMLSelectElement>document.getElementById('addBore');
-  let vaultSelect = <HTMLSelectElement>document.getElementById('addVault');
-  boreSelect.value = "-1";
-  vaultSelect.value = "-1";
 }
 
 /**
@@ -1097,21 +1093,6 @@ function hideAndShowElements(toShow : string[], toHide : string[]) : void {
   })
 }
 
-/**
- * this takes in an element id, makes a clone of it and replaces it
- * this is to clear all event listeners so we dont have to keep track
- *
- * @param {string[]} ids - string[] - element ids
- * @returns {void}
- */
-function clearAllEventListeners(ids : string[]) : void {
-  for (const id of ids) {
-    let oldElement = document.getElementById(id);
-    let newElement = oldElement.cloneNode(true);
-    oldElement.parentNode.replaceChild(newElement, oldElement);
-  }
-}
-
 function startBoreSetup() {
   const elementsToShow = [
     'footageLabel', 'footageInput',
@@ -1126,9 +1107,10 @@ function startBoreSetup() {
   hideAndShowElements(elementsToShow, elementsToHide);
 }
 
-function setItemLabel(code : string) {
+function setItemLabel(options : ClientOptions) {
+  let displayString = `${options.billing_code}: ${options.billing_description}`;
   let itemLabel = document.getElementById('currentItemLabel');
-  itemLabel.textContent = code;
+  itemLabel.textContent = displayString;
 }
 
 function addVaultSetup() {
@@ -1146,22 +1128,55 @@ function addVaultSetup() {
   hideAndShowElements(elementsToShow, elementsToHide);
 }
 
+function findOptions(id : number) : ClientOptions {
+  for (const clientOptions of CLIENT_OPTIONS) {
+    if (clientOptions.id == id) {
+      return { ...clientOptions };
+    }
+  }
+}
+
+function cancelCallback(mapObject : MapLineTest | MapMarkerTest) {
+  mapObject.removeSelf();
+  map.off('click');
+  initialization();
+  clearAllEventListeners(['submit', 'cancel']);
+}
+
+function newBoreSubmitCallback(line : MapLineTest) {
+  let footage = getFootageValue();
+  let date = getDateValue();
+  let boreLogs = parseBoreLogValues();
+  line.submitSelf({
+    footage: footage,
+    workDate: date,
+    boreLogs: boreLogs,
+    jobName: JOB_NAME,
+    crewName: USERINFO.username,
+    pageNumber: PAGE_NUMBER,
+  },
+    (res : string) => {
+      let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])]
+      console.log(res);
+    },
+    "new");
+  line.removeAllLineMarkers();
+  map.off('click');
+  initialization();
+  clearAllEventListeners(['submit', 'cancel']);
+}
+
+
 function addBoreStart() : void {
   let boreSelect = <HTMLSelectElement>document.getElementById('addBore');
   let selectionId = Number(boreSelect.value);
   if (selectionId == -1) {
     return;
   }
-
-  let options : ClientOptions;
-  for (const clientOptions of CLIENT_OPTIONS) {
-    if (clientOptions.id == selectionId) {
-      options = { ...clientOptions };
-      break;
-    }
-  }
-  setItemLabel(`${options.billing_code} - ${options.billing_description}`);
+  let options = findOptions(selectionId);
+  setItemLabel(options);
   startBoreSetup();
+
   let line = new MapLineTest(map, renderer, {
     points: [],
     color: options.primary_color,
@@ -1169,20 +1184,31 @@ function addBoreStart() : void {
   map.on('click', (event) => {
     line.addPoint(event.latlng);
   });
+
+  document
+    .getElementById('cancel')
+    .addEventListener('click', () => {
+      cancelCallback(line);
+    });
+
+  document
+    .getElementById('submit')
+    .addEventListener('click', () => {
+      if (line.points.length < 2) {
+        alert('Please finish placing the line');
+        return;
+      }
+      if (!validateBoreInput()) {
+        return;
+      }
+      if (!validateBoreLogValues()) {
+        alert('Please enter a bore log');
+        return;
+      }
+      newBoreSubmitCallback(line);
+    });
 }
 
-/**
- * the user has clicked on the add bore button so now we start the process
- * of adding a bore... 
- * 1 - we show/hide the correct elements
- * 2 - we create a line object and create a click event when the map gets clicked
- *     we add a point to the line
- * 3 - we create a click event handler for the submit & cancel buttons
- *     submit sents a post request and resets everything
- *     cancel just resets everything
- *
- * @returns {void}
- */
 // function addBoreStart() : void {
 //   const elementsToShow = [
 //     'footageLabel', 'footageInput',
@@ -1210,14 +1236,14 @@ function addBoreStart() : void {
 //   map.on('zoomend', zoomHandler);
 
 //   let submitButton = document.getElementById('submit');
-//   let cancelButton = document.getElementById('cancel');
+// let cancelButton = document.getElementById('cancel');
 
-//   cancelButton.addEventListener('click', () => {
-//     line.clearSelf();
-//     initialization();
-//     map.off('click');
-//     clearAllEventListeners(['submit', 'cancel']);
-//   });
+// cancelButton.addEventListener('click', () => {
+//   line.clearSelf();
+//   initialization();
+//   map.off('click');
+//   clearAllEventListeners(['submit', 'cancel']);
+// });
 
 //   submitButton.addEventListener('click', () => {
 //     if (!line.readyToSubmit()) {
@@ -1355,6 +1381,11 @@ function resetInputs() {
 
   let vaultInput = <HTMLSelectElement>document.getElementById('vaultSelect');
   vaultInput.value = "-1";
+
+  let boreSelect = <HTMLSelectElement>document.getElementById('addBore');
+  let vaultSelect = <HTMLSelectElement>document.getElementById('addVault');
+  boreSelect.value = "-1";
+  vaultSelect.value = "-1";
 }
 
 /**

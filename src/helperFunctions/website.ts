@@ -83,3 +83,19 @@ export function sendPostRequest(url : string, body : {}, callback : (res : strin
     }
   }
 }
+
+/**
+ * this takes in an element id, makes a clone of it and replaces it
+ * this is to clear all event listeners so we dont have to keep track
+ *
+ * @param {string[]} ids - string[] - element ids
+ * @returns {void}
+ */
+export function clearAllEventListeners(ids : string[]) : void {
+  console.log('CLEAR ALL');
+  for (const id of ids) {
+    let oldElement = document.getElementById(id);
+    let newElement = oldElement.cloneNode(true);
+    oldElement.parentNode.replaceChild(newElement, oldElement);
+  }
+}

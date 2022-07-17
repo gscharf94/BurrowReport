@@ -9,12 +9,12 @@ block content
   div#map
   div#controls.control
     select(onchange="window.addBoreStart()")#addBore.controlChild.itemSelect Bore
-      option(value="-1") BORE
+      option(value="-1").hideOption BORE
       each option in clientOptionsPug
         if option.map_object_type == "LINE"
           option(value=`${option.id}`) #{option.billing_code} - #{option.billing_description}
     select(onchange="window.addVaultStart()")#addVault.controlChild.itemSelect Vault
-      option(value="-1") VAULT
+      option(value="-1").hideOption VAULT
       each option in clientOptionsPug
         if option.map_object_type == "MARKER"
           option(value=`${option.id}`) #{option.billing_code} - #{option.billing_description}

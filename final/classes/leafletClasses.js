@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MapMarker = exports.MapLine = exports.TicketObject = void 0;
+exports.MapMarker = exports.MapLine = exports.TicketObject = exports.MapObject = void 0;
 const leaflet_1 = __importDefault(require("leaflet"));
 const tickets_js_1 = require("../helperFunctions/tickets.js");
 const website_js_1 = require("../helperFunctions/website.js");
@@ -17,8 +17,15 @@ class MapObject {
         this.map = map;
     }
     removeSelf() {
-        this.map.removeLayer(this.mapObject);
-        this.hidden = true;
+        try {
+            this.map.removeLayer(this.mapObject);
+        }
+        catch {
+            //pass
+        }
+        finally {
+            this.hidden = true;
+        }
     }
     addSelf() {
         this.mapObject.addTo(this.map);
@@ -30,6 +37,7 @@ class MapObject {
         (0, website_js_1.sendPostRequest)(url, postObject, callback);
     }
 }
+exports.MapObject = MapObject;
 class TicketObject {
     ticket_number;
     city;
@@ -179,6 +187,16 @@ class MapLine extends MapObject {
             this.addSelf();
         }
     }
+    removeSelf() {
+        super.removeSelf();
+        this.removeAllLineMarkers();
+    }
+    removeAllLineMarkers() {
+        for (const marker of this.lineMarkers) {
+            marker.removeSelf();
+        }
+        this.lineMarkers = [];
+    }
     resetLine() {
         this.removeSelf();
         this.createPolyline();
@@ -242,6 +260,21 @@ class MapLine extends MapObject {
         this.points.splice(index, 1, cPos);
         this.updateLine();
     }
+    submitSelf(info, callback, updateType) {
+        // let postObject: UploadBoreObject = {
+        // TODO rework interfaces for Upload and Download objects to have CODE
+        let postObject = {
+            coordinates: [...this.points],
+            footage: info.footage,
+            work_date: info.workDate,
+            job_name: info.jobName,
+            crew_name: info.crewName,
+            page_number: info.pageNumber,
+            object_type: "bore",
+            bore_log: info.boreLogs,
+        };
+        this.sendSelfPostRequest(updateType, postObject, callback);
+    }
 }
 exports.MapLine = MapLine;
 class MapMarker extends MapObject {
@@ -263,6 +296,9 @@ class MapMarker extends MapObject {
             draggable: this.draggable,
             icon: this.icon,
         });
+    }
+    submitSelf() {
+        //TODO
     }
 }
 exports.MapMarker = MapMarker;

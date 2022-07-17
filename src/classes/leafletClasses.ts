@@ -1,10 +1,10 @@
 import L from 'leaflet';
-import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload } from '../interfaces';
+import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload, BoreLogRow, UploadBoreObject, UploadVaultObject } from '../interfaces';
 import { checkResponses } from '../helperFunctions/tickets.js';
 import { formatDate, sendPostRequest } from '../helperFunctions/website.js';
 import { convertCoords } from '../helperFunctions/leafletHelpers.js';
 
-class MapObject<T extends L.Layer> {
+export class MapObject<T extends L.Layer> {
   hidden : boolean;
   mapObject : T;
   map : L.Map;
@@ -15,8 +15,13 @@ class MapObject<T extends L.Layer> {
   }
 
   removeSelf() {
-    this.map.removeLayer(this.mapObject);
-    this.hidden = true;
+    try {
+      this.map.removeLayer(this.mapObject);
+    } catch {
+      //pass
+    } finally {
+      this.hidden = true;
+    }
   }
 
   addSelf() {
@@ -201,6 +206,18 @@ export class MapLine extends MapObject<L.Polyline> {
     }
   }
 
+  removeSelf() {
+    super.removeSelf();
+    this.removeAllLineMarkers();
+  }
+
+  removeAllLineMarkers() {
+    for (const marker of this.lineMarkers) {
+      marker.removeSelf();
+    }
+    this.lineMarkers = [];
+  }
+
   resetLine() {
     this.removeSelf();
     this.createPolyline();
@@ -275,6 +292,22 @@ export class MapLine extends MapObject<L.Polyline> {
     this.points.splice(index, 1, cPos);
     this.updateLine();
   }
+
+  submitSelf(info : { footage : number, workDate : Date, jobName : string, crewName : string, pageNumber : number, boreLogs : BoreLogRow[] }, callback : (res : string) => void, updateType : 'new' | 'edit') {
+    // let postObject: UploadBoreObject = {
+    // TODO rework interfaces for Upload and Download objects to have CODE
+    let postObject = {
+      coordinates: [...this.points],
+      footage: info.footage,
+      work_date: info.workDate,
+      job_name: info.jobName,
+      crew_name: info.crewName,
+      page_number: info.pageNumber,
+      object_type: "bore",
+      bore_log: info.boreLogs,
+    };
+    this.sendSelfPostRequest(updateType, postObject, callback);
+  }
 }
 
 type MapMarkerOptions = {
@@ -302,5 +335,9 @@ export class MapMarker extends MapObject<L.Marker> {
       draggable: this.draggable,
       icon: this.icon,
     });
+  }
+
+  submitSelf() {
+    //TODO
   }
 }

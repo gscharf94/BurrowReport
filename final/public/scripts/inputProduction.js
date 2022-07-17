@@ -939,10 +939,6 @@ function singleInitialization() {
         let inputs = document.getElementById('inputs');
         inputs.innerHTML = "";
     });
-    let boreSelect = document.getElementById('addBore');
-    let vaultSelect = document.getElementById('addVault');
-    boreSelect.value = "-1";
-    vaultSelect.value = "-1";
 }
 /**
  * takes in two lists of element ids
@@ -963,20 +959,6 @@ function hideAndShowElements(toShow, toHide) {
         element.classList.add('hideControl');
     });
 }
-/**
- * this takes in an element id, makes a clone of it and replaces it
- * this is to clear all event listeners so we dont have to keep track
- *
- * @param {string[]} ids - string[] - element ids
- * @returns {void}
- */
-function clearAllEventListeners(ids) {
-    for (const id of ids) {
-        let oldElement = document.getElementById(id);
-        let newElement = oldElement.cloneNode(true);
-        oldElement.parentNode.replaceChild(newElement, oldElement);
-    }
-}
 function startBoreSetup() {
     const elementsToShow = [
         'footageLabel', 'footageInput',
@@ -990,9 +972,10 @@ function startBoreSetup() {
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
 }
-function setItemLabel(code) {
+function setItemLabel(options) {
+    let displayString = `${options.billing_code}: ${options.billing_description}`;
     let itemLabel = document.getElementById('currentItemLabel');
-    itemLabel.textContent = code;
+    itemLabel.textContent = displayString;
 }
 function addVaultSetup() {
     const elementsToShow = [
@@ -1008,20 +991,47 @@ function addVaultSetup() {
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
 }
+function findOptions(id) {
+    for (const clientOptions of CLIENT_OPTIONS) {
+        if (clientOptions.id == id) {
+            return { ...clientOptions };
+        }
+    }
+}
+function cancelCallback(mapObject) {
+    mapObject.removeSelf();
+    map.off('click');
+    initialization();
+    (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
+}
+function newBoreSubmitCallback(line) {
+    let footage = getFootageValue();
+    let date = getDateValue();
+    let boreLogs = parseBoreLogValues();
+    line.submitSelf({
+        footage: footage,
+        workDate: date,
+        boreLogs: boreLogs,
+        jobName: JOB_NAME,
+        crewName: USERINFO.username,
+        pageNumber: PAGE_NUMBER,
+    }, (res) => {
+        let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
+        console.log(res);
+    }, "new");
+    line.removeAllLineMarkers();
+    map.off('click');
+    initialization();
+    (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
+}
 function addBoreStart() {
     let boreSelect = document.getElementById('addBore');
     let selectionId = Number(boreSelect.value);
     if (selectionId == -1) {
         return;
     }
-    let options;
-    for (const clientOptions of CLIENT_OPTIONS) {
-        if (clientOptions.id == selectionId) {
-            options = { ...clientOptions };
-            break;
-        }
-    }
-    setItemLabel(`${options.billing_code} - ${options.billing_description}`);
+    let options = findOptions(selectionId);
+    setItemLabel(options);
     startBoreSetup();
     let line = new leafletClasses_js_1.MapLine(map, renderer, {
         points: [],
@@ -1030,19 +1040,28 @@ function addBoreStart() {
     map.on('click', (event) => {
         line.addPoint(event.latlng);
     });
+    document
+        .getElementById('cancel')
+        .addEventListener('click', () => {
+        cancelCallback(line);
+    });
+    document
+        .getElementById('submit')
+        .addEventListener('click', () => {
+        if (line.points.length < 2) {
+            alert('Please finish placing the line');
+            return;
+        }
+        if (!validateBoreInput()) {
+            return;
+        }
+        if (!validateBoreLogValues()) {
+            alert('Please enter a bore log');
+            return;
+        }
+        newBoreSubmitCallback(line);
+    });
 }
-/**
- * the user has clicked on the add bore button so now we start the process
- * of adding a bore...
- * 1 - we show/hide the correct elements
- * 2 - we create a line object and create a click event when the map gets clicked
- *     we add a point to the line
- * 3 - we create a click event handler for the submit & cancel buttons
- *     submit sents a post request and resets everything
- *     cancel just resets everything
- *
- * @returns {void}
- */
 // function addBoreStart() : void {
 //   const elementsToShow = [
 //     'footageLabel', 'footageInput',
@@ -1067,13 +1086,13 @@ function addBoreStart() {
 //   }
 //   map.on('zoomend', zoomHandler);
 //   let submitButton = document.getElementById('submit');
-//   let cancelButton = document.getElementById('cancel');
-//   cancelButton.addEventListener('click', () => {
-//     line.clearSelf();
-//     initialization();
-//     map.off('click');
-//     clearAllEventListeners(['submit', 'cancel']);
-//   });
+// let cancelButton = document.getElementById('cancel');
+// cancelButton.addEventListener('click', () => {
+//   line.clearSelf();
+//   initialization();
+//   map.off('click');
+//   clearAllEventListeners(['submit', 'cancel']);
+// });
 //   submitButton.addEventListener('click', () => {
 //     if (!line.readyToSubmit()) {
 //       return;
@@ -1129,7 +1148,7 @@ function addVaultStart() {
     cancelButton.addEventListener('click', () => {
         initialization();
         map.off('click');
-        clearAllEventListeners(['submit', 'cancel']);
+        (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
     });
     submitButton.addEventListener('click', () => {
         alert('Please place the vault');
@@ -1142,14 +1161,14 @@ function addVaultStart() {
             marker.changeSizeOnZoom(zoomLevel, QUESTION_ZOOM_LEVELS);
         };
         map.on('zoomend', zoomHandler);
-        clearAllEventListeners(['cancel', 'submit']);
+        (0, website_js_1.clearAllEventListeners)(['cancel', 'submit']);
         let cancelButton = document.getElementById('cancel');
         let submitButton = document.getElementById('submit');
         cancelButton.addEventListener('click', () => {
             marker.hideObject();
             initialization();
             map.off('click');
-            clearAllEventListeners(['cancel', 'submit']);
+            (0, website_js_1.clearAllEventListeners)(['cancel', 'submit']);
         });
         submitButton.addEventListener('click', () => {
             if (!marker.readyToSubmit()) {
@@ -1159,7 +1178,7 @@ function addVaultStart() {
             initialization();
             map.off('click');
             map.off('zoomend', zoomHandler);
-            clearAllEventListeners(['cancel', 'submit']);
+            (0, website_js_1.clearAllEventListeners)(['cancel', 'submit']);
         });
         map.off('click', clickVaultOneTime);
     };
@@ -1194,6 +1213,10 @@ function resetInputs() {
     footageInput.value = '';
     let vaultInput = document.getElementById('vaultSelect');
     vaultInput.value = "-1";
+    let boreSelect = document.getElementById('addBore');
+    let vaultSelect = document.getElementById('addVault');
+    boreSelect.value = "-1";
+    vaultSelect.value = "-1";
 }
 /**
  * makes sure there's a valid number in the footageInput element
@@ -1625,13 +1648,13 @@ function configureBoreLogContainer(footage) {
         }
         container.style.display = "none";
         toggle.style.backgroundColor = "green";
-        clearAllEventListeners(['boreLogSubmit', 'boreLogCancel']);
+        (0, website_js_1.clearAllEventListeners)(['boreLogSubmit', 'boreLogCancel']);
     };
     const closeContainerAndClear = () => {
         inputs.innerHTML = "";
         container.style.display = "none";
         toggle.style.backgroundColor = "red";
-        clearAllEventListeners(['boreLogSubmit', 'boreLogCancel']);
+        (0, website_js_1.clearAllEventListeners)(['boreLogSubmit', 'boreLogCancel']);
     };
     let submit = document.getElementById('boreLogSubmit');
     let cancel = document.getElementById('boreLogCancel');

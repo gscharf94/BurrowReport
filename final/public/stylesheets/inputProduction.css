@@ -118,6 +118,8 @@ label {
   color: white;
   border: none;
   width: fit-content;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 #addBore {
@@ -454,4 +456,8 @@ label {
   font-size: 2ch;
   padding: 0px;
   background-color: red;
+}
+
+.hideOption {
+  display: none;
 }
