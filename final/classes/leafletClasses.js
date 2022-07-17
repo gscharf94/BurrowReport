@@ -7,6 +7,7 @@ exports.MapMarker = exports.MapLine = exports.TicketObject = void 0;
 const leaflet_1 = __importDefault(require("leaflet"));
 const tickets_js_1 = require("../helperFunctions/tickets.js");
 const website_js_1 = require("../helperFunctions/website.js");
+const leafletHelpers_js_1 = require("../helperFunctions/leafletHelpers.js");
 class MapObject {
     hidden;
     mapObject;
@@ -165,7 +166,6 @@ class MapLine extends MapObject {
     originalColor;
     renderer;
     lineMarkers;
-    midLineMarkers;
     constructor(map, renderer, { points, color = 'purple', weight = 8, dashed = false }) {
         super(map);
         this.points = points;
@@ -173,7 +173,6 @@ class MapLine extends MapObject {
         this.weight = weight;
         this.renderer = renderer;
         this.lineMarkers = [];
-        this.midLineMarkers = [];
         (dashed) ? this.dashed = "10 10" : this.dashed = "";
         this.createPolyline();
         if (this.points.length > 1) {
@@ -200,7 +199,7 @@ class MapLine extends MapObject {
         this.mapObject.setLatLngs(this.points);
     }
     addPoint(pos) {
-        let cPos = (0, website_js_1.convertCoords)(pos);
+        let cPos = (0, leafletHelpers_js_1.convertCoords)(pos);
         this.points.push(cPos);
         if (this.points.length == 2) {
             this.createPolyline();
@@ -217,19 +216,14 @@ class MapLine extends MapObject {
         }
     }
     removePoint(index) {
-        console.log(`removing point ind: ${index}`);
-        console.log(this.points);
-        console.log(this.lineMarkers);
         this.points.splice(index, 1);
         this.lineMarkers[index].removeSelf();
         this.lineMarkers.splice(index, 1);
         this.decrementMarkerIndex(index);
-        console.log(this.points);
-        console.log(this.lineMarkers);
         this.updateLine();
     }
     addLineMarker(pos) {
-        let index = this.lineMarkers.length;
+        // TODO need to move icon stuff out of here
         let marker = new MapMarker(this.map, true, pos, leaflet_1.default.icon({
             iconUrl: "/images/icons/lineMarker.png",
             iconAnchor: [20, 20],
@@ -244,7 +238,7 @@ class MapLine extends MapObject {
         this.lineMarkers.push(marker);
     }
     updatePoint(pos, index) {
-        let cPos = (0, website_js_1.convertCoords)(pos);
+        let cPos = (0, leafletHelpers_js_1.convertCoords)(pos);
         this.points.splice(index, 1, cPos);
         this.updateLine();
     }

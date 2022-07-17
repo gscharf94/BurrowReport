@@ -14,6 +14,7 @@ exports.MapMarker = exports.MapLine = exports.TicketObject = void 0;
 const leaflet_1 = __importDefault(__webpack_require__(243));
 const tickets_js_1 = __webpack_require__(695);
 const website_js_1 = __webpack_require__(939);
+const leafletHelpers_js_1 = __webpack_require__(932);
 class MapObject {
     hidden;
     mapObject;
@@ -172,7 +173,6 @@ class MapLine extends MapObject {
     originalColor;
     renderer;
     lineMarkers;
-    midLineMarkers;
     constructor(map, renderer, { points, color = 'purple', weight = 8, dashed = false }) {
         super(map);
         this.points = points;
@@ -180,7 +180,6 @@ class MapLine extends MapObject {
         this.weight = weight;
         this.renderer = renderer;
         this.lineMarkers = [];
-        this.midLineMarkers = [];
         (dashed) ? this.dashed = "10 10" : this.dashed = "";
         this.createPolyline();
         if (this.points.length > 1) {
@@ -207,7 +206,7 @@ class MapLine extends MapObject {
         this.mapObject.setLatLngs(this.points);
     }
     addPoint(pos) {
-        let cPos = (0, website_js_1.convertCoords)(pos);
+        let cPos = (0, leafletHelpers_js_1.convertCoords)(pos);
         this.points.push(cPos);
         if (this.points.length == 2) {
             this.createPolyline();
@@ -224,19 +223,14 @@ class MapLine extends MapObject {
         }
     }
     removePoint(index) {
-        console.log(`removing point ind: ${index}`);
-        console.log(this.points);
-        console.log(this.lineMarkers);
         this.points.splice(index, 1);
         this.lineMarkers[index].removeSelf();
         this.lineMarkers.splice(index, 1);
         this.decrementMarkerIndex(index);
-        console.log(this.points);
-        console.log(this.lineMarkers);
         this.updateLine();
     }
     addLineMarker(pos) {
-        let index = this.lineMarkers.length;
+        // TODO need to move icon stuff out of here
         let marker = new MapMarker(this.map, true, pos, leaflet_1.default.icon({
             iconUrl: "/images/icons/lineMarker.png",
             iconAnchor: [20, 20],
@@ -251,7 +245,7 @@ class MapLine extends MapObject {
         this.lineMarkers.push(marker);
     }
     updatePoint(pos, index) {
-        let cPos = (0, website_js_1.convertCoords)(pos);
+        let cPos = (0, leafletHelpers_js_1.convertCoords)(pos);
         this.points.splice(index, 1, cPos);
         this.updateLine();
     }
@@ -279,6 +273,54 @@ class MapMarker extends MapObject {
     }
 }
 exports.MapMarker = MapMarker;
+
+
+/***/ }),
+
+/***/ 932:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.convertCoords = exports.getHalfwayPoint = void 0;
+/**
+ * ok so we wanna get a halfway point between two points
+ * but we're on a mercator projection... so can't do it with gps
+ * thankfully map.project and map.unproject gives us a nice ability
+ * to do this without using complicated trig
+ *
+ * @param {Coord} pointA - Coord - [number, number] which is lat/lng
+ * @param {Coord} pointB - Coord - same thing.. but the other point
+ * @returns {Coord} - the midway point Coord of the two
+ */
+function getHalfwayPoint(pointA, pointB, map) {
+    let a = map.project(pointA);
+    let b = map.project(pointB);
+    let c = [
+        (a.x + b.x) / 2,
+        (a.y + b.y) / 2,
+    ];
+    let gpsPoint = map.unproject(c);
+    return [gpsPoint.lat, gpsPoint.lng];
+}
+exports.getHalfwayPoint = getHalfwayPoint;
+/**
+ * makes it so that you can always get a Coord whether or not the input
+ * to a function is {lat: number, lng: number} or [number, number]
+ *
+ * @param {Coord | { lat : number, lng : number }} pos
+ * @returns {Coord}
+ */
+function convertCoords(pos) {
+    if (Array.isArray(pos)) {
+        return pos;
+    }
+    else {
+        return [pos.lat, pos.lng];
+    }
+}
+exports.convertCoords = convertCoords;
 
 
 /***/ }),
@@ -329,7 +371,7 @@ exports.checkResponses = checkResponses;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.convertCoords = exports.sendPostRequest = exports.formatDate = exports.parseJSON = exports.redirectToLoginPage = exports.validUserLoggedIn = exports.getUserInfo = void 0;
+exports.sendPostRequest = exports.formatDate = exports.parseJSON = exports.redirectToLoginPage = exports.validUserLoggedIn = exports.getUserInfo = void 0;
 /**
  * gets the information for the current user
  * this doesn't validate to check if there is a valid cookie
@@ -415,15 +457,6 @@ function sendPostRequest(url, body, callback) {
     };
 }
 exports.sendPostRequest = sendPostRequest;
-function convertCoords(pos) {
-    if (Array.isArray(pos)) {
-        return pos;
-    }
-    else {
-        return [pos.lat, pos.lng];
-    }
-}
-exports.convertCoords = convertCoords;
 
 
 /***/ }),
@@ -1269,7 +1302,6 @@ class MapMarker extends MapObject {
     }
 }
 window.addBoreStart = addBoreStart;
-window.addRockStart = addRockStart;
 window.addVaultStart = addVaultStart;
 window.cancelClick = cancelClick;
 window.deleteObject = deleteObject;
@@ -1343,10 +1375,12 @@ function initialization() {
         'dateLabel', 'dateInput',
         'footageLabel', 'footageInput',
         'vaultLabel', 'vaultSelect',
-        'cancel', 'submit', 'boreLogToggle'
+        'cancel', 'submit', 'boreLogToggle',
+        'currentItemLabel',
     ];
+    // const elementsToHide = [];
     const elementsToShow = [
-        'addBore', 'addVault', 'addRock',
+        'addBore', 'addVault',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
     let boreLogContainer = document.getElementById('boreLogContainer');
@@ -1372,6 +1406,10 @@ function singleInitialization() {
         let inputs = document.getElementById('inputs');
         inputs.innerHTML = "";
     });
+    let boreSelect = document.getElementById('addBore');
+    let vaultSelect = document.getElementById('addVault');
+    boreSelect.value = "-1";
+    vaultSelect.value = "-1";
 }
 /**
  * takes in two lists of element ids
@@ -1406,12 +1444,56 @@ function clearAllEventListeners(ids) {
         oldElement.parentNode.replaceChild(newElement, oldElement);
     }
 }
+function startBoreSetup() {
+    const elementsToShow = [
+        'footageLabel', 'footageInput',
+        'dateLabel', 'dateInput',
+        'addBore', 'cancel', 'submit',
+        'boreLogToggle', 'currentItemLabel',
+    ];
+    const elementsToHide = [
+        'addVault', 'addBore', 'vaultSelect',
+        'vaultLabel',
+    ];
+    hideAndShowElements(elementsToShow, elementsToHide);
+}
+function setItemLabel(code) {
+    let itemLabel = document.getElementById('currentItemLabel');
+    itemLabel.textContent = code;
+}
+function addVaultSetup() {
+    const elementsToShow = [
+        'dateLabel', 'dateInput',
+        'vaultSelect', 'vaultLabel',
+        'cancel', 'submit',
+        'currentItemLabel',
+    ];
+    const elementsToHide = [
+        'footageLabel', 'footageInput',
+        'addBore', 'boreLogToggle',
+        'addVault',
+    ];
+    hideAndShowElements(elementsToShow, elementsToHide);
+}
 function addBoreStart() {
+    let boreSelect = document.getElementById('addBore');
+    let selectionId = Number(boreSelect.value);
+    if (selectionId == -1) {
+        return;
+    }
+    let options;
+    for (const clientOptions of CLIENT_OPTIONS) {
+        if (clientOptions.id == selectionId) {
+            options = { ...clientOptions };
+            break;
+        }
+    }
+    setItemLabel(`${options.billing_code} - ${options.billing_description}`);
+    startBoreSetup();
     let line = new leafletClasses_js_1.MapLine(map, renderer, {
         points: [],
-        color: "pink",
+        color: options.primary_color,
     });
-    console.log(line);
     map.on('click', (event) => {
         line.addPoint(event.latlng);
     });
@@ -1490,59 +1572,6 @@ function sendPostRequest(url, body, callback) {
             callback(req.responseText);
         }
     };
-}
-/**
- * the user has clicked on the add rock button so now we start the process
- * of adding a bore...
- * 1 - we show/hide the correct elements
- *
- * @returns {void}
- */
-function addRockStart() {
-    const elementsToShow = [
-        'footageLabel', 'footageInput',
-        'dateLabel', 'dateInput',
-        'cancel', 'submit', 'boreLogToggle',
-    ];
-    const elementsToHide = [
-        'vaultLabel', 'vaultSelect',
-        'addBore', 'addVault',
-    ];
-    hideAndShowElements(elementsToShow, elementsToHide);
-    let line = new MapLine([], {
-        color: 'green',
-        dashed: true,
-        weight: ROCK_ZOOM_LEVELS[map.getZoom()],
-    });
-    map.on('click', (event) => {
-        let latlng = event.latlng;
-        line.addPoint([latlng.lat, latlng.lng]);
-    });
-    const zoomHandler = () => {
-        let newZoom = map.getZoom();
-        line.weight = ROCK_ZOOM_LEVELS[newZoom];
-        line.hideObject();
-        line.createSelf();
-    };
-    map.on('zoomend', zoomHandler);
-    let cancelButton = document.getElementById('cancel');
-    let submitButton = document.getElementById('submit');
-    cancelButton.addEventListener('click', () => {
-        line.clearSelf();
-        initialization();
-        map.off('click');
-        clearAllEventListeners(['submit', 'cancel']);
-    });
-    submitButton.addEventListener('click', () => {
-        if (!line.readyToSubmit()) {
-            return;
-        }
-        line.submitSelf(true);
-        initialization();
-        map.off('click');
-        map.off('zoomend', zoomHandler);
-        clearAllEventListeners(['submit', 'cancel']);
-    });
 }
 /**
  * the user has clicked on the add vault button so now we start the process

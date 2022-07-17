@@ -19,12 +19,12 @@
   display: grid;
   grid-template-rows: 1fr 1fr 1fr;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-  width: 61vw;
+  width: 76vw;
   height: 11vh;
   /* background-color: #ffffff47; */
   position: absolute;
   bottom: 3%;
-  right: 18%;
+  right: -2%;
   z-index: 1999;
   justify-items: center;
   align-items: center;
@@ -105,33 +105,45 @@ label {
   font-size: 3ch;
   background-color: white;
   padding: 5px;
-
   justify-self: right;
   margin-right: 1ch;
 }
 
-#addBore {
-  grid-row: 1;
-  /* grid-column: 1 /span 2; */
-  grid-column: 1;
-  background-color: rgb(10, 10, 97);
+.itemSelect {
+  color: black;
+  font-size: 3.5ch;
+  text-align: center;
+  font-weight: bold;
+  background-color: black;
   color: white;
+  border: none;
+  width: fit-content;
 }
 
-#addRock {
+#addBore {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+#currentItemLabel {
   grid-row: 2;
   /* grid-column: 1 /span 2; */
   grid-column: 1;
-  background-color: rgb(10, 10, 97);
+  color: black;
+  font-size: 3.5ch;
+  margin: 0px;
+  font-weight: bold;
+  background-color: blue;
   color: white;
+  padding: 5px;
+  text-align: center;
+  white-space: nowrap;
 }
 
 #addVault {
   grid-row: 3;
   /* grid-column: 1 /span 2; */
   grid-column: 1;
-  background-color: rgb(10, 10, 97);
-  color: white;
 }
 
 #cancel {

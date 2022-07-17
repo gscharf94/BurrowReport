@@ -1,7 +1,8 @@
 import L from 'leaflet';
 import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload } from '../interfaces';
 import { checkResponses } from '../helperFunctions/tickets.js';
-import { formatDate, sendPostRequest, convertCoords } from '../helperFunctions/website.js';
+import { formatDate, sendPostRequest } from '../helperFunctions/website.js';
+import { convertCoords } from '../helperFunctions/leafletHelpers.js';
 
 class MapObject<T extends L.Layer> {
   hidden : boolean;
@@ -178,7 +179,6 @@ export class MapLine extends MapObject<L.Polyline> {
   originalColor : string;
   renderer : L.Canvas;
   lineMarkers : MapMarker[];
-  midLineMarkers : MapMarker[];
 
   constructor(
     map : L.Map, renderer : L.Canvas,
@@ -193,7 +193,6 @@ export class MapLine extends MapObject<L.Polyline> {
     this.weight = weight;
     this.renderer = renderer;
     this.lineMarkers = [];
-    this.midLineMarkers = [];
     (dashed) ? this.dashed = "10 10" : this.dashed = "";
 
     this.createPolyline();
@@ -244,20 +243,15 @@ export class MapLine extends MapObject<L.Polyline> {
   }
 
   removePoint(index : number) {
-    console.log(`removing point ind: ${index}`);
-    console.log(this.points);
-    console.log(this.lineMarkers);
     this.points.splice(index, 1);
     this.lineMarkers[index].removeSelf();
     this.lineMarkers.splice(index, 1);
     this.decrementMarkerIndex(index);
-    console.log(this.points);
-    console.log(this.lineMarkers);
     this.updateLine();
   }
 
   addLineMarker(pos : Coord) {
-    let index = this.lineMarkers.length;
+    // TODO need to move icon stuff out of here
     let marker = new MapMarker(
       this.map, true, pos,
       L.icon({

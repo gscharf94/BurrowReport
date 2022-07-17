@@ -8,9 +8,17 @@ block style
 block content
   div#map
   div#controls.control
-    button(onclick="window.addBoreStart()")#addBore.controlChild Bore
-    button(onclick="window.addRockStart()")#addRock.controlChild Rock
-    button(onclick="window.addVaultStart()")#addVault.controlChild Vault
+    select(onchange="window.addBoreStart()")#addBore.controlChild.itemSelect Bore
+      option(value="-1") BORE
+      each option in clientOptionsPug
+        if option.map_object_type == "LINE"
+          option(value=`${option.id}`) #{option.billing_code} - #{option.billing_description}
+    select(onchange="window.addVaultStart()")#addVault.controlChild.itemSelect Vault
+      option(value="-1") VAULT
+      each option in clientOptionsPug
+        if option.map_object_type == "MARKER"
+          option(value=`${option.id}`) #{option.billing_code} - #{option.billing_description}
+    h3#currentItemLabel.controlChild LABEL
     button(onclick="window.toggleBoreLog()")#boreLogToggle.controlChild Bore Log
     button#cancel.controlChild Cancel
     button#submit.controlChild Submit

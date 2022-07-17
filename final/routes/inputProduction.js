@@ -60,6 +60,7 @@ exports.router.get('/:clientName/:jobName/:pageNumber', (req, res) => {
             boresAndRocks: JSON.stringify(boresAndRocks),
             totalPagesForJob: JSON.stringify(pagesResult.rows),
             clientOptions: JSON.stringify(optionsResult.rows),
+            clientOptionsPug: optionsResult.rows,
         });
     })();
 });

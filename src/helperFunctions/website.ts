@@ -83,12 +83,3 @@ export function sendPostRequest(url : string, body : {}, callback : (res : strin
     }
   }
 }
-
-
-export function convertCoords(pos : Coord | { lat : number, lng : number }) : Coord {
-  if (Array.isArray(pos)) {
-    return pos;
-  } else {
-    return [pos.lat, pos.lng];
-  }
-}

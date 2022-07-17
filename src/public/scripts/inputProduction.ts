@@ -10,8 +10,7 @@ redirectToLoginPage();
 
 declare global {
   interface Window {
-    addBoreStart : () => void,
-    addRockStart : () => void,
+    addBoreStart : (itemOptionsIndex : number) => void,
     addVaultStart : () => void,
     cancelClick : () => void,
     incrementBoreLogRow : (sourceElement : HTMLElement) => void;
@@ -954,7 +953,6 @@ class MapMarker extends MapObject {
 }
 
 window.addBoreStart = addBoreStart;
-window.addRockStart = addRockStart;
 window.addVaultStart = addVaultStart;
 window.cancelClick = cancelClick;
 window.deleteObject = deleteObject;
@@ -1039,10 +1037,12 @@ function initialization() : void {
     'dateLabel', 'dateInput',
     'footageLabel', 'footageInput',
     'vaultLabel', 'vaultSelect',
-    'cancel', 'submit', 'boreLogToggle'
+    'cancel', 'submit', 'boreLogToggle',
+    'currentItemLabel',
   ];
+  // const elementsToHide = [];
   const elementsToShow = [
-    'addBore', 'addVault', 'addRock',
+    'addBore', 'addVault',
   ]
   hideAndShowElements(elementsToShow, elementsToHide);
 
@@ -1070,6 +1070,11 @@ function singleInitialization() : void {
     let inputs = document.getElementById('inputs');
     inputs.innerHTML = "";
   });
+
+  let boreSelect = <HTMLSelectElement>document.getElementById('addBore');
+  let vaultSelect = <HTMLSelectElement>document.getElementById('addVault');
+  boreSelect.value = "-1";
+  vaultSelect.value = "-1";
 }
 
 /**
@@ -1107,17 +1112,63 @@ function clearAllEventListeners(ids : string[]) : void {
   }
 }
 
+function startBoreSetup() {
+  const elementsToShow = [
+    'footageLabel', 'footageInput',
+    'dateLabel', 'dateInput',
+    'addBore', 'cancel', 'submit',
+    'boreLogToggle', 'currentItemLabel',
+  ];
+  const elementsToHide = [
+    'addVault', 'addBore', 'vaultSelect',
+    'vaultLabel',
+  ];
+  hideAndShowElements(elementsToShow, elementsToHide);
+}
+
+function setItemLabel(code : string) {
+  let itemLabel = document.getElementById('currentItemLabel');
+  itemLabel.textContent = code;
+}
+
+function addVaultSetup() {
+  const elementsToShow = [
+    'dateLabel', 'dateInput',
+    'vaultSelect', 'vaultLabel',
+    'cancel', 'submit',
+    'currentItemLabel',
+  ];
+  const elementsToHide = [
+    'footageLabel', 'footageInput',
+    'addBore', 'boreLogToggle',
+    'addVault',
+  ];
+  hideAndShowElements(elementsToShow, elementsToHide);
+}
 
 function addBoreStart() : void {
+  let boreSelect = <HTMLSelectElement>document.getElementById('addBore');
+  let selectionId = Number(boreSelect.value);
+  if (selectionId == -1) {
+    return;
+  }
+
+  let options : ClientOptions;
+  for (const clientOptions of CLIENT_OPTIONS) {
+    if (clientOptions.id == selectionId) {
+      options = { ...clientOptions };
+      break;
+    }
+  }
+  setItemLabel(`${options.billing_code} - ${options.billing_description}`);
+  startBoreSetup();
   let line = new MapLineTest(map, renderer, {
     points: [],
-    color: "pink",
+    color: options.primary_color,
   });
-  console.log(line);
-
   map.on('click', (event) => {
     line.addPoint(event.latlng);
-  })
+  });
 }
 
 /**
@@ -1200,65 +1251,6 @@ function sendPostRequest(url : string, body : {}, callback : (res : string) => v
       callback(req.responseText);
     }
   }
-}
-
-/**
- * the user has clicked on the add rock button so now we start the process
- * of adding a bore... 
- * 1 - we show/hide the correct elements
- *
- * @returns {void}
- */
-function addRockStart() : void {
-  const elementsToShow = [
-    'footageLabel', 'footageInput',
-    'dateLabel', 'dateInput',
-    'cancel', 'submit', 'boreLogToggle',
-  ];
-  const elementsToHide = [
-    'vaultLabel', 'vaultSelect',
-    'addBore', 'addVault',
-  ];
-  hideAndShowElements(elementsToShow, elementsToHide);
-
-  let line = new MapLine([], {
-    color: 'green',
-    dashed: true,
-    weight: ROCK_ZOOM_LEVELS[map.getZoom()],
-  });
-  map.on('click', (event) => {
-    let latlng = event.latlng;
-    line.addPoint([latlng.lat, latlng.lng]);
-  });
-
-  const zoomHandler = () => {
-    let newZoom = map.getZoom();
-    line.weight = ROCK_ZOOM_LEVELS[newZoom];
-    line.hideObject();
-    line.createSelf();
-  }
-  map.on('zoomend', zoomHandler);
-
-  let cancelButton = document.getElementById('cancel');
-  let submitButton = document.getElementById('submit');
-
-  cancelButton.addEventListener('click', () => {
-    line.clearSelf();
-    initialization();
-    map.off('click');
-    clearAllEventListeners(['submit', 'cancel']);
-  });
-
-  submitButton.addEventListener('click', () => {
-    if (!line.readyToSubmit()) {
-      return;
-    }
-    line.submitSelf(true);
-    initialization();
-    map.off('click');
-    map.off('zoomend', zoomHandler);
-    clearAllEventListeners(['submit', 'cancel']);
-  });
 }
 
 /**
