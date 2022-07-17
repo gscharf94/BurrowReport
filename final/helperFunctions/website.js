@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendPostRequest = exports.formatDate = exports.parseJSON = exports.redirectToLoginPage = exports.validUserLoggedIn = exports.getUserInfo = void 0;
+exports.convertCoords = exports.sendPostRequest = exports.formatDate = exports.parseJSON = exports.redirectToLoginPage = exports.validUserLoggedIn = exports.getUserInfo = void 0;
 /**
  * gets the information for the current user
  * this doesn't validate to check if there is a valid cookie
@@ -86,3 +86,12 @@ function sendPostRequest(url, body, callback) {
     };
 }
 exports.sendPostRequest = sendPostRequest;
+function convertCoords(pos) {
+    if (Array.isArray(pos)) {
+        return pos;
+    }
+    else {
+        return [pos.lat, pos.lng];
+    }
+}
+exports.convertCoords = convertCoords;

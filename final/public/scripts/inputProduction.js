@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const leaflet_1 = __importDefault(require("leaflet"));
 const website_js_1 = require("../../helperFunctions/website.js");
+const leafletClasses_js_1 = require("../../classes/leafletClasses.js");
 (0, website_js_1.redirectToLoginPage)();
 const DEFAULT_ICON_SIZE = [14, 14];
 const DEFAULT_ICON_ANCHOR = [7, 7];
@@ -101,7 +102,6 @@ const CLIENT_OPTIONS = parseJSON(clientOptionsJSON);
 let boresAndRocks = parseJSON(boresAndRocksJSON);
 //@ts-ignore
 let vaults = parseJSON(vaultsJSON);
-console.log(CLIENT_OPTIONS);
 const USERINFO = (0, website_js_1.getUserInfo)();
 class BoreObject {
     line;
@@ -972,6 +972,16 @@ function clearAllEventListeners(ids) {
         oldElement.parentNode.replaceChild(newElement, oldElement);
     }
 }
+function addBoreStart() {
+    let line = new leafletClasses_js_1.MapLine(map, renderer, {
+        points: [],
+        color: "pink",
+    });
+    console.log(line);
+    map.on('click', (event) => {
+        line.addPoint(event.latlng);
+    });
+}
 /**
  * the user has clicked on the add bore button so now we start the process
  * of adding a bore...
@@ -984,48 +994,48 @@ function clearAllEventListeners(ids) {
  *
  * @returns {void}
  */
-function addBoreStart() {
-    const elementsToShow = [
-        'footageLabel', 'footageInput',
-        'dateLabel', 'dateInput',
-        'cancel', 'submit', 'boreLogToggle',
-    ];
-    const elementsToHide = [
-        'vaultLabel', 'vaultSelect',
-        'addRock', 'addVault',
-    ];
-    hideAndShowElements(elementsToShow, elementsToHide);
-    let line = new MapLine([], { weight: LINE_ZOOM_LEVELS[map.getZoom()] });
-    map.on('click', (event) => {
-        let latlng = event.latlng;
-        line.addPoint([latlng.lat, latlng.lng]);
-    });
-    const zoomHandler = () => {
-        let newZoom = map.getZoom();
-        line.weight = LINE_ZOOM_LEVELS[newZoom];
-        line.hideObject();
-        line.createSelf();
-    };
-    map.on('zoomend', zoomHandler);
-    let submitButton = document.getElementById('submit');
-    let cancelButton = document.getElementById('cancel');
-    cancelButton.addEventListener('click', () => {
-        line.clearSelf();
-        initialization();
-        map.off('click');
-        clearAllEventListeners(['submit', 'cancel']);
-    });
-    submitButton.addEventListener('click', () => {
-        if (!line.readyToSubmit()) {
-            return;
-        }
-        line.submitSelf(false);
-        initialization();
-        map.off('click');
-        map.off('zoomend', zoomHandler);
-        clearAllEventListeners(['submit', 'cancel']);
-    });
-}
+// function addBoreStart() : void {
+//   const elementsToShow = [
+//     'footageLabel', 'footageInput',
+//     'dateLabel', 'dateInput',
+//     'cancel', 'submit', 'boreLogToggle',
+//   ];
+//   const elementsToHide = [
+//     'vaultLabel', 'vaultSelect',
+//     'addRock', 'addVault',
+//   ];
+//   hideAndShowElements(elementsToShow, elementsToHide);
+//   let line = new MapLine([], { weight: LINE_ZOOM_LEVELS[map.getZoom()] });
+//   map.on('click', (event) => {
+//     let latlng = event.latlng;
+//     line.addPoint([latlng.lat, latlng.lng]);
+//   });
+//   const zoomHandler = () => {
+//     let newZoom = map.getZoom();
+//     line.weight = LINE_ZOOM_LEVELS[newZoom];
+//     line.hideObject();
+//     line.createSelf();
+//   }
+//   map.on('zoomend', zoomHandler);
+//   let submitButton = document.getElementById('submit');
+//   let cancelButton = document.getElementById('cancel');
+//   cancelButton.addEventListener('click', () => {
+//     line.clearSelf();
+//     initialization();
+//     map.off('click');
+//     clearAllEventListeners(['submit', 'cancel']);
+//   });
+//   submitButton.addEventListener('click', () => {
+//     if (!line.readyToSubmit()) {
+//       return;
+//     }
+//     line.submitSelf(false)
+//     initialization();
+//     map.off('click');
+//     map.off('zoomend', zoomHandler);
+//     clearAllEventListeners(['submit', 'cancel']);
+//   });
+// }
 /**
  * basically takes a url on the website or a full url and sends
  * a post request with whatever data is in body

@@ -1,7 +1,7 @@
 import L from 'leaflet';
 import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload } from '../interfaces';
 import { checkResponses } from '../helperFunctions/tickets.js';
-import { formatDate, sendPostRequest } from '../helperFunctions/website.js';
+import { formatDate, sendPostRequest, convertCoords } from '../helperFunctions/website.js';
 
 class MapObject<T extends L.Layer> {
   hidden : boolean;
@@ -28,8 +28,6 @@ class MapObject<T extends L.Layer> {
     (requestType == "new") ? url = "inputData" : url = "editData";
     sendPostRequest(url, postObject, callback);
   }
-
-  // sendSelfPostRequest
 }
 
 export class TicketObject {
@@ -179,6 +177,8 @@ export class MapLine extends MapObject<L.Polyline> {
   dashed : string;
   originalColor : string;
   renderer : L.Canvas;
+  lineMarkers : MapMarker[];
+  midLineMarkers : MapMarker[];
 
   constructor(
     map : L.Map, renderer : L.Canvas,
@@ -192,9 +192,14 @@ export class MapLine extends MapObject<L.Polyline> {
     this.color = color;
     this.weight = weight;
     this.renderer = renderer;
+    this.lineMarkers = [];
+    this.midLineMarkers = [];
     (dashed) ? this.dashed = "10 10" : this.dashed = "";
+
     this.createPolyline();
-    this.addSelf();
+    if (this.points.length > 1) {
+      this.addSelf();
+    }
   }
 
   resetLine() {
@@ -211,9 +216,97 @@ export class MapLine extends MapObject<L.Polyline> {
 
   createPolyline() {
     if (this.points.length < 2) {
-      alert('not enough points');
       return;
     }
     this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: this.renderer })
+  }
+
+  updateLine() {
+    this.mapObject.setLatLngs(this.points);
+  }
+
+  addPoint(pos : Coord | { lat : number, lng : number }) {
+    let cPos = convertCoords(pos);
+    this.points.push(cPos);
+    if (this.points.length == 2) {
+      this.createPolyline();
+      this.addSelf();
+    } else if (this.points.length > 1) {
+      this.mapObject.addLatLng(pos);
+    }
+    this.addLineMarker(cPos);
+  }
+
+  decrementMarkerIndex(index : number) {
+    for (let i = index; i < this.lineMarkers.length; i++) {
+      this.lineMarkers[i].index--;
+    }
+  }
+
+  removePoint(index : number) {
+    console.log(`removing point ind: ${index}`);
+    console.log(this.points);
+    console.log(this.lineMarkers);
+    this.points.splice(index, 1);
+    this.lineMarkers[index].removeSelf();
+    this.lineMarkers.splice(index, 1);
+    this.decrementMarkerIndex(index);
+    console.log(this.points);
+    console.log(this.lineMarkers);
+    this.updateLine();
+  }
+
+  addLineMarker(pos : Coord) {
+    let index = this.lineMarkers.length;
+    let marker = new MapMarker(
+      this.map, true, pos,
+      L.icon({
+        iconUrl: "/images/icons/lineMarker.png",
+        iconAnchor: [20, 20],
+        iconSize: [40, 40],
+      }),
+      this.lineMarkers.length,
+    );
+    marker.mapObject.on('drag', (ev) => {
+      this.updatePoint(ev.target.getLatLng(), marker.index);
+    });
+    marker.mapObject.on('click', () => {
+      this.removePoint(marker.index);
+    });
+    this.lineMarkers.push(marker);
+  }
+
+  updatePoint(pos : Coord | { lat : number, lng : number }, index : number) {
+    let cPos = convertCoords(pos);
+    this.points.splice(index, 1, cPos);
+    this.updateLine();
+  }
+}
+
+type MapMarkerOptions = {
+  point : Coord;
+}
+
+export class MapMarker extends MapObject<L.Marker> {
+  point : Coord;
+  draggable : boolean;
+  icon : L.Icon;
+  index : number;
+
+  constructor(map : L.Map, draggable : boolean, point : Coord, icon : L.Icon, index : number = -1) {
+    super(map);
+    this.point = point;
+    this.draggable = draggable;
+    this.icon = icon;
+    (index != -1) ? this.index = index : this.index = -1;
+    this.createMarker();
+    this.addSelf();
+  }
+
+  createMarker() {
+    this.mapObject = L.marker(this.point, {
+      draggable: this.draggable,
+      icon: this.icon,
+    });
   }
 }

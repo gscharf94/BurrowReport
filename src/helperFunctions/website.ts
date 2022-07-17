@@ -1,3 +1,5 @@
+import { Coord } from '../interfaces';
+
 /**
  * gets the information for the current user
  * this doesn't validate to check if there is a valid cookie
@@ -79,5 +81,14 @@ export function sendPostRequest(url : string, body : {}, callback : (res : strin
     if (req.readyState == XMLHttpRequest.DONE) {
       callback(req.responseText);
     }
+  }
+}
+
+
+export function convertCoords(pos : Coord | { lat : number, lng : number }) : Coord {
+  if (Array.isArray(pos)) {
+    return pos;
+  } else {
+    return [pos.lat, pos.lng];
   }
 }

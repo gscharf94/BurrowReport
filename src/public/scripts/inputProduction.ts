@@ -4,6 +4,7 @@ import {
   DownloadBoreObject, DownloadVaultObject, BoreLogRow, ClientOptions
 } from '../../interfaces';
 import { getUserInfo, redirectToLoginPage } from '../../helperFunctions/website.js';
+import { MapLine as MapLineTest, MapMarker as MapMarkerTest } from '../../classes/leafletClasses.js';
 
 redirectToLoginPage();
 
@@ -147,8 +148,6 @@ const CLIENT_OPTIONS : ClientOptions[] = parseJSON(clientOptionsJSON);
 let boresAndRocks : DownloadBoreObject[] = parseJSON(boresAndRocksJSON);
 //@ts-ignore
 let vaults : DownloadVaultObject[] = parseJSON(vaultsJSON);
-
-console.log(CLIENT_OPTIONS);
 
 const USERINFO = getUserInfo();
 
@@ -1109,6 +1108,18 @@ function clearAllEventListeners(ids : string[]) : void {
 }
 
 
+function addBoreStart() : void {
+  let line = new MapLineTest(map, renderer, {
+    points: [],
+    color: "pink",
+  });
+  console.log(line);
+
+  map.on('click', (event) => {
+    line.addPoint(event.latlng);
+  })
+}
+
 /**
  * the user has clicked on the add bore button so now we start the process
  * of adding a bore... 
@@ -1121,53 +1132,53 @@ function clearAllEventListeners(ids : string[]) : void {
  *
  * @returns {void}
  */
-function addBoreStart() : void {
-  const elementsToShow = [
-    'footageLabel', 'footageInput',
-    'dateLabel', 'dateInput',
-    'cancel', 'submit', 'boreLogToggle',
-  ];
-  const elementsToHide = [
-    'vaultLabel', 'vaultSelect',
-    'addRock', 'addVault',
-  ];
-  hideAndShowElements(elementsToShow, elementsToHide);
+// function addBoreStart() : void {
+//   const elementsToShow = [
+//     'footageLabel', 'footageInput',
+//     'dateLabel', 'dateInput',
+//     'cancel', 'submit', 'boreLogToggle',
+//   ];
+//   const elementsToHide = [
+//     'vaultLabel', 'vaultSelect',
+//     'addRock', 'addVault',
+//   ];
+//   hideAndShowElements(elementsToShow, elementsToHide);
 
-  let line = new MapLine([], { weight: LINE_ZOOM_LEVELS[map.getZoom()] });
-  map.on('click', (event) => {
-    let latlng = event.latlng;
-    line.addPoint([latlng.lat, latlng.lng]);
-  });
+//   let line = new MapLine([], { weight: LINE_ZOOM_LEVELS[map.getZoom()] });
+//   map.on('click', (event) => {
+//     let latlng = event.latlng;
+//     line.addPoint([latlng.lat, latlng.lng]);
+//   });
 
-  const zoomHandler = () => {
-    let newZoom = map.getZoom();
-    line.weight = LINE_ZOOM_LEVELS[newZoom];
-    line.hideObject();
-    line.createSelf();
-  }
-  map.on('zoomend', zoomHandler);
+//   const zoomHandler = () => {
+//     let newZoom = map.getZoom();
+//     line.weight = LINE_ZOOM_LEVELS[newZoom];
+//     line.hideObject();
+//     line.createSelf();
+//   }
+//   map.on('zoomend', zoomHandler);
 
-  let submitButton = document.getElementById('submit');
-  let cancelButton = document.getElementById('cancel');
+//   let submitButton = document.getElementById('submit');
+//   let cancelButton = document.getElementById('cancel');
 
-  cancelButton.addEventListener('click', () => {
-    line.clearSelf();
-    initialization();
-    map.off('click');
-    clearAllEventListeners(['submit', 'cancel']);
-  });
+//   cancelButton.addEventListener('click', () => {
+//     line.clearSelf();
+//     initialization();
+//     map.off('click');
+//     clearAllEventListeners(['submit', 'cancel']);
+//   });
 
-  submitButton.addEventListener('click', () => {
-    if (!line.readyToSubmit()) {
-      return;
-    }
-    line.submitSelf(false)
-    initialization();
-    map.off('click');
-    map.off('zoomend', zoomHandler);
-    clearAllEventListeners(['submit', 'cancel']);
-  });
-}
+//   submitButton.addEventListener('click', () => {
+//     if (!line.readyToSubmit()) {
+//       return;
+//     }
+//     line.submitSelf(false)
+//     initialization();
+//     map.off('click');
+//     map.off('zoomend', zoomHandler);
+//     clearAllEventListeners(['submit', 'cancel']);
+//   });
+// }
 
 /**
  * basically takes a url on the website or a full url and sends
