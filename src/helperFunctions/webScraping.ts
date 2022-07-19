@@ -67,3 +67,21 @@ export function trimDescription(description : string) : string {
   description = description.replace(/'/g, "''");
   return description;
 }
+
+
+export function splitArray<T>(n : number, arr : Array<T>) : Array<T>[] {
+  let arrs = [];
+  for (let i = 0; i < n; i++) {
+    arrs.push([]);
+  }
+
+  let c = 0;
+  for (const ele of arr) {
+    arrs[c].push(ele);
+    c++;
+    if (c == n) {
+      c = 0;
+    }
+  }
+  return arrs;
+}
