@@ -4,7 +4,7 @@ import {
   DownloadBoreObject, DownloadVaultObject, BoreLogRow, ClientOptions
 } from '../../interfaces';
 import { getUserInfo, redirectToLoginPage, clearAllEventListeners } from '../../helperFunctions/website.js';
-import { MapLine as MapLineTest, MapMarker as MapMarkerTest, MapObject as MapObjectTest } from '../../classes/leafletClasses.js';
+import { MapLine as MapLineTest, MapMarker as MapMarkerTest, MapObject as MapObjectTest, BoreObject as BoreObjectTest } from '../../classes/leafletClasses.js';
 
 redirectToLoginPage();
 
@@ -17,8 +17,9 @@ declare global {
     decrementBoreLogRow : (sourceElement : HTMLElement) => void;
     toggleBoreLog : () => void;
     deleteObject : (table : 'vaults' | 'bores' | 'rocks', id : number) => void,
-    editObject : (objectType : 'vault' | 'bore', id : number, rock : boolean) => void;
+    editObject : (objectType : 'vault' | 'bore', id : number, billingCode : string) => void;
     boresAndRocks : BoreObject[],
+    boresAndRocksTest : BoreObjectTest[];
     vaults : VaultObject[],
     map : L.Map;
   }
@@ -294,6 +295,7 @@ class BoreObject {
 
       this.bore_logs = [...parseBoreLogValues()];
 
+      //@ts-ignore
       let postObject : UploadBoreObject = {
         coordinates: this.coordinates,
         footage: this.footage,
@@ -787,6 +789,7 @@ class MapLine extends MapObject {
   }
 
   submitSelf(rock : boolean) {
+    //@ts-ignore
     let postObject : UploadBoreObject = {
       coordinates: [...this.points],
       footage: getFootageValue(),
@@ -800,6 +803,7 @@ class MapLine extends MapObject {
     }
     const requestCallback = (res : string) => {
       let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])]
+      //@ts-ignore
       let newBoreObject = new BoreObject({
         job_name: JOB_NAME,
         page_number: PAGE_NUMBER,
@@ -961,6 +965,7 @@ window.incrementBoreLogRow = incrementBoreLogRow;
 window.decrementBoreLogRow = decrementBoreLogRow;
 window.toggleBoreLog = toggleBoreLog;
 window.boresAndRocks = [];
+window.boresAndRocksTest = [];
 window.vaults = [];
 
 let renderer = L.canvas({ tolerance: 20 });
@@ -1001,9 +1006,24 @@ setTimeout(() => {
 
 window.map = map;
 
+function getOptionsFromBillingCode(code : string) : ClientOptions {
+  for (const options of CLIENT_OPTIONS) {
+    if (options.billing_code == code) {
+      return options;
+    }
+  }
+}
+
 function drawSavedBoresAndRocks() : void {
   for (const bore of boresAndRocks) {
-    window.boresAndRocks.push(new BoreObject(bore));
+    let options = getOptionsFromBillingCode(bore.billing_code);
+    let boreLine = new MapLineTest(map, renderer,
+      {
+        points: [...bore.coordinates],
+        color: options.primary_color,
+        dashed: options.dashed,
+      });
+    window.boresAndRocksTest.push(new BoreObjectTest(bore, boreLine));
   }
 }
 
@@ -1143,7 +1163,7 @@ function cancelCallback(mapObject : MapLineTest | MapMarkerTest) {
   clearAllEventListeners(['submit', 'cancel']);
 }
 
-function newBoreSubmitCallback(line : MapLineTest) {
+function newBoreSubmitCallback(line : MapLineTest, billingCode : string) {
   let footage = getFootageValue();
   let date = getDateValue();
   let boreLogs = parseBoreLogValues();
@@ -1154,10 +1174,25 @@ function newBoreSubmitCallback(line : MapLineTest) {
     jobName: JOB_NAME,
     crewName: USERINFO.username,
     pageNumber: PAGE_NUMBER,
+    billingCode: billingCode,
   },
     (res : string) => {
       let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])]
-      console.log(res);
+      let options = getOptionsFromBillingCode(billingCode);
+      window.boresAndRocksTest.push(new BoreObjectTest({
+        job_name: JOB_NAME,
+        crew_name: USERINFO.username,
+        page_number: PAGE_NUMBER,
+        work_date: date,
+        id: boreId,
+        page_id: pageId,
+        footage: footage,
+        bore_logs: boreLogs,
+        billing_code: billingCode,
+        coordinates: [...line.points],
+        // remove this... TODO
+        rock: false,
+      }, line));
     },
     "new");
   line.removeAllLineMarkers();
@@ -1180,6 +1215,7 @@ function addBoreStart() : void {
   let line = new MapLineTest(map, renderer, {
     points: [],
     color: options.primary_color,
+    dashed: options.dashed,
   });
   map.on('click', (event) => {
     line.addPoint(event.latlng);
@@ -1205,7 +1241,7 @@ function addBoreStart() : void {
         alert('Please enter a bore log');
         return;
       }
-      newBoreSubmitCallback(line);
+      newBoreSubmitCallback(line, options.billing_code);
     });
 }
 
@@ -1594,12 +1630,27 @@ function deleteObject(table : 'vaults' | 'bores' | 'rocks', id : number) : void 
  * @param {number} id - number - the id of the object
  * @returns {void}
  */
-function editObject(objectType : 'vault' | 'bore', id : number, rock : boolean) : void {
+function editObject(objectType : 'vault' | 'bore', id : number, billingCode : string) : void {
   map.closePopup();
   if (objectType == "bore") {
-    for (const bore of window.boresAndRocks) {
-      if (id == bore.id && bore.rock == rock) {
+    for (const bore of window.boresAndRocksTest) {
+      if (id == bore.id && bore.billing_code == billingCode) {
         bore.editLine();
+        startBoreSetup();
+        applyBoreLog(bore.bore_logs);
+
+        let footageInput = <HTMLInputElement>document.getElementById('footageInput');
+        let dateInput = <HTMLInputElement>document.getElementById('dateInput');
+
+        footageInput.value = String(bore.footage);
+        dateInput.value = formatDateToInputElement(bore.work_date);
+
+        document
+          .getElementById('cancel')
+          .addEventListener('click', () => {
+            cancelEditCallback(bore);
+          });
+        return;
       }
     }
   } else if (objectType == "vault") {
@@ -1609,6 +1660,31 @@ function editObject(objectType : 'vault' | 'bore', id : number, rock : boolean) 
       }
     }
   }
+}
+
+function cancelEditCallback(obj : BoreObjectTest) {
+  if (obj instanceof BoreObjectTest) {
+    obj.line.removeAllLineMarkers();
+    obj.resetCoordinates();
+    map.off('click');
+    initialization();
+    clearAllEventListeners(["submit", "cancel"]);
+  }
+}
+
+function applyBoreLog(logs : BoreLogRow[]) : void {
+  configureBoreLogContainer(logs.length * 10);
+  let containers = document.querySelectorAll('.ftinContainer');
+  for (let i = 0; i < logs.length; i++) {
+    let [ft, inches] = logs[i];
+    let ftInput = containers[i].querySelector<HTMLInputElement>('.ftInput');
+    let inInput = containers[i].querySelector<HTMLInputElement>('.inInput');
+    ftInput.value = String(ft);
+    inInput.value = String(inches);
+  }
+
+  let toggle = document.getElementById('boreLogToggle');
+  toggle.style.backgroundColor = "green";
 }
 
 /**

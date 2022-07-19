@@ -18,6 +18,9 @@ export interface UploadBoreObject extends UploadObject {
   footage : number,
   rock : boolean,
   bore_log : BoreLogRow[],
+
+  // need to move to parent
+  billing_code : string,
 }
 
 export interface UploadVaultObject extends UploadObject {
@@ -39,6 +42,9 @@ export interface DownloadBoreObject extends DownloadObject {
   coordinates : Coord[],
   rock : boolean,
   bore_logs : BoreLogRow[],
+
+  //needs to be moved
+  billing_code : string;
 }
 
 export interface DownloadVaultObject extends DownloadObject {

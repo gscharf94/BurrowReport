@@ -10,7 +10,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.MapMarker = exports.MapLine = exports.TicketObject = exports.MapObject = void 0;
+exports.BoreObject = exports.MapMarker = exports.MapLine = exports.TicketObject = exports.MapObject = void 0;
 const leaflet_1 = __importDefault(__webpack_require__(243));
 const tickets_js_1 = __webpack_require__(695);
 const website_js_1 = __webpack_require__(939);
@@ -247,6 +247,22 @@ class MapLine extends MapObject {
         this.decrementMarkerIndex(index);
         this.updateLine();
     }
+    addLineMarkers() {
+        for (const [ind, pos] of this.points.entries()) {
+            let marker = new MapMarker(this.map, true, pos, leaflet_1.default.icon({
+                iconUrl: "/images/icons/lineMarker.png",
+                iconAnchor: [20, 20],
+                iconSize: [40, 40],
+            }), ind);
+            marker.mapObject.on('drag', (ev) => {
+                this.updatePoint(ev.target.getLatLng(), marker.index);
+            });
+            marker.mapObject.on('click', () => {
+                this.removePoint(marker.index);
+            });
+            this.lineMarkers.push(marker);
+        }
+    }
     addLineMarker(pos) {
         // TODO need to move icon stuff out of here
         let marker = new MapMarker(this.map, true, pos, leaflet_1.default.icon({
@@ -279,6 +295,7 @@ class MapLine extends MapObject {
             page_number: info.pageNumber,
             object_type: "bore",
             bore_log: info.boreLogs,
+            billing_code: info.billingCode,
         };
         this.sendSelfPostRequest(updateType, postObject, callback);
     }
@@ -309,6 +326,62 @@ class MapMarker extends MapObject {
     }
 }
 exports.MapMarker = MapMarker;
+class BoreObject {
+    line;
+    job_name;
+    page_number;
+    work_date;
+    crew_name;
+    page_id;
+    footage;
+    coordinates;
+    tmp_coordinates;
+    billing_code;
+    id;
+    bore_logs;
+    constructor(boreInfo, line) {
+        this.job_name = boreInfo.job_name;
+        this.page_number = boreInfo.page_number;
+        this.work_date = boreInfo.work_date;
+        this.crew_name = boreInfo.crew_name;
+        this.page_id = boreInfo.page_id;
+        this.footage = boreInfo.footage;
+        this.coordinates = boreInfo.coordinates;
+        this.billing_code = boreInfo.billing_code;
+        this.id = boreInfo.id;
+        this.bore_logs = boreInfo.bore_logs;
+        this.line = line;
+        this.bindPopup();
+    }
+    generatePopupHTML() {
+        let html = `
+    <div class="infoPopup">
+      <h3 class="popupCrewName">${this.crew_name}</h3>
+      <h3 class="popupWorkDate">${(0, website_js_1.formatDate)(this.work_date)}</h3>
+      <h3 class="popupFootage">${this.footage}ft</h3>
+      <h3 class="popupRock">${this.billing_code}</h3>
+      <a class="popupEdit" onclick="editObject('bore', ${this.id}, '${this.billing_code}')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupDelete" onclick="deleteObject('${this.billing_code}', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
+    </div>
+    `;
+        return html;
+    }
+    bindPopup() {
+        this.line.mapObject.bindPopup(this.generatePopupHTML());
+    }
+    editLine() {
+        this.line.addLineMarkers();
+        this.line.map.on('click', (ev) => {
+            this.line.addPoint(ev.latlng);
+        });
+    }
+    resetCoordinates() {
+        this.line.points = [...this.coordinates];
+        this.line.resetLine();
+        this.bindPopup();
+    }
+}
+exports.BoreObject = BoreObject;
 
 
 /***/ }),
@@ -749,6 +822,7 @@ class BoreObject {
             this.footage = getFootageValue();
             this.work_date = getDateValue();
             this.bore_logs = [...parseBoreLogValues()];
+            //@ts-ignore
             let postObject = {
                 coordinates: this.coordinates,
                 footage: this.footage,
@@ -954,7 +1028,7 @@ class MapObject {
         sendPostRequest('inputData', postObject, callback);
     }
 }
-class MapLine extends MapObject {
+class MapLine extends (/* unused pure expression or super */ null && (MapObject)) {
     /**
      * @type {Coord[]} - set of gps points that will be used to draw and update
      * the line [number, number] []
@@ -1200,6 +1274,7 @@ class MapLine extends MapObject {
         }
     }
     submitSelf(rock) {
+        //@ts-ignore
         let postObject = {
             coordinates: [...this.points],
             footage: getFootageValue(),
@@ -1213,6 +1288,7 @@ class MapLine extends MapObject {
         };
         const requestCallback = (res) => {
             let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
+            //@ts-ignore
             let newBoreObject = new BoreObject({
                 job_name: JOB_NAME,
                 page_number: PAGE_NUMBER,
@@ -1362,6 +1438,7 @@ window.incrementBoreLogRow = incrementBoreLogRow;
 window.decrementBoreLogRow = decrementBoreLogRow;
 window.toggleBoreLog = toggleBoreLog;
 window.boresAndRocks = [];
+window.boresAndRocksTest = [];
 window.vaults = [];
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 3);
@@ -1395,9 +1472,22 @@ setTimeout(() => {
     window.dispatchEvent(new Event('resize'));
 }, 251);
 window.map = map;
+function getOptionsFromBillingCode(code) {
+    for (const options of CLIENT_OPTIONS) {
+        if (options.billing_code == code) {
+            return options;
+        }
+    }
+}
 function drawSavedBoresAndRocks() {
     for (const bore of boresAndRocks) {
-        window.boresAndRocks.push(new BoreObject(bore));
+        let options = getOptionsFromBillingCode(bore.billing_code);
+        let boreLine = new leafletClasses_js_1.MapLine(map, renderer, {
+            points: [...bore.coordinates],
+            color: options.primary_color,
+            dashed: options.dashed,
+        });
+        window.boresAndRocksTest.push(new leafletClasses_js_1.BoreObject(bore, boreLine));
     }
 }
 function drawSavedVaults() {
@@ -1523,7 +1613,7 @@ function cancelCallback(mapObject) {
     initialization();
     (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
 }
-function newBoreSubmitCallback(line) {
+function newBoreSubmitCallback(line, billingCode) {
     let footage = getFootageValue();
     let date = getDateValue();
     let boreLogs = parseBoreLogValues();
@@ -1534,9 +1624,24 @@ function newBoreSubmitCallback(line) {
         jobName: JOB_NAME,
         crewName: USERINFO.username,
         pageNumber: PAGE_NUMBER,
+        billingCode: billingCode,
     }, (res) => {
         let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
-        console.log(res);
+        let options = getOptionsFromBillingCode(billingCode);
+        window.boresAndRocksTest.push(new leafletClasses_js_1.BoreObject({
+            job_name: JOB_NAME,
+            crew_name: USERINFO.username,
+            page_number: PAGE_NUMBER,
+            work_date: date,
+            id: boreId,
+            page_id: pageId,
+            footage: footage,
+            bore_logs: boreLogs,
+            billing_code: billingCode,
+            coordinates: [...line.points],
+            // remove this... TODO
+            rock: false,
+        }, line));
     }, "new");
     line.removeAllLineMarkers();
     map.off('click');
@@ -1555,6 +1660,7 @@ function addBoreStart() {
     let line = new leafletClasses_js_1.MapLine(map, renderer, {
         points: [],
         color: options.primary_color,
+        dashed: options.dashed,
     });
     map.on('click', (event) => {
         line.addPoint(event.latlng);
@@ -1578,7 +1684,7 @@ function addBoreStart() {
             alert('Please enter a bore log');
             return;
         }
-        newBoreSubmitCallback(line);
+        newBoreSubmitCallback(line, options.billing_code);
     });
 }
 // function addBoreStart() : void {
@@ -1932,12 +2038,24 @@ function deleteObject(table, id) {
  * @param {number} id - number - the id of the object
  * @returns {void}
  */
-function editObject(objectType, id, rock) {
+function editObject(objectType, id, billingCode) {
     map.closePopup();
     if (objectType == "bore") {
-        for (const bore of window.boresAndRocks) {
-            if (id == bore.id && bore.rock == rock) {
+        for (const bore of window.boresAndRocksTest) {
+            if (id == bore.id && bore.billing_code == billingCode) {
                 bore.editLine();
+                startBoreSetup();
+                applyBoreLog(bore.bore_logs);
+                let footageInput = document.getElementById('footageInput');
+                let dateInput = document.getElementById('dateInput');
+                footageInput.value = String(bore.footage);
+                dateInput.value = formatDateToInputElement(bore.work_date);
+                document
+                    .getElementById('cancel')
+                    .addEventListener('click', () => {
+                    cancelEditCallback(bore);
+                });
+                return;
             }
         }
     }
@@ -1948,6 +2066,28 @@ function editObject(objectType, id, rock) {
             }
         }
     }
+}
+function cancelEditCallback(obj) {
+    if (obj instanceof leafletClasses_js_1.BoreObject) {
+        obj.line.removeAllLineMarkers();
+        obj.resetCoordinates();
+        map.off('click');
+        initialization();
+        (0, website_js_1.clearAllEventListeners)(["submit", "cancel"]);
+    }
+}
+function applyBoreLog(logs) {
+    configureBoreLogContainer(logs.length * 10);
+    let containers = document.querySelectorAll('.ftinContainer');
+    for (let i = 0; i < logs.length; i++) {
+        let [ft, inches] = logs[i];
+        let ftInput = containers[i].querySelector('.ftInput');
+        let inInput = containers[i].querySelector('.inInput');
+        ftInput.value = String(ft);
+        inInput.value = String(inches);
+    }
+    let toggle = document.getElementById('boreLogToggle');
+    toggle.style.backgroundColor = "green";
 }
 /**
  * i would use formatDateToPsql() but webpack is bugging out because there's

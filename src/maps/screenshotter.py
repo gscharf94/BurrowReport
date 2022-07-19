@@ -11,7 +11,7 @@ import pyautogui as pg
 import time
 import os
 
-PAGES = 2
+PAGES = 13
 OUTPUT_PATH = "/home/gustavo/Pictures/Screenshots"
 
 def count_down(n):
@@ -20,17 +20,17 @@ def count_down(n):
         print(f'{n-i}...')
         time.sleep(1)
 
-# def move_down():
-#     pg.press('n')
-#     pg.press('right')
-#     pg.press('down')
-#     time.sleep(1.5)
-
 def move_down():
     pg.press('n')
-    time.sleep(0.3)
-    pg.press('n')
+    pg.press('right')
+    pg.press('down')
     time.sleep(1.5)
+
+# def move_down():
+#     pg.press('n')
+#     time.sleep(0.3)
+#     pg.press('n')
+#     time.sleep(1.5)
 
 def get_pos():
     input('put mouse over NW corner')

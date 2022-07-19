@@ -122,6 +122,7 @@ export async function insertVault(vaultData : UploadVaultObject) : Promise<[numb
  * - this is the id for the new bore and the page number
  */
 export async function insertBore(boreData : UploadBoreObject) : Promise<[number, number]> {
+  console.log(boreData);
   let tableName = (boreData.rock) ? "rocks" : "bores";
   let pageId = await getPageId(boreData.job_name, boreData.page_number);
   let query = `
@@ -134,7 +135,8 @@ export async function insertBore(boreData : UploadBoreObject) : Promise<[number,
         footage,
         coordinates,
         crew_name,
-        bore_logs
+        bore_logs,
+        billing_code
       )
     VALUES
       (
@@ -145,7 +147,8 @@ export async function insertBore(boreData : UploadBoreObject) : Promise<[number,
       ${boreData.footage},
       '${formatCoordsToPsql(boreData.coordinates)}',
       '${boreData.crew_name}',
-      '${formatCoordsToPsql(boreData.bore_log)}'
+      '${formatCoordsToPsql(boreData.bore_log)}',
+      '${boreData.billing_code}'
       )
       RETURNING id;
   `

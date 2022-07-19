@@ -230,6 +230,7 @@ class BoreObject {
             this.footage = getFootageValue();
             this.work_date = getDateValue();
             this.bore_logs = [...parseBoreLogValues()];
+            //@ts-ignore
             let postObject = {
                 coordinates: this.coordinates,
                 footage: this.footage,
@@ -681,6 +682,7 @@ class MapLine extends MapObject {
         }
     }
     submitSelf(rock) {
+        //@ts-ignore
         let postObject = {
             coordinates: [...this.points],
             footage: getFootageValue(),
@@ -694,6 +696,7 @@ class MapLine extends MapObject {
         };
         const requestCallback = (res) => {
             let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
+            //@ts-ignore
             let newBoreObject = new BoreObject({
                 job_name: JOB_NAME,
                 page_number: PAGE_NUMBER,
@@ -843,6 +846,7 @@ window.incrementBoreLogRow = incrementBoreLogRow;
 window.decrementBoreLogRow = decrementBoreLogRow;
 window.toggleBoreLog = toggleBoreLog;
 window.boresAndRocks = [];
+window.boresAndRocksTest = [];
 window.vaults = [];
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 3);
@@ -876,9 +880,22 @@ setTimeout(() => {
     window.dispatchEvent(new Event('resize'));
 }, 251);
 window.map = map;
+function getOptionsFromBillingCode(code) {
+    for (const options of CLIENT_OPTIONS) {
+        if (options.billing_code == code) {
+            return options;
+        }
+    }
+}
 function drawSavedBoresAndRocks() {
     for (const bore of boresAndRocks) {
-        window.boresAndRocks.push(new BoreObject(bore));
+        let options = getOptionsFromBillingCode(bore.billing_code);
+        let boreLine = new leafletClasses_js_1.MapLine(map, renderer, {
+            points: [...bore.coordinates],
+            color: options.primary_color,
+            dashed: options.dashed,
+        });
+        window.boresAndRocksTest.push(new leafletClasses_js_1.BoreObject(bore, boreLine));
     }
 }
 function drawSavedVaults() {
@@ -1004,7 +1021,7 @@ function cancelCallback(mapObject) {
     initialization();
     (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
 }
-function newBoreSubmitCallback(line) {
+function newBoreSubmitCallback(line, billingCode) {
     let footage = getFootageValue();
     let date = getDateValue();
     let boreLogs = parseBoreLogValues();
@@ -1015,9 +1032,24 @@ function newBoreSubmitCallback(line) {
         jobName: JOB_NAME,
         crewName: USERINFO.username,
         pageNumber: PAGE_NUMBER,
+        billingCode: billingCode,
     }, (res) => {
         let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
-        console.log(res);
+        let options = getOptionsFromBillingCode(billingCode);
+        window.boresAndRocksTest.push(new leafletClasses_js_1.BoreObject({
+            job_name: JOB_NAME,
+            crew_name: USERINFO.username,
+            page_number: PAGE_NUMBER,
+            work_date: date,
+            id: boreId,
+            page_id: pageId,
+            footage: footage,
+            bore_logs: boreLogs,
+            billing_code: billingCode,
+            coordinates: [...line.points],
+            // remove this... TODO
+            rock: false,
+        }, line));
     }, "new");
     line.removeAllLineMarkers();
     map.off('click');
@@ -1036,6 +1068,7 @@ function addBoreStart() {
     let line = new leafletClasses_js_1.MapLine(map, renderer, {
         points: [],
         color: options.primary_color,
+        dashed: options.dashed,
     });
     map.on('click', (event) => {
         line.addPoint(event.latlng);
@@ -1059,7 +1092,7 @@ function addBoreStart() {
             alert('Please enter a bore log');
             return;
         }
-        newBoreSubmitCallback(line);
+        newBoreSubmitCallback(line, options.billing_code);
     });
 }
 // function addBoreStart() : void {
@@ -1413,12 +1446,24 @@ function deleteObject(table, id) {
  * @param {number} id - number - the id of the object
  * @returns {void}
  */
-function editObject(objectType, id, rock) {
+function editObject(objectType, id, billingCode) {
     map.closePopup();
     if (objectType == "bore") {
-        for (const bore of window.boresAndRocks) {
-            if (id == bore.id && bore.rock == rock) {
+        for (const bore of window.boresAndRocksTest) {
+            if (id == bore.id && bore.billing_code == billingCode) {
                 bore.editLine();
+                startBoreSetup();
+                applyBoreLog(bore.bore_logs);
+                let footageInput = document.getElementById('footageInput');
+                let dateInput = document.getElementById('dateInput');
+                footageInput.value = String(bore.footage);
+                dateInput.value = formatDateToInputElement(bore.work_date);
+                document
+                    .getElementById('cancel')
+                    .addEventListener('click', () => {
+                    cancelEditCallback(bore);
+                });
+                return;
             }
         }
     }
@@ -1429,6 +1474,28 @@ function editObject(objectType, id, rock) {
             }
         }
     }
+}
+function cancelEditCallback(obj) {
+    if (obj instanceof leafletClasses_js_1.BoreObject) {
+        obj.line.removeAllLineMarkers();
+        obj.resetCoordinates();
+        map.off('click');
+        initialization();
+        (0, website_js_1.clearAllEventListeners)(["submit", "cancel"]);
+    }
+}
+function applyBoreLog(logs) {
+    configureBoreLogContainer(logs.length * 10);
+    let containers = document.querySelectorAll('.ftinContainer');
+    for (let i = 0; i < logs.length; i++) {
+        let [ft, inches] = logs[i];
+        let ftInput = containers[i].querySelector('.ftInput');
+        let inInput = containers[i].querySelector('.inInput');
+        ftInput.value = String(ft);
+        inInput.value = String(inches);
+    }
+    let toggle = document.getElementById('boreLogToggle');
+    toggle.style.backgroundColor = "green";
 }
 /**
  * i would use formatDateToPsql() but webpack is bugging out because there's

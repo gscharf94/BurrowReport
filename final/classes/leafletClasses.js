@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MapMarker = exports.MapLine = exports.TicketObject = exports.MapObject = void 0;
+exports.BoreObject = exports.MapMarker = exports.MapLine = exports.TicketObject = exports.MapObject = void 0;
 const leaflet_1 = __importDefault(require("leaflet"));
 const tickets_js_1 = require("../helperFunctions/tickets.js");
 const website_js_1 = require("../helperFunctions/website.js");
@@ -240,6 +240,22 @@ class MapLine extends MapObject {
         this.decrementMarkerIndex(index);
         this.updateLine();
     }
+    addLineMarkers() {
+        for (const [ind, pos] of this.points.entries()) {
+            let marker = new MapMarker(this.map, true, pos, leaflet_1.default.icon({
+                iconUrl: "/images/icons/lineMarker.png",
+                iconAnchor: [20, 20],
+                iconSize: [40, 40],
+            }), ind);
+            marker.mapObject.on('drag', (ev) => {
+                this.updatePoint(ev.target.getLatLng(), marker.index);
+            });
+            marker.mapObject.on('click', () => {
+                this.removePoint(marker.index);
+            });
+            this.lineMarkers.push(marker);
+        }
+    }
     addLineMarker(pos) {
         // TODO need to move icon stuff out of here
         let marker = new MapMarker(this.map, true, pos, leaflet_1.default.icon({
@@ -272,6 +288,7 @@ class MapLine extends MapObject {
             page_number: info.pageNumber,
             object_type: "bore",
             bore_log: info.boreLogs,
+            billing_code: info.billingCode,
         };
         this.sendSelfPostRequest(updateType, postObject, callback);
     }
@@ -302,3 +319,59 @@ class MapMarker extends MapObject {
     }
 }
 exports.MapMarker = MapMarker;
+class BoreObject {
+    line;
+    job_name;
+    page_number;
+    work_date;
+    crew_name;
+    page_id;
+    footage;
+    coordinates;
+    tmp_coordinates;
+    billing_code;
+    id;
+    bore_logs;
+    constructor(boreInfo, line) {
+        this.job_name = boreInfo.job_name;
+        this.page_number = boreInfo.page_number;
+        this.work_date = boreInfo.work_date;
+        this.crew_name = boreInfo.crew_name;
+        this.page_id = boreInfo.page_id;
+        this.footage = boreInfo.footage;
+        this.coordinates = boreInfo.coordinates;
+        this.billing_code = boreInfo.billing_code;
+        this.id = boreInfo.id;
+        this.bore_logs = boreInfo.bore_logs;
+        this.line = line;
+        this.bindPopup();
+    }
+    generatePopupHTML() {
+        let html = `
+    <div class="infoPopup">
+      <h3 class="popupCrewName">${this.crew_name}</h3>
+      <h3 class="popupWorkDate">${(0, website_js_1.formatDate)(this.work_date)}</h3>
+      <h3 class="popupFootage">${this.footage}ft</h3>
+      <h3 class="popupRock">${this.billing_code}</h3>
+      <a class="popupEdit" onclick="editObject('bore', ${this.id}, '${this.billing_code}')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupDelete" onclick="deleteObject('${this.billing_code}', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
+    </div>
+    `;
+        return html;
+    }
+    bindPopup() {
+        this.line.mapObject.bindPopup(this.generatePopupHTML());
+    }
+    editLine() {
+        this.line.addLineMarkers();
+        this.line.map.on('click', (ev) => {
+            this.line.addPoint(ev.latlng);
+        });
+    }
+    resetCoordinates() {
+        this.line.points = [...this.coordinates];
+        this.line.resetLine();
+        this.bindPopup();
+    }
+}
+exports.BoreObject = BoreObject;

@@ -122,6 +122,7 @@ exports.insertVault = insertVault;
  * - this is the id for the new bore and the page number
  */
 async function insertBore(boreData) {
+    console.log(boreData);
     let tableName = (boreData.rock) ? "rocks" : "bores";
     let pageId = await getPageId(boreData.job_name, boreData.page_number);
     let query = `
@@ -134,7 +135,8 @@ async function insertBore(boreData) {
         footage,
         coordinates,
         crew_name,
-        bore_logs
+        bore_logs,
+        billing_code
       )
     VALUES
       (
@@ -145,7 +147,8 @@ async function insertBore(boreData) {
       ${boreData.footage},
       '${formatCoordsToPsql(boreData.coordinates)}',
       '${boreData.crew_name}',
-      '${formatCoordsToPsql(boreData.bore_log)}'
+      '${formatCoordsToPsql(boreData.bore_log)}',
+      '${boreData.billing_code}'
       )
       RETURNING id;
   `;

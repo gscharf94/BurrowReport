@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload, BoreLogRow, UploadBoreObject, UploadVaultObject } from '../interfaces';
+import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload, BoreLogRow, UploadBoreObject, UploadVaultObject, DownloadBoreObject } from '../interfaces';
 import { checkResponses } from '../helperFunctions/tickets.js';
 import { formatDate, sendPostRequest } from '../helperFunctions/website.js';
 import { convertCoords } from '../helperFunctions/leafletHelpers.js';
@@ -267,6 +267,25 @@ export class MapLine extends MapObject<L.Polyline> {
     this.updateLine();
   }
 
+  addLineMarkers() {
+    for (const [ind, pos] of this.points.entries()) {
+      let marker = new MapMarker(
+        this.map, true, pos,
+        L.icon({
+          iconUrl: "/images/icons/lineMarker.png",
+          iconAnchor: [20, 20],
+          iconSize: [40, 40],
+        }), ind);
+      marker.mapObject.on('drag', (ev) => {
+        this.updatePoint(ev.target.getLatLng(), marker.index);
+      });
+      marker.mapObject.on('click', () => {
+        this.removePoint(marker.index);
+      });
+      this.lineMarkers.push(marker);
+    }
+  }
+
   addLineMarker(pos : Coord) {
     // TODO need to move icon stuff out of here
     let marker = new MapMarker(
@@ -293,7 +312,7 @@ export class MapLine extends MapObject<L.Polyline> {
     this.updateLine();
   }
 
-  submitSelf(info : { footage : number, workDate : Date, jobName : string, crewName : string, pageNumber : number, boreLogs : BoreLogRow[] }, callback : (res : string) => void, updateType : 'new' | 'edit') {
+  submitSelf(info : { footage : number, workDate : Date, jobName : string, crewName : string, pageNumber : number, boreLogs : BoreLogRow[], billingCode : string }, callback : (res : string) => void, updateType : 'new' | 'edit') {
     // let postObject: UploadBoreObject = {
     // TODO rework interfaces for Upload and Download objects to have CODE
     let postObject = {
@@ -305,6 +324,7 @@ export class MapLine extends MapObject<L.Polyline> {
       page_number: info.pageNumber,
       object_type: "bore",
       bore_log: info.boreLogs,
+      billing_code: info.billingCode,
     };
     this.sendSelfPostRequest(updateType, postObject, callback);
   }
@@ -339,5 +359,68 @@ export class MapMarker extends MapObject<L.Marker> {
 
   submitSelf() {
     //TODO
+  }
+}
+
+
+export class BoreObject {
+  line : MapLine;
+  job_name : string;
+  page_number : number;
+  work_date : Date;
+  crew_name : string;
+  page_id : number;
+  footage : number;
+  coordinates : Coord[];
+  tmp_coordinates : Coord[];
+  billing_code : string;
+  id : number;
+  bore_logs : BoreLogRow[];
+
+  constructor(boreInfo : DownloadBoreObject, line : MapLine) {
+    this.job_name = boreInfo.job_name;
+    this.page_number = boreInfo.page_number;
+    this.work_date = boreInfo.work_date;
+    this.crew_name = boreInfo.crew_name;
+    this.page_id = boreInfo.page_id;
+    this.footage = boreInfo.footage;
+    this.coordinates = boreInfo.coordinates;
+    this.billing_code = boreInfo.billing_code;
+    this.id = boreInfo.id;
+    this.bore_logs = boreInfo.bore_logs;
+    this.line = line;
+
+    this.bindPopup();
+  }
+
+  generatePopupHTML() {
+    let html = `
+    <div class="infoPopup">
+      <h3 class="popupCrewName">${this.crew_name}</h3>
+      <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
+      <h3 class="popupFootage">${this.footage}ft</h3>
+      <h3 class="popupRock">${this.billing_code}</h3>
+      <a class="popupEdit" onclick="editObject('bore', ${this.id}, '${this.billing_code}')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupDelete" onclick="deleteObject('${this.billing_code}', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
+    </div>
+    `;
+    return html;
+  }
+
+  bindPopup() {
+    this.line.mapObject.bindPopup(this.generatePopupHTML());
+  }
+
+  editLine() {
+    this.line.addLineMarkers();
+    this.line.map.on('click', (ev) => {
+      this.line.addPoint(ev.latlng);
+    });
+  }
+
+  resetCoordinates() {
+    this.line.points = [...this.coordinates];
+    this.line.resetLine();
+    this.bindPopup();
   }
 }
