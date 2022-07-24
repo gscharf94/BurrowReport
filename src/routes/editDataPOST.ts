@@ -6,6 +6,7 @@ export const router = express.Router();
 
 router.post('/', (req, res, next) => {
   console.log('update item post request');
+  console.log(req.body);
   if (req.body.object_type == "bore") {
     updateBore(req.body);
     let msg = `updated item: ${req.body.id} of type: ${(req.body.rock) ? 'rock' : 'bore'}`;

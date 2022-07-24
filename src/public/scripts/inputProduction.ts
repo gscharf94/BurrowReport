@@ -1230,20 +1230,28 @@ function addBoreStart() : void {
   document
     .getElementById('submit')
     .addEventListener('click', () => {
-      if (line.points.length < 2) {
-        alert('Please finish placing the line');
-        return;
-      }
-      if (!validateBoreInput()) {
-        return;
-      }
-      if (!validateBoreLogValues()) {
-        alert('Please enter a bore log');
+      if (!checkIfBoreIsReady(line)) {
         return;
       }
       newBoreSubmitCallback(line, options.billing_code);
     });
 }
+
+function checkIfBoreIsReady(line : MapLineTest) : boolean {
+  if (line.points.length < 2) {
+    alert('Please finish placing the line');
+    return false;
+  }
+  if (!validateBoreInput()) {
+    return false;
+  }
+  if (!validateBoreLogValues()) {
+    alert('Please enter a bore log');
+    return false;
+  }
+  return true;
+}
+
 
 // function addBoreStart() : void {
 //   const elementsToShow = [
@@ -1621,6 +1629,19 @@ function deleteObject(table : 'vaults' | 'bores' | 'rocks', id : number) : void 
   sendPostRequest('deleteData', { id: id, tableName: table }, callback);
 }
 
+
+function editBoreCallback(bore : BoreObjectTest) {
+  let footage = getFootageValue();
+  let date = getDateValue();
+  let boreLogs = parseBoreLogValues();
+  bore.editSelf({
+    footage: footage,
+    workDate: date,
+    boreLogs: boreLogs,
+  });
+}
+
+
 /**
  * takes in an object type and an id.. makes that specific item editable
  * so that the user can change it. pops up the submit/cancel buttons
@@ -1649,6 +1670,19 @@ function editObject(objectType : 'vault' | 'bore', id : number, billingCode : st
           .getElementById('cancel')
           .addEventListener('click', () => {
             cancelEditCallback(bore);
+          });
+        document
+          .getElementById('submit')
+          .addEventListener('click', () => {
+            if (!checkIfBoreIsReady(bore.line)) {
+              return;
+            }
+            bore.coordinates = [...bore.line.points];
+            editBoreCallback(bore);
+            bore.line.removeAllLineMarkers();
+            map.off('click');
+            initialization();
+            clearAllEventListeners(['submit', 'cancel']);
           });
         return;
       }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.trimDescription = exports.clickAndWaitSelector = exports.typeAndWaitSelector = exports.escapeSingleQuote = exports.getRandomDelay = void 0;
+exports.splitArray = exports.trimDescription = exports.clickAndWaitSelector = exports.typeAndWaitSelector = exports.escapeSingleQuote = exports.getRandomDelay = void 0;
 const TYPINGDELAY = 150;
 const DELAYRATIO = 0.25;
 /**
@@ -67,3 +67,19 @@ function trimDescription(description) {
     return description;
 }
 exports.trimDescription = trimDescription;
+function splitArray(n, arr) {
+    let arrs = [];
+    for (let i = 0; i < n; i++) {
+        arrs.push([]);
+    }
+    let c = 0;
+    for (const ele of arr) {
+        arrs[c].push(ele);
+        c++;
+        if (c == n) {
+            c = 0;
+        }
+    }
+    return arrs;
+}
+exports.splitArray = splitArray;

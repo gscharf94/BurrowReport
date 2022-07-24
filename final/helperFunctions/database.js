@@ -39,7 +39,7 @@ function deleteObject(tableName, id) {
 exports.deleteObject = deleteObject;
 function updateBore(boreInfo) {
     let query = `
-    UPDATE ${(boreInfo.rock) ? 'rocks' : 'bores'}
+    UPDATE bores}
     SET
       coordinates='${formatCoordsToPsql(boreInfo.coordinates)}',
       footage=${boreInfo.footage},
@@ -50,7 +50,7 @@ function updateBore(boreInfo) {
   `;
     db_js_1.pool.query(query, (err, resp) => {
         if (err) {
-            console.log(`error editing ${(boreInfo.rock) ? 'rock' : 'bore'} id: ${boreInfo.id}`);
+            console.log(`error editing bore id: ${boreInfo.id}`);
         }
     });
 }

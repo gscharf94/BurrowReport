@@ -9,6 +9,7 @@ const database_js_1 = require("../helperFunctions/database.js");
 exports.router = express_1.default.Router();
 exports.router.post('/', (req, res, next) => {
     console.log('update item post request');
+    console.log(req.body);
     if (req.body.object_type == "bore") {
         (0, database_js_1.updateBore)(req.body);
         let msg = `updated item: ${req.body.id} of type: ${(req.body.rock) ? 'rock' : 'bore'}`;

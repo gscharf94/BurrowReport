@@ -369,6 +369,17 @@ class BoreObject {
     bindPopup() {
         this.line.mapObject.bindPopup(this.generatePopupHTML());
     }
+    editSelf(info) {
+        let postObject = {
+            work_date: info.workDate,
+            bore_log: info.boreLogs,
+            footage: info.footage,
+            object_type: "bore",
+            coordinates: this.coordinates,
+            id: this.id,
+        };
+        this.line.sendSelfPostRequest("edit", postObject, (res) => { console.log('updated bore...'); });
+    }
     editLine() {
         this.line.addLineMarkers();
         this.line.map.on('click', (ev) => {
@@ -1673,19 +1684,25 @@ function addBoreStart() {
     document
         .getElementById('submit')
         .addEventListener('click', () => {
-        if (line.points.length < 2) {
-            alert('Please finish placing the line');
-            return;
-        }
-        if (!validateBoreInput()) {
-            return;
-        }
-        if (!validateBoreLogValues()) {
-            alert('Please enter a bore log');
+        if (!checkIfBoreIsReady(line)) {
             return;
         }
         newBoreSubmitCallback(line, options.billing_code);
     });
+}
+function checkIfBoreIsReady(line) {
+    if (line.points.length < 2) {
+        alert('Please finish placing the line');
+        return false;
+    }
+    if (!validateBoreInput()) {
+        return false;
+    }
+    if (!validateBoreLogValues()) {
+        alert('Please enter a bore log');
+        return false;
+    }
+    return true;
 }
 // function addBoreStart() : void {
 //   const elementsToShow = [
@@ -2029,6 +2046,16 @@ function deleteObject(table, id) {
     }
     sendPostRequest('deleteData', { id: id, tableName: table }, callback);
 }
+function editBoreCallback(bore) {
+    let footage = getFootageValue();
+    let date = getDateValue();
+    let boreLogs = parseBoreLogValues();
+    bore.editSelf({
+        footage: footage,
+        workDate: date,
+        boreLogs: boreLogs,
+    });
+}
 /**
  * takes in an object type and an id.. makes that specific item editable
  * so that the user can change it. pops up the submit/cancel buttons
@@ -2054,6 +2081,19 @@ function editObject(objectType, id, billingCode) {
                     .getElementById('cancel')
                     .addEventListener('click', () => {
                     cancelEditCallback(bore);
+                });
+                document
+                    .getElementById('submit')
+                    .addEventListener('click', () => {
+                    if (!checkIfBoreIsReady(bore.line)) {
+                        return;
+                    }
+                    bore.coordinates = [...bore.line.points];
+                    editBoreCallback(bore);
+                    bore.line.removeAllLineMarkers();
+                    map.off('click');
+                    initialization();
+                    (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
                 });
                 return;
             }

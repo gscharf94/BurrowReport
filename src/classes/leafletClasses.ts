@@ -411,6 +411,18 @@ export class BoreObject {
     this.line.mapObject.bindPopup(this.generatePopupHTML());
   }
 
+  editSelf(info : { footage : number, workDate : Date, boreLogs : BoreLogRow[] }) {
+    let postObject = {
+      work_date: info.workDate,
+      bore_log: info.boreLogs,
+      footage: info.footage,
+      object_type: "bore",
+      coordinates: this.coordinates,
+      id: this.id,
+    }
+    this.line.sendSelfPostRequest("edit", postObject, (res : string) => { console.log('updated bore...') })
+  }
+
   editLine() {
     this.line.addLineMarkers();
     this.line.map.on('click', (ev) => {

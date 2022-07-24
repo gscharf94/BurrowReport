@@ -39,7 +39,7 @@ export function deleteObject(tableName : 'vaults' | 'bores' | 'rocks', id : numb
 
 export function updateBore(boreInfo : UploadBoreObject) : void {
   let query = `
-    UPDATE ${(boreInfo.rock) ? 'rocks' : 'bores'}
+    UPDATE bores}
     SET
       coordinates='${formatCoordsToPsql(boreInfo.coordinates)}',
       footage=${boreInfo.footage},
@@ -50,7 +50,7 @@ export function updateBore(boreInfo : UploadBoreObject) : void {
   `
   pool.query(query, (err, resp) => {
     if (err) {
-      console.log(`error editing ${(boreInfo.rock) ? 'rock' : 'bore'} id: ${boreInfo.id}`)
+      console.log(`error editing bore id: ${boreInfo.id}`);
     }
   });
 }
