@@ -3,8 +3,8 @@ import {
   Coord, UploadBoreObject, UploadVaultObject,
   DownloadBoreObject, DownloadVaultObject, BoreLogRow, ClientOptions
 } from '../../interfaces';
-import { getUserInfo, redirectToLoginPage, clearAllEventListeners } from '../../helperFunctions/website.js';
-import { MapLine as MapLineTest, MapMarker as MapMarkerTest, MapObject as MapObjectTest, BoreObject as BoreObjectTest } from '../../classes/leafletClasses.js';
+import { getUserInfo, redirectToLoginPage, clearAllEventListeners, sendPostRequest } from '../../helperFunctions/website.js';
+import { MapLine, MapMarker as MapMarkerTest, MapObject as MapObjectTest, BoreObject } from '../../classes/leafletClasses.js';
 
 redirectToLoginPage();
 
@@ -19,7 +19,6 @@ declare global {
     deleteObject : (table : 'vaults' | 'bores' | 'rocks', id : number) => void,
     editObject : (objectType : 'vault' | 'bore', id : number, billingCode : string) => void;
     boresAndRocks : BoreObject[],
-    boresAndRocksTest : BoreObjectTest[];
     vaults : VaultObject[],
     map : L.Map;
   }
@@ -150,198 +149,6 @@ let boresAndRocks : DownloadBoreObject[] = parseJSON(boresAndRocksJSON);
 let vaults : DownloadVaultObject[] = parseJSON(vaultsJSON);
 
 const USERINFO = getUserInfo();
-
-class BoreObject {
-  line : MapLine;
-  job_name : string;
-  page_number : number;
-  work_date : Date;
-  crew_name : string;
-  page_id : number;
-  footage : number;
-  coordinates : Coord[];
-  tmp_coordinates : Coord[];
-  rock : boolean;
-  id : number;
-  bore_logs : BoreLogRow[];
-
-  constructor(boreInfo : DownloadBoreObject) {
-    this.job_name = boreInfo.job_name;
-    this.page_number = boreInfo.page_number;
-    this.work_date = new Date(boreInfo.work_date);
-    this.crew_name = boreInfo.crew_name;
-    this.page_id = boreInfo.page_id;
-    this.footage = boreInfo.footage;
-    this.coordinates = boreInfo.coordinates;
-    this.rock = boreInfo.rock;
-    this.id = boreInfo.id;
-    this.bore_logs = boreInfo.bore_logs;
-
-    this.drawLine();
-  }
-
-  drawLine() {
-    if (this.rock) {
-      this.line = new MapLine(this.coordinates, { color: 'green', dashed: true, weight: ROCK_ZOOM_LEVELS[map.getZoom()] }, false);
-    } else {
-      this.line = new MapLine(this.coordinates, { weight: LINE_ZOOM_LEVELS[map.getZoom()] }, false);
-    }
-    this.bindPopup();
-  }
-
-  changeWeightOnZoom(zoomLevel : number) {
-    if (this.rock) {
-      this.line.weight = ROCK_ZOOM_LEVELS[zoomLevel];
-    } else {
-      this.line.weight = LINE_ZOOM_LEVELS[zoomLevel];
-    }
-    this.line.hideObject();
-    (this.line.editable) ? this.line.createSelf() : this.line.createSelfNoMarkers();
-    this.bindPopup();
-  }
-
-  generatePopupHTML() {
-    let html = `
-    <div class="infoPopup">
-      <h3 class="popupCrewName">${this.crew_name}</h3>
-      <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
-      <h3 class="popupFootage">${this.footage}ft</h3>
-      <h3 class="popupRock">${(this.rock) ? "ROCK" : ""}</h3>
-      <a class="popupEdit" onclick="editObject('bore', ${this.id}, ${this.rock})" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
-      <a class="popupDelete" onclick="deleteObject('${(this.rock) ? 'rocks' : 'bores'}', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
-    </div>
-    `;
-    return html;
-  }
-
-  bindPopup() {
-    // let popup = L.popup({
-    //   className: 'leafletPopupContainer',
-    //   autoPan: false,
-    //   closeButton: true,
-    // });
-    // popup.setContent(this.generatePopupHTML());
-    // this.line.mapObject.on('click', (event) => {
-    //   popup.setLatLng(event.latlng);
-    //   map.addLayer(popup);
-    // });
-    this.line.mapObject.bindPopup(this.generatePopupHTML());
-  }
-
-  applyBoreLog() {
-    configureBoreLogContainer(this.bore_logs.length * 10);
-    let containers = document.querySelectorAll('.ftinContainer');
-    for (let i = 0; i < this.bore_logs.length; i++) {
-      let [ft, inches] = this.bore_logs[i];
-      console.log(`ft: ${ft} inches: ${inches}`);
-      let ftInput = containers[i].querySelector<HTMLInputElement>('.ftInput');
-      let inInput = containers[i].querySelector<HTMLInputElement>('.inInput');
-      ftInput.value = String(ft);
-      inInput.value = String(inches);
-    }
-  }
-
-  editLine() {
-    this.tmp_coordinates = [...this.coordinates];
-    this.line.addLineMarkers();
-    this.line.addTransparentLineMarkers();
-    map.on('click', (ev) => {
-      this.line.addPoint([ev.latlng.lat, ev.latlng.lng]);
-    });
-
-    let elementsToShow = [
-      'footageLabel', 'footageInput',
-      'dateLabel', 'dateInput',
-      'submit', 'cancel', 'boreLogToggle',
-    ];
-
-    let elementsToHide = [
-      'addBore', 'addVault', 'addRock',
-      'vaultLabel', 'vaultSelect'
-    ];
-
-    hideAndShowElements(elementsToShow, elementsToHide);
-    let toggle = document.getElementById('boreLogToggle');
-    this.applyBoreLog();
-    toggle.style.backgroundColor = "green";
-
-    let footageInput = <HTMLInputElement>document.getElementById('footageInput');
-    let dateInput = <HTMLInputElement>document.getElementById('dateInput');
-
-    footageInput.value = String(this.footage);
-    dateInput.value = formatDateToInputElement(this.work_date);
-
-    let cancelButton = document.getElementById('cancel');
-    let submitButton = document.getElementById('submit');
-
-    const submitOneTime = () => {
-      if (this.line.points.length < 2) {
-        alert('ERROR\n\nPlease finish drawing the line.');
-        return;
-      }
-      if (validateBoreInput() === false) {
-        return;
-      }
-      if (validateBoreLogValues() === false) {
-        alert('Please enter valid bore log values.');
-        return;
-      }
-
-      this.coordinates = this.line.points;
-      this.tmp_coordinates = [];
-
-      this.footage = getFootageValue();
-      this.work_date = getDateValue();
-
-      this.bore_logs = [...parseBoreLogValues()];
-
-      //@ts-ignore
-      let postObject : UploadBoreObject = {
-        coordinates: this.coordinates,
-        footage: this.footage,
-        rock: this.rock,
-        work_date: this.work_date,
-        crew_name: USERINFO.username,
-        job_name: JOB_NAME,
-        page_number: PAGE_NUMBER,
-        object_type: "bore",
-        id: this.id,
-        bore_log: this.bore_logs,
-      }
-      const cb = (res : string) => {
-        console.log(`edit request for ${(this.rock) ? 'rock' : 'bore'} id: ${this.id}has been received and this is response:\n`);
-        console.log(res);
-      }
-      sendPostRequest('editData', postObject, cb);
-      this.line.removeLineMarkers();
-      this.line.removeTransparentLineMarkers();
-      this.bindPopup();
-      initialization();
-      map.off('click');
-      cancelButton.removeEventListener('click', cancelOneTime);
-      submitButton.removeEventListener('click', submitOneTime);
-    }
-
-    const cancelOneTime = () => {
-      this.coordinates = [...this.tmp_coordinates];
-      this.line.points = this.coordinates;
-      this.tmp_coordinates = [];
-
-      this.line.removeTransparentLineMarkers();
-      this.line.removeLineMarkers();
-      this.line.hideObject();
-      this.line.createSelfNoMarkers();
-      this.bindPopup();
-      initialization();
-      map.off('click');
-      cancelButton.removeEventListener('click', cancelOneTime);
-      submitButton.removeEventListener('click', submitOneTime);
-    }
-
-    cancelButton.addEventListener('click', cancelOneTime);
-    submitButton.addEventListener('click', submitOneTime);
-  }
-}
 
 class VaultObject {
   marker : MapMarker;
@@ -527,317 +334,6 @@ class MapObject {
   }
 }
 
-class MapLine extends MapObject {
-  /**
-   * @type {Coord[]} - set of gps points that will be used to draw and update
-   * the line [number, number] []
-   */
-  points : Coord[];
-  /**
-   * @type {color} - the color of the line. can be a string like "red" "blue"
-   * or something like RGB(0, 0, 0) but I don't remember right now
-   */
-  color : string;
-  weight : number;
-  dashed : string;
-  /**
-   * @type {MapMarker[]} - a list of MapMarker class instances which represents
-   * the way users update the line. each point in a line has a marker associated
-   * with it, and as the user drags the marker, the line updates
-   * this array are those MapMarkers, which have .mapObject property
-   */
-  lineMarkers : MapMarker[];
-  /**
-   * @type {MapMarker[]} - a list of MapMarker class instances which will be
-   * the transparent icons which will be shown in the middle of points
-   * this way the user can add points dynamically instead of having to restart
-   */
-  transparentLineMarkers : MapMarker[];
-  /**
-   * @type {boolean} - if this is true, the markers will show up
-   * otherwise, no markers just a static line
-   */
-  editable : boolean;
-
-  constructor(points : Coord[], options : LineOptions = {}, editable : boolean = true) {
-    super();
-
-    const COLOR_DEFAULT = "blue";
-    const WEIGHT_DEFAULT = 6;
-
-    this.points = points;
-    (options.color) ? this.color = options.color : this.color = COLOR_DEFAULT;
-    (options.weight) ? this.weight = options.weight : this.weight = WEIGHT_DEFAULT;
-    (options.dashed) ? this.dashed = '10 10' : this.dashed = '';
-    this.lineMarkers = [];
-    this.transparentLineMarkers = [];
-
-    this.editable = editable;
-    (editable) ? this.createSelf() : this.createSelfNoMarkers();
-  }
-
-  /**
-   * create the Polyline object and assigns .mapObject to it
-   * if points < 2 then we can't make a line!!
-   */
-  createSelf(updateLineMarkers : boolean = true) {
-    if (this.points.length < 2) {
-      return;
-    }
-    this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: renderer });
-    if (this.transparentLineMarkers.length != 0) {
-      this.updateTransparentLineMarkers();
-    } else {
-      this.addTransparentLineMarkers();
-    }
-    if (updateLineMarkers) {
-      this.addLineMarkers();
-    }
-    this.showObject();
-  }
-
-  updateTransparentLineMarkers() {
-    for (let i = 0; i < this.points.length - 1; i++) {
-      let midPoint = getHalfwayPoint(this.points[i], this.points[i + 1]);
-      //@ts-ignore
-      this.transparentLineMarkers[i].mapObject.setLatLng(midPoint);
-    }
-  }
-
-  /**
-   * to draw a line without markers or interactivity..
-   * later when it's being edited the markers can show back up
-   */
-  createSelfNoMarkers() {
-    this.mapObject = L.polyline(this.points, { color: this.color, weight: this.weight, dashArray: this.dashed, renderer: renderer })
-    this.showObject();
-  }
-
-  /**
-   * takes in a gps coordinate, as well an optional index
-   * splices the new gps coordinate into the points list
-   * and then refreshes the object onto the map 
-   *
-   * @param {Coord} pos - Coord - [number, number] which is gps for new point
-   * @param {number} index - number - by default it adds on the end.. but can add in middle
-   */
-  addPoint(pos : Coord, index : number = this.points.length) {
-    if (this.points.length < 2) {
-      this.lineMarkers.push(new MapMarker(pos, true, ICONS.lineMarker));
-      this.points.push(pos);
-      if (this.points.length == 2) {
-        this.createSelf();
-      }
-      return;
-    }
-    this.removeTransparentLineMarkers();
-    this.hideObject();
-    this.points.splice(index, 0, pos);
-    this.createSelf();
-  }
-
-  /**
-   * removes a specific point from an index on the list
-   * then refreshes the map object
-   *
-   * @param {number} index - number - which gps point to remove by index
-   */
-  removePoint(index : number) {
-    if (this.points.length < 3) {
-      this.hideObject();
-      this.removeLineMarkers();
-      this.removeTransparentLineMarkers();
-      this.points = [];
-      return;
-    }
-    this.removeTransparentLineMarkers();
-    this.hideObject();
-    this.points.splice(index, 1);
-    this.createSelf();
-  }
-
-  /**
-   * takes in a gps coordinate, and then replaces
-   * a specific point in the this.points array
-   * 
-   * we also remove the old line and create a new one
-   * NOTE updateLineMarkers is set to FALSE
-   * this is because there is no need to create new line markers
-   * every 10ms or whatever
-   *
-   * @param { {lat: number, lng: number} } newPos - Coord - a new gps coordinate, presumably from user dragging
-   * @param {number} index - number - which point on the line should be updated
-   */
-  updatePoint(newPos : { lat : number, lng : number }, index : number) {
-    for (const [ind, marker] of this.lineMarkers.entries()) {
-      if (marker.draggable == false) {
-        marker.draggable = true;
-        marker.icon = ICONS.lineMarker;
-        marker.hideObject();
-        marker.createSelf();
-        marker.mapObject.on('drag', (event) => {
-          let newPoint = event.target.getLatLng();
-          marker.updatePoint(newPoint);
-          this.updatePoint(newPoint, ind);
-        });
-        marker.mapObject.on('click', () => {
-          marker.icon = ICONS.lineX;
-          marker.draggable = false;
-          marker.hideObject();
-          marker.createSelf();
-          marker.mapObject.off('click');
-          marker.mapObject.on('click', () => {
-            this.removePoint(ind);
-          });
-        });
-        break;
-      }
-    }
-    this.hideObject();
-    this.points.splice(index, 1, [newPos.lat, newPos.lng]);
-    this.createSelf(false);
-  }
-
-  /**
-   * simply loops through all the line markers associated with this
-   * instance of a line and then delete em from the map
-   * and sets the class property to []
-   */
-  removeLineMarkers() {
-    for (const marker of this.lineMarkers) {
-      marker.hideObject();
-    }
-    this.lineMarkers = [];
-  }
-
-  /**
-   * iterates through this.transparentLineMarkers and then hides all the objects
-   * ie: map.removeLayer() and then sets the array to []
-   */
-  removeTransparentLineMarkers() {
-    for (const marker of this.transparentLineMarkers) {
-      marker.hideObject();
-    }
-    this.transparentLineMarkers = [];
-  }
-
-
-  /**
-   * goes through all points in this.points and creates markers
-   * for the midway points in between those
-   * also creates click events on the markers so that they creates
-   * new points in this.points which then later gets turned into a 
-   * regular marker
-   */
-  addTransparentLineMarkers() {
-    this.removeTransparentLineMarkers();
-    for (let i = 0; i < this.points.length - 1; i++) {
-      let midPoint = getHalfwayPoint(this.points[i], this.points[i + 1]);
-      let marker = new MapMarker(midPoint, true, ICONS.lineMarkerTransparent);
-      this.transparentLineMarkers.push(marker);
-      marker.mapObject.on('click dragstart', (event) => {
-        let point = event.target.getLatLng();
-        let coord : Coord = [point.lat, point.lng];
-        this.addPoint(coord, i + 1);
-      });
-    }
-  }
-
-  /**
-   * basically just deletes itself. i would delete the object too here
-   * if i could.. but a class instance can't delete itself
-   * but this way the line dissapears from the screen
-   */
-  clearSelf() {
-    if (this.points.length > 1) {
-      this.hideObject();
-    }
-    this.points = [];
-    for (const marker of [...this.lineMarkers, ...this.transparentLineMarkers]) {
-      marker.hideObject();
-    }
-    this.lineMarkers = [];
-    this.transparentLineMarkers = [];
-  }
-
-  /**
-   * goes through the array of points and creates LineMarker objects
-   * with a on 'drag' event which updates the line when the user drags
-   * the marker. 
-   */
-  addLineMarkers() {
-    this.removeLineMarkers();
-    for (const [ind, point] of this.points.entries()) {
-      let marker = new MapMarker(point, true, ICONS.lineMarker);
-      this.lineMarkers.push(marker);
-      marker.mapObject.on('drag', (event) => {
-        let newPoint = event.target.getLatLng();
-        marker.updatePoint(newPoint);
-        this.updatePoint(newPoint, ind);
-      });
-      marker.mapObject.on('click', () => {
-        marker.icon = ICONS.lineX;
-        marker.draggable = false;
-        marker.hideObject();
-        marker.createSelf();
-        marker.mapObject.off('click');
-        marker.mapObject.on('click', () => {
-          this.removePoint(ind);
-        });
-      });
-    }
-  }
-
-  submitSelf(rock : boolean) {
-    //@ts-ignore
-    let postObject : UploadBoreObject = {
-      coordinates: [...this.points],
-      footage: getFootageValue(),
-      rock: rock,
-      work_date: getDateValue(),
-      job_name: JOB_NAME,
-      crew_name: USERINFO.username,
-      page_number: PAGE_NUMBER,
-      object_type: "bore",
-      bore_log: parseBoreLogValues(),
-    }
-    const requestCallback = (res : string) => {
-      let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])]
-      //@ts-ignore
-      let newBoreObject = new BoreObject({
-        job_name: JOB_NAME,
-        page_number: PAGE_NUMBER,
-        page_id: pageId,
-        work_date: postObject.work_date,
-        crew_name: USERINFO.username,
-        id: boreId,
-        coordinates: [...this.points],
-        footage: postObject.footage,
-        rock: postObject.rock,
-        bore_logs: postObject.bore_log,
-      });
-      window.boresAndRocks.push(newBoreObject);
-      this.clearSelf();
-    }
-    this.sendSelfPost(postObject, requestCallback);
-  }
-
-  readyToSubmit() : boolean {
-    if (this.points.length < 2) {
-      alert('ERROR\n\nPlease finish drawing the line.');
-      return false;
-    }
-    if (validateBoreInput() === false) {
-      return false;
-    }
-    if (validateBoreLogValues() === false) {
-      alert('Please enter a valid bore log.');
-      return false;
-    }
-    return true;
-  }
-}
-
 class MapMarker extends MapObject {
   /**
    * @type {Coord} - the gps position for the class instance
@@ -965,7 +461,6 @@ window.incrementBoreLogRow = incrementBoreLogRow;
 window.decrementBoreLogRow = decrementBoreLogRow;
 window.toggleBoreLog = toggleBoreLog;
 window.boresAndRocks = [];
-window.boresAndRocksTest = [];
 window.vaults = [];
 
 let renderer = L.canvas({ tolerance: 20 });
@@ -1017,13 +512,13 @@ function getOptionsFromBillingCode(code : string) : ClientOptions {
 function drawSavedBoresAndRocks() : void {
   for (const bore of boresAndRocks) {
     let options = getOptionsFromBillingCode(bore.billing_code);
-    let boreLine = new MapLineTest(map, renderer,
+    let boreLine = new MapLine(map, renderer,
       {
         points: [...bore.coordinates],
         color: options.primary_color,
         dashed: options.dashed,
       });
-    window.boresAndRocksTest.push(new BoreObjectTest(bore, boreLine));
+    window.boresAndRocks.push(new BoreObject(bore, boreLine));
   }
 }
 
@@ -1156,14 +651,14 @@ function findOptions(id : number) : ClientOptions {
   }
 }
 
-function cancelCallback(mapObject : MapLineTest | MapMarkerTest) {
+function cancelCallback(mapObject : MapLine | MapMarkerTest) {
   mapObject.removeSelf();
   map.off('click');
   initialization();
   clearAllEventListeners(['submit', 'cancel']);
 }
 
-function newBoreSubmitCallback(line : MapLineTest, billingCode : string) {
+function newBoreSubmitCallback(line : MapLine, billingCode : string) {
   let footage = getFootageValue();
   let date = getDateValue();
   let boreLogs = parseBoreLogValues();
@@ -1179,7 +674,7 @@ function newBoreSubmitCallback(line : MapLineTest, billingCode : string) {
     (res : string) => {
       let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])]
       let options = getOptionsFromBillingCode(billingCode);
-      window.boresAndRocksTest.push(new BoreObjectTest({
+      window.boresAndRocks.push(new BoreObject({
         job_name: JOB_NAME,
         crew_name: USERINFO.username,
         page_number: PAGE_NUMBER,
@@ -1212,7 +707,7 @@ function addBoreStart() : void {
   setItemLabel(options);
   startBoreSetup();
 
-  let line = new MapLineTest(map, renderer, {
+  let line = new MapLine(map, renderer, {
     points: [],
     color: options.primary_color,
     dashed: options.dashed,
@@ -1237,7 +732,7 @@ function addBoreStart() : void {
     });
 }
 
-function checkIfBoreIsReady(line : MapLineTest) : boolean {
+function checkIfBoreIsReady(line : MapLine) : boolean {
   if (line.points.length < 2) {
     alert('Please finish placing the line');
     return false;
@@ -1300,28 +795,6 @@ function checkIfBoreIsReady(line : MapLineTest) : boolean {
 //     clearAllEventListeners(['submit', 'cancel']);
 //   });
 // }
-
-/**
- * basically takes a url on the website or a full url and sends
- * a post request with whatever data is in body
- *
- * TODO: move this out of this file because it's a helper function and
- *       can help with others. super useful function
- *
- * @param {string} url - string - the url, relative to current page or full path
- * @param {Object} body - {} - any object that will get stringified and sent 
- */
-function sendPostRequest(url : string, body : {}, callback : (res : string) => void) {
-  let req = new XMLHttpRequest();
-  req.open('POST', `http://192.168.86.36:3000/${url}`);
-  req.setRequestHeader("Content-type", "application/json");
-  req.send(JSON.stringify(body));
-  req.onreadystatechange = function() {
-    if (req.readyState == XMLHttpRequest.DONE) {
-      callback(req.responseText);
-    }
-  }
-}
 
 /**
  * the user has clicked on the add vault button so now we start the process
@@ -1604,14 +1077,11 @@ function formatDate(date : Date) : string {
  * @param {number} id - number - the id of the object to be deleted
  * @returns {void}
  */
-function deleteObject(table : 'vaults' | 'bores' | 'rocks', id : number) : void {
+function deleteObject(table : 'vaults' | 'bores', id : number) : void {
   const callback = (res : string) => {
     console.log(`request to delete id: ${id} from ${table} recieved response: \n`);
     console.log(res);
   }
-
-  console.log(`sending request to delete -  table: ${table} obj: ${id}`);
-
   if (table == 'vaults') {
     for (const vault of window.vaults) {
       if (vault.id == id) {
@@ -1621,16 +1091,15 @@ function deleteObject(table : 'vaults' | 'bores' | 'rocks', id : number) : void 
   } else {
     for (const bore of window.boresAndRocks) {
       if (bore.id == id) {
-        bore.line.hideObject();
+        bore.line.removeSelf();
       }
     }
   }
-
   sendPostRequest('deleteData', { id: id, tableName: table }, callback);
 }
 
 
-function editBoreCallback(bore : BoreObjectTest) {
+function editBoreCallback(bore : BoreObject) {
   let footage = getFootageValue();
   let date = getDateValue();
   let boreLogs = parseBoreLogValues();
@@ -1654,7 +1123,7 @@ function editBoreCallback(bore : BoreObjectTest) {
 function editObject(objectType : 'vault' | 'bore', id : number, billingCode : string) : void {
   map.closePopup();
   if (objectType == "bore") {
-    for (const bore of window.boresAndRocksTest) {
+    for (const bore of window.boresAndRocks) {
       if (id == bore.id && bore.billing_code == billingCode) {
         bore.editLine();
         startBoreSetup();
@@ -1696,8 +1165,8 @@ function editObject(objectType : 'vault' | 'bore', id : number, billingCode : st
   }
 }
 
-function cancelEditCallback(obj : BoreObjectTest) {
-  if (obj instanceof BoreObjectTest) {
+function cancelEditCallback(obj : BoreObject) {
+  if (obj instanceof BoreObject) {
     obj.line.removeAllLineMarkers();
     obj.resetCoordinates();
     map.off('click');
@@ -1784,17 +1253,17 @@ function toggleMovementLinks() : void {
 }
 
 
-function addZoomHandlers() {
-  map.on('zoomend', () => {
-    let newZoom = map.getZoom();
-    for (const bore of window.boresAndRocks) {
-      bore.changeWeightOnZoom(newZoom);
-    }
-    for (const vault of window.vaults) {
-      vault.marker.changeSizeOnZoom(newZoom, ICON_ZOOM_LEVELS);
-    }
-  });
-}
+// function addZoomHandlers() {
+//   map.on('zoomend', () => {
+//     let newZoom = map.getZoom();
+//     for (const bore of window.boresAndRocks) {
+//       bore.changeWeightOnZoom(newZoom);
+//     }
+//     for (const vault of window.vaults) {
+//       vault.marker.changeSizeOnZoom(newZoom, ICON_ZOOM_LEVELS);
+//     }
+//   });
+// }
 
 /**
  * ok so we wanna get a halfway point between two points
@@ -1990,7 +1459,7 @@ function toggleBoreLog() : void {
 }
 
 
-addZoomHandlers();
+// addZoomHandlers();
 drawSavedBoresAndRocks();
 drawSavedVaults();
 toggleMovementLinks();

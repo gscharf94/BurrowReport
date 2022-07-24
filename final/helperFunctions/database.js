@@ -30,6 +30,7 @@ function deleteObject(tableName, id) {
     let query = `
     DELETE FROM ${tableName} WHERE id=${id};
   `;
+    console.log(query);
     db_js_1.pool.query(query, (err, resp) => {
         if (err) {
             console.log(`error deleting id: ${id} from ${tableName}`);
@@ -39,7 +40,7 @@ function deleteObject(tableName, id) {
 exports.deleteObject = deleteObject;
 function updateBore(boreInfo) {
     let query = `
-    UPDATE bores}
+    UPDATE bores
     SET
       coordinates='${formatCoordsToPsql(boreInfo.coordinates)}',
       footage=${boreInfo.footage},
@@ -48,6 +49,7 @@ function updateBore(boreInfo) {
     WHERE
       id=${boreInfo.id};
   `;
+    console.log(query);
     db_js_1.pool.query(query, (err, resp) => {
         if (err) {
             console.log(`error editing bore id: ${boreInfo.id}`);

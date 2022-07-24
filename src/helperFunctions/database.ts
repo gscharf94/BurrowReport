@@ -26,20 +26,21 @@ export async function getPageId(job_name : string, page_number : number) : Promi
  * @param {number} id - number - the id of the row to be deleted
  * @returns {void}  doesnt return anything just deletes
  */
-export function deleteObject(tableName : 'vaults' | 'bores' | 'rocks', id : number) : void {
+export function deleteObject(tableName : 'vaults' | 'bores', id : number) : void {
   let query = `
     DELETE FROM ${tableName} WHERE id=${id};
-  `
+  `;
+  console.log(query);
   pool.query(query, (err, resp) => {
     if (err) {
       console.log(`error deleting id: ${id} from ${tableName}`);
     }
-  })
+  });
 }
 
 export function updateBore(boreInfo : UploadBoreObject) : void {
   let query = `
-    UPDATE bores}
+    UPDATE bores
     SET
       coordinates='${formatCoordsToPsql(boreInfo.coordinates)}',
       footage=${boreInfo.footage},
@@ -47,7 +48,8 @@ export function updateBore(boreInfo : UploadBoreObject) : void {
       bore_logs='${formatCoordsToPsql(boreInfo.bore_log)}'
     WHERE
       id=${boreInfo.id};
-  `
+  `;
+  console.log(query);
   pool.query(query, (err, resp) => {
     if (err) {
       console.log(`error editing bore id: ${boreInfo.id}`);

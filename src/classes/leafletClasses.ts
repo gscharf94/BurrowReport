@@ -401,7 +401,7 @@ export class BoreObject {
       <h3 class="popupFootage">${this.footage}ft</h3>
       <h3 class="popupRock">${this.billing_code}</h3>
       <a class="popupEdit" onclick="editObject('bore', ${this.id}, '${this.billing_code}')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
-      <a class="popupDelete" onclick="deleteObject('${this.billing_code}', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
+      <a class="popupDelete" onclick="deleteObject('bores', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
     </div>
     `;
     return html;
