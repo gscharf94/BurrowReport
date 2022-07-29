@@ -14,3 +14,5 @@ async function updateJobInfo(jobName : string) {
     updateTicketInfo(ticketInfo);
   }
 }
+
+updateJobInfo('P4729');
