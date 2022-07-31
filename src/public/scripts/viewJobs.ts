@@ -5,10 +5,17 @@ redirectToLoginPage();
 declare global {
   interface Window {
     togglePageLinks : (jobName : string) => void;
+    toggleInactiveJobs : () => void;
   }
 }
 
 window.togglePageLinks = togglePageLinks;
+window.toggleInactiveJobs = toggleInactiveJobs;
+
+function initialization() {
+  let checkbox = <HTMLInputElement>document.getElementById('oldJobCheckbox');
+  checkbox.checked = false;
+}
 
 function togglePageLinks(jobName : string) : void {
   let jobContainer = document.getElementById(`${jobName}Container`);
@@ -27,3 +34,14 @@ function togglePageLinks(jobName : string) : void {
     dropdown.classList.add('showPageLinks');
   }
 }
+
+function toggleInactiveJobs() {
+  let jobContainers = document.querySelectorAll('.jobContainer');
+  for (const element of jobContainers) {
+    if (element.classList.contains('inactiveJob')) {
+      element.classList.toggle('hiddenContainer');
+    }
+  }
+}
+
+initialization();

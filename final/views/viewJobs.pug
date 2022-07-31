@@ -6,25 +6,26 @@ block style
 block content
   div#controls
     h1#viewJobsHeader Job List
-    input(type="checkbox" id="oldJobCheckbox")
+    input(type="checkbox" id="oldJobCheckbox", onclick="toggleInactiveJobs()")
     label(for="oldJobCheckbox") Show Inactive Jobs
     
   div#jobsContainer
     each job in jobs
-      if job.active
-        div(id=`${job.job_name}Container`).jobContainer
-          p.jobName #{job.job_name}
-          p.jobClient #{job.client}
-          a(href=`#`).addProduction Report
-          div.addProductionContainer
-            img(src="/images/icons/plus-square.svg", onclick=`togglePageLinks('${job.job_name}')`).addProductionIcon
-            div.dropdownPageLinks
-              each page in job.pages
-                a(href=`/inputProduction/${job.client}/${job.job_name}/${page}`).pageLink SH#{page}
-          a(href=`/viewTickets/${job.job_name}`).viewTickets Tickets
-          img(src="/images/icons/ticket.png").viewTicketsIcon
-          a(href="#").downloadPrints Prints
-          img(src="/images/icons/download.png").downloadPrintsIcon
+      - let containerClass;
+      - (job.active)? containerClass = 'jobContainer' : containerClass = 'jobContainer hiddenContainer inactiveJob'
+      div(id=`${job.job_name}Container` class=`${containerClass}`)
+        p.jobName #{job.job_name}
+        p.jobClient #{job.client}
+        a(href=`#` onclick=`togglePageLinks('${job.job_name}')`).addProduction Report
+        div.addProductionContainer
+          img(src="/images/icons/plus-square.svg", onclick=`togglePageLinks('${job.job_name}')`).addProductionIcon
+          div.dropdownPageLinks
+            each page in job.pages
+              a(href=`/inputProduction/${job.client}/${job.job_name}/${page}`).pageLink SH#{page}
+        a(href=`/viewTickets/${job.job_name}`).viewTickets Tickets
+        img(src="/images/icons/ticket.png").viewTicketsIcon
+        a(href="#").downloadPrints Prints
+        img(src="/images/icons/download.png").downloadPrintsIcon
 
 
 block scripts

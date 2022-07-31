@@ -3,6 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const website_js_1 = require("../../helperFunctions/website.js");
 (0, website_js_1.redirectToLoginPage)();
 window.togglePageLinks = togglePageLinks;
+window.toggleInactiveJobs = toggleInactiveJobs;
+function initialization() {
+    let checkbox = document.getElementById('oldJobCheckbox');
+    checkbox.checked = false;
+}
 function togglePageLinks(jobName) {
     let jobContainer = document.getElementById(`${jobName}Container`);
     let dropdown = jobContainer.querySelector('.dropdownPageLinks');
@@ -19,3 +24,12 @@ function togglePageLinks(jobName) {
         dropdown.classList.add('showPageLinks');
     }
 }
+function toggleInactiveJobs() {
+    let jobContainers = document.querySelectorAll('.jobContainer');
+    for (const element of jobContainers) {
+        if (element.classList.contains('inactiveJob')) {
+            element.classList.toggle('hiddenContainer');
+        }
+    }
+}
+initialization();

@@ -47,6 +47,9 @@
   cursor: pointer;
 }
 
+.hiddenContainer {
+  display: none !important;
+}
 
 
 .jobContainer {
