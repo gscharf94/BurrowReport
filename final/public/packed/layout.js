@@ -153,7 +153,6 @@ const website_js_1 = __webpack_require__(939);
 window.toggleNavBar = toggleNavBar;
 window.logout = logout;
 const USER_INFO = (0, website_js_1.getUserInfo)();
-debugger;
 if (USER_INFO.admin) {
     console.log('this happens');
     document

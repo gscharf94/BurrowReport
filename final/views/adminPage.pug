@@ -1,0 +1,23 @@
+extends layout.pug
+
+block style
+  link(rel="stylesheet", href="/stylesheets/adminPage.css")
+
+
+block content
+  h1 Admin Page
+  div#controls
+    select(name="crewSelect", id="crewSelect", size="12", onchange="window.formatJobs()")
+    select(name="jobSelect", id="jobSelect", size="12")
+
+    button(id="addJobButton") Add Job
+    button(id="removeJobButton") Remove Job
+    
+
+block scripts
+  script.
+    JOBS_JSON="#{jobsJson}"
+    CREWS_JSON="#{crewsJson}"
+    CREWS_JOBS_JSON="#{crewsJobsJson}"
+
+  script(src="/packed/adminPage.js")

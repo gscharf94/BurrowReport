@@ -108,3 +108,23 @@ export interface ClientOptions {
   billing_description : string,
   dashed : boolean,
 }
+
+export interface JobDownloadObject {
+  active : boolean,
+  client : string,
+  id : number,
+  job_name : string,
+  state : string,
+}
+
+export interface CrewDownloadObject {
+  admin : boolean,
+  crew_name : string,
+  id : number,
+  password : string,
+}
+
+export interface CrewsJobsDownloadObject {
+  crew_id : number,
+  job_id : number,
+}

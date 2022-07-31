@@ -10,6 +10,7 @@ import { router as inputDataPOST } from './routes/inputDataPOST.js';
 import { router as deleteDataPOST } from './routes/deleteDataPOST.js';
 import { router as editDataPOST } from './routes/editDataPOST.js';
 import { router as viewTickets } from './routes/viewTickets.js';
+import { router as adminPage } from './routes/adminPage.js';
 
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/inputData', inputDataPOST);
 app.use('/deleteData', deleteDataPOST);
 app.use('/editData', editDataPOST);
 app.use('/viewTickets', viewTickets);
+app.use('/admin', adminPage);
 
 app.listen(PORT, () => {
   console.log(`listening @ http://192.168.1.247:3000`);

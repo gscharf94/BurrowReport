@@ -7,7 +7,8 @@ module.exports = {
     viewJobs: __dirname + "/final/public/scripts/viewJobs.js",
     inputProduction: __dirname + "/final/public/scripts/inputProduction.js",
     viewTickets: __dirname + "/final/public/scripts/viewTickets.js",
-    viewProduction: __dirname + "/final/public/scripts/viewProduction.js"
+    viewProduction: __dirname + "/final/public/scripts/viewProduction.js",
+    adminPage: __dirname + "/final/public/scripts/adminPage.js"
   },
   output: {
     path: __dirname + "/final/public/packed/"
