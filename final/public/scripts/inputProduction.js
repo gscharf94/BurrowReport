@@ -62,6 +62,25 @@ const ICONS = {
         iconAnchor: DEFAULT_ICON_ANCHOR,
     }),
 };
+const generateIcon = (markerType, color, size) => {
+    if (markerType == "line") {
+        return leaflet_1.default.icon({
+            iconUrl: "/images/icons/lineMarker.png",
+            iconSize: size,
+            iconAnchor: [size[0] / 2, size[1] / 2],
+        });
+    }
+    let conversion = {
+        'green': '/images/icons/DT20.png',
+        'blue': '/images/icons/DT36.png',
+        'yellow': '/images/icons/DT30.png',
+    };
+    return leaflet_1.default.icon({
+        iconUrl: conversion[color],
+        iconSize: size,
+        iconAnchor: [size[0] / 2, size[1] / 2],
+    });
+};
 const VAULT_ICON_TRANS = {
     0: ICONS.dt20,
     1: ICONS.dt30,
@@ -367,7 +386,7 @@ class MapMarker extends MapObject {
                 vault_size: postObject.size,
                 billing_code: "DTXX",
             });
-            window.vaults.push(newVaultObject);
+            // window.vaults.push(newVaultObject);
             this.hideObject();
         };
         this.sendSelfPost(postObject, callback);
@@ -385,7 +404,7 @@ window.boresAndRocks = [];
 window.vaults = [];
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 3);
-leaflet_1.default.tileLayer('http://192.168.86.36:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
+leaflet_1.default.tileLayer('http://192.168.1.247:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
     attribution: `${JOB_NAME} - PAGE# ${PAGE_NUMBER}`,
     minZoom: 2,
     maxZoom: 7,
@@ -435,7 +454,10 @@ function drawSavedBoresAndRocks() {
 }
 function drawSavedVaults() {
     for (const vault of vaults) {
-        window.vaults.push(new VaultObject(vault));
+        let options = getOptionsFromBillingCode(vault.billing_code);
+        let marker = new leafletClasses_js_1.MapMarker(map, true, vault.coordinate, generateIcon('vault', options.primary_color, [20, 20]));
+        marker.toggleDraggable();
+        window.vaults.push(new leafletClasses_js_1.VaultObject(vault, marker));
     }
 }
 /**
@@ -459,7 +481,6 @@ function initialization() {
     const elementsToHide = [
         'dateLabel', 'dateInput',
         'footageLabel', 'footageInput',
-        'vaultLabel', 'vaultSelect',
         'cancel', 'submit', 'boreLogToggle',
         'currentItemLabel',
     ];
@@ -519,8 +540,7 @@ function startBoreSetup() {
         'boreLogToggle', 'currentItemLabel',
     ];
     const elementsToHide = [
-        'addVault', 'addBore', 'vaultSelect',
-        'vaultLabel',
+        'addVault', 'addBore',
     ];
     hideAndShowElements(elementsToShow, elementsToHide);
 }
@@ -529,10 +549,9 @@ function setItemLabel(options) {
     let itemLabel = document.getElementById('currentItemLabel');
     itemLabel.textContent = displayString;
 }
-function addVaultSetup() {
+function startVaultSetup() {
     const elementsToShow = [
         'dateLabel', 'dateInput',
-        'vaultSelect', 'vaultLabel',
         'cancel', 'submit',
         'currentItemLabel',
     ];
@@ -552,6 +571,35 @@ function findOptions(id) {
 }
 function cancelCallback(mapObject) {
     mapObject.removeSelf();
+    map.off('click');
+    initialization();
+    (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
+}
+function newVaultSubmitCallback(marker, billingCode) {
+    let date = getDateValue();
+    marker.submitSelf({
+        workDate: date,
+        crewName: USERINFO.username,
+        pageNumber: PAGE_NUMBER,
+        billingCode: billingCode,
+        jobName: JOB_NAME,
+    }, (res) => {
+        let [vaultId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
+        let options = getOptionsFromBillingCode(billingCode);
+        window
+            .vaults
+            .push(new leafletClasses_js_1.VaultObject({
+            job_name: JOB_NAME,
+            crew_name: USERINFO.username,
+            page_number: PAGE_NUMBER,
+            work_date: date,
+            id: vaultId,
+            page_id: pageId,
+            billing_code: billingCode,
+            coordinate: marker.point,
+        }, marker));
+    }, 'new');
+    marker.toggleDraggable();
     map.off('click');
     initialization();
     (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
@@ -590,6 +638,12 @@ function newBoreSubmitCallback(line, billingCode) {
     map.off('click');
     initialization();
     (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
+}
+function checkIfVaultIsReady(marker) {
+    if (validateVaultInput() === false) {
+        return false;
+    }
+    return true;
 }
 function addBoreStart() {
     let boreSelect = document.getElementById('addBore');
@@ -636,48 +690,49 @@ function checkIfBoreIsReady(line) {
     }
     return true;
 }
-// function addBoreStart() : void {
-//   const elementsToShow = [
-//     'footageLabel', 'footageInput',
-//     'dateLabel', 'dateInput',
-//     'cancel', 'submit', 'boreLogToggle',
-//   ];
-//   const elementsToHide = [
-//     'vaultLabel', 'vaultSelect',
-//     'addRock', 'addVault',
-//   ];
-//   hideAndShowElements(elementsToShow, elementsToHide);
-//   let line = new MapLine([], { weight: LINE_ZOOM_LEVELS[map.getZoom()] });
-//   map.on('click', (event) => {
-//     let latlng = event.latlng;
-//     line.addPoint([latlng.lat, latlng.lng]);
-//   });
-//   const zoomHandler = () => {
-//     let newZoom = map.getZoom();
-//     line.weight = LINE_ZOOM_LEVELS[newZoom];
-//     line.hideObject();
-//     line.createSelf();
-//   }
-//   map.on('zoomend', zoomHandler);
-//   let submitButton = document.getElementById('submit');
-// let cancelButton = document.getElementById('cancel');
-// cancelButton.addEventListener('click', () => {
-//   line.clearSelf();
-//   initialization();
-//   map.off('click');
-//   clearAllEventListeners(['submit', 'cancel']);
-// });
-//   submitButton.addEventListener('click', () => {
-//     if (!line.readyToSubmit()) {
-//       return;
-//     }
-//     line.submitSelf(false)
-//     initialization();
-//     map.off('click');
-//     map.off('zoomend', zoomHandler);
-//     clearAllEventListeners(['submit', 'cancel']);
-//   });
-// }
+function addVaultStart() {
+    let vaultSelect = document.getElementById('addVault');
+    let selectionId = Number(vaultSelect.value);
+    if (selectionId == -1) {
+        return;
+    }
+    let options = findOptions(selectionId);
+    setItemLabel(options);
+    startVaultSetup();
+    document
+        .getElementById('cancel')
+        .addEventListener('click', () => {
+        initialization();
+        map.off('click');
+        (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
+    });
+    document
+        .getElementById('submit')
+        .addEventListener('click', () => {
+        alert('please place the bore');
+    });
+    map.on('click', (ev) => {
+        map.off('click');
+        let pos = ev.latlng;
+        console.log(options);
+        let icon = generateIcon('vault', options.primary_color, [20, 20]);
+        let marker = new leafletClasses_js_1.MapMarker(map, true, [pos.lat, pos.lng], icon);
+        (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
+        document
+            .getElementById('cancel')
+            .addEventListener('click', () => {
+            cancelCallback(marker);
+        });
+        document
+            .getElementById('submit')
+            .addEventListener('click', () => {
+            if (!checkIfVaultIsReady(marker)) {
+                return;
+            }
+            newVaultSubmitCallback(marker, options.billing_code);
+        });
+    });
+}
 /**
  * the user has clicked on the add vault button so now we start the process
  * of adding a bore...
@@ -685,58 +740,58 @@ function checkIfBoreIsReady(line) {
  *
  * @returns {void}
  */
-function addVaultStart() {
-    const elementsToShow = [
-        'dateLabel', 'dateInput',
-        'vaultLabel', 'vaultSelect',
-        'cancel', 'submit',
-    ];
-    const elementsToHide = [
-        'footageLabel', 'footageInput',
-        'addRock', 'addBore', 'boreLogToggle',
-    ];
-    hideAndShowElements(elementsToShow, elementsToHide);
-    let cancelButton = document.getElementById('cancel');
-    let submitButton = document.getElementById('submit');
-    cancelButton.addEventListener('click', () => {
-        initialization();
-        map.off('click');
-        (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
-    });
-    submitButton.addEventListener('click', () => {
-        alert('Please place the vault');
-    });
-    const clickVaultOneTime = (event) => {
-        let point = [event.latlng.lat, event.latlng.lng];
-        let marker = new MapMarker(point, true, ICONS.question);
-        const zoomHandler = () => {
-            let zoomLevel = map.getZoom();
-            marker.changeSizeOnZoom(zoomLevel, QUESTION_ZOOM_LEVELS);
-        };
-        map.on('zoomend', zoomHandler);
-        (0, website_js_1.clearAllEventListeners)(['cancel', 'submit']);
-        let cancelButton = document.getElementById('cancel');
-        let submitButton = document.getElementById('submit');
-        cancelButton.addEventListener('click', () => {
-            marker.hideObject();
-            initialization();
-            map.off('click');
-            (0, website_js_1.clearAllEventListeners)(['cancel', 'submit']);
-        });
-        submitButton.addEventListener('click', () => {
-            if (!marker.readyToSubmit()) {
-                return;
-            }
-            marker.submitSelf();
-            initialization();
-            map.off('click');
-            map.off('zoomend', zoomHandler);
-            (0, website_js_1.clearAllEventListeners)(['cancel', 'submit']);
-        });
-        map.off('click', clickVaultOneTime);
-    };
-    map.on('click', clickVaultOneTime);
-}
+// function addVaultStart() : void {
+//   const elementsToShow = [
+//     'dateLabel', 'dateInput',
+//     'vaultLabel', 'vaultSelect',
+//     'cancel', 'submit',
+//   ];
+//   const elementsToHide = [
+//     'footageLabel', 'footageInput',
+//     'addRock', 'addBore', 'boreLogToggle',
+//   ];
+//   hideAndShowElements(elementsToShow, elementsToHide);
+//   let cancelButton = document.getElementById('cancel');
+//   let submitButton = document.getElementById('submit');
+//   cancelButton.addEventListener('click', () => {
+//     initialization();
+//     map.off('click');
+//     clearAllEventListeners(['submit', 'cancel']);
+//   });
+//   submitButton.addEventListener('click', () => {
+//     alert('Please place the vault');
+//   });
+//   const clickVaultOneTime = (event : L.LeafletMouseEvent) => {
+//     let point : Coord = [event.latlng.lat, event.latlng.lng];
+//     let marker = new MapMarker(point, true, ICONS.question);
+//     const zoomHandler = () => {
+//       let zoomLevel = map.getZoom();
+//       marker.changeSizeOnZoom(zoomLevel, QUESTION_ZOOM_LEVELS);
+//     }
+//     map.on('zoomend', zoomHandler);
+//     clearAllEventListeners(['cancel', 'submit']);
+//     let cancelButton = document.getElementById('cancel');
+//     let submitButton = document.getElementById('submit');
+//     cancelButton.addEventListener('click', () => {
+//       marker.hideObject();
+//       initialization();
+//       map.off('click');
+//       clearAllEventListeners(['cancel', 'submit']);
+//     });
+//     submitButton.addEventListener('click', () => {
+//       if (!marker.readyToSubmit()) {
+//         return;
+//       }
+//       marker.submitSelf();
+//       initialization();
+//       map.off('click');
+//       map.off('zoomend', zoomHandler);
+//       clearAllEventListeners(['cancel', 'submit']);
+//     });
+//     map.off('click', clickVaultOneTime);
+//   }
+//   map.on('click', clickVaultOneTime);
+// }
 /**
  * user clicks cancel, so we need to show/hide the proper elements
  * as well as fix the logic to restart everthing
@@ -764,8 +819,6 @@ function resetInputs() {
     dateInput.value = dateString;
     let footageInput = document.getElementById('footageInput');
     footageInput.value = '';
-    let vaultInput = document.getElementById('vaultSelect');
-    vaultInput.value = "-1";
     let boreSelect = document.getElementById('addBore');
     let vaultSelect = document.getElementById('addVault');
     boreSelect.value = "-1";
@@ -805,23 +858,6 @@ function checkIfInputIsNumber(value) {
 function validateDateValue() {
     let dateInput = document.getElementById('dateInput');
     if (dateInput.value == "") {
-        return false;
-    }
-    else {
-        return true;
-    }
-}
-/**
- * it makes sure that the default selection is not selected
- * the default is always -1 and the resetInputs() function resets it to -1
- *
- * so if -1 is not selected, it has to be 0,1,2 which are one of the vault sizes
- *
- * @returns {boolean} - boolean - false if -1, true if anything else
- */
-function validateVaultValue() {
-    let vaultSelect = document.getElementById('vaultSelect');
-    if (vaultSelect.value == "-1") {
         return false;
     }
     else {
@@ -896,17 +932,9 @@ function validateBoreInput() {
  */
 function validateVaultInput() {
     let errorMessage = "ERROR\n\n";
-    let size = validateVaultValue();
     let date = validateDateValue();
-    if (size === false) {
-        errorMessage += "Please select a vault size.\n";
-    }
     if (date === false) {
         errorMessage += "Please enter a valid date in the date field.\n";
-    }
-    if (size === false || date === false) {
-        alert(errorMessage);
-        return false;
     }
     return true;
 }
@@ -943,7 +971,7 @@ function deleteObject(table, id) {
     if (table == 'vaults') {
         for (const vault of window.vaults) {
             if (vault.id == id) {
-                vault.marker.hideObject();
+                vault.marker.removeSelf();
             }
         }
     }
@@ -955,6 +983,11 @@ function deleteObject(table, id) {
         }
     }
     (0, website_js_1.sendPostRequest)('deleteData', { id: id, tableName: table }, callback);
+}
+function editVaultCallback(vault) {
+    let date = getDateValue();
+    vault.editSelf(date);
+    vault.bindPopup();
 }
 function editBoreCallback(bore) {
     let footage = getFootageValue();
@@ -1012,7 +1045,25 @@ function editObject(objectType, id, billingCode) {
     else if (objectType == "vault") {
         for (const vault of window.vaults) {
             if (id == vault.id) {
-                vault.editMarker();
+                vault.marker.toggleDraggable();
+                startVaultSetup();
+                let dateInput = document.getElementById('dateInput');
+                dateInput.value = formatDateToInputElement(vault.work_date);
+                document
+                    .getElementById('cancel')
+                    .addEventListener('click', () => {
+                    cancelEditCallback(vault);
+                });
+                document
+                    .getElementById('submit')
+                    .addEventListener('click', () => {
+                    vault.coordinate = [...vault.marker.point];
+                    editVaultCallback(vault);
+                    vault.marker.toggleDraggable();
+                    map.off('click');
+                    initialization();
+                    (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
+                });
             }
         }
     }
@@ -1024,6 +1075,16 @@ function cancelEditCallback(obj) {
         map.off('click');
         initialization();
         (0, website_js_1.clearAllEventListeners)(["submit", "cancel"]);
+        return;
+    }
+    if (obj instanceof leafletClasses_js_1.VaultObject) {
+        obj.resetCoordinate();
+        obj.marker.toggleDraggable();
+        obj.bindPopup();
+        map.off('click');
+        initialization();
+        (0, website_js_1.clearAllEventListeners)(["submit", "cancel"]);
+        return;
     }
 }
 function applyBoreLog(logs) {
@@ -1082,7 +1143,7 @@ function toggleMovementLinks() {
         forwardLink.classList.add('movementActive');
         forwardLink.src = "/images/icons/forward_green.svg";
         forwardLink.addEventListener('click', () => {
-            window.location.href = `http://192.168.86.36:3000/inputProduction/${JOB_NAME}/${PAGE_NUMBER + 1}`;
+            window.location.href = `http://192.168.1.247:3000/inputProduction/${JOB_NAME}/${PAGE_NUMBER + 1}`;
         });
     }
     else {
@@ -1093,7 +1154,7 @@ function toggleMovementLinks() {
         backwardLink.classList.add('movementActive');
         backwardLink.src = "/images/icons/backward_green.svg";
         backwardLink.addEventListener('click', () => {
-            window.location.href = `http://192.168.86.36:3000/inputProduction/${JOB_NAME}/${PAGE_NUMBER - 1}`;
+            window.location.href = `http://192.168.1.247:3000/inputProduction/${JOB_NAME}/${PAGE_NUMBER - 1}`;
         });
     }
     else {

@@ -1,7 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
+Object.defineProperty(exports, "__esModule", { value: true });
 const getTicketInfo_js_1 = require("./getTicketInfo.js");
 const database_js_1 = require("../helperFunctions/database.js");
 async function updateJobInfo(jobName) {
@@ -16,4 +14,4 @@ async function updateJobInfo(jobName) {
         (0, getTicketInfo_js_1.updateTicketInfo)(ticketInfo);
     }
 }
-updateJobInfo('P4745');
+updateJobInfo('P4729');

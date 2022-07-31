@@ -33,7 +33,7 @@ exports.validUserLoggedIn = validUserLoggedIn;
 function redirectToLoginPage() {
     if (!validUserLoggedIn()) {
         alert('Please log in.. redirecting page..');
-        window.location.href = "http://192.168.86.36:3000";
+        window.location.href = "http://192.168.1.247:3000";
     }
 }
 exports.redirectToLoginPage = redirectToLoginPage;
@@ -76,7 +76,7 @@ exports.formatDate = formatDate;
  */
 function sendPostRequest(url, body, callback) {
     let req = new XMLHttpRequest();
-    req.open('POST', `http://192.168.86.36:3000/${url}`);
+    req.open('POST', `http://192.168.1.247:3000/${url}`);
     req.setRequestHeader("Content-type", "application/json");
     req.send(JSON.stringify(body));
     req.onreadystatechange = function () {

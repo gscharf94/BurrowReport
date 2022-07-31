@@ -350,16 +350,112 @@ export class MapMarker extends MapObject<L.Marker> {
     this.addSelf();
   }
 
+  toggleDraggable() {
+    if (this.draggable) {
+      this.draggable = false;
+    } else {
+      this.draggable = true;
+    }
+    this.resetMarker();
+  }
+
+  resetMarker() {
+    this.removeSelf();
+    this.createMarker();
+    this.addSelf();
+  }
+
+
   createMarker() {
     this.mapObject = L.marker(this.point, {
       draggable: this.draggable,
       icon: this.icon,
     });
+    this.mapObject.on('dragend', (ev) => {
+      this.updatePosition(ev.target.getLatLng());
+    });
   }
 
-  submitSelf() {
-    //TODO
+  updatePosition(newPos : Coord | { lat : number, lng : number }) {
+    let cPos = convertCoords(newPos);
+    this.point = cPos;
   }
+
+  submitSelf(info : { workDate : Date, crewName : string, pageNumber : number, billingCode : string, jobName : string }, callback : (res : string) => void, updateType : 'new' | 'edit') {
+    //TODO rework interfaces
+    let postObject = {
+      coordinate: this.point,
+      work_date: info.workDate,
+      job_name: info.jobName,
+      crew_name: info.crewName,
+      page_number: info.pageNumber,
+      object_type: "vault",
+      billing_code: info.billingCode,
+    };
+    this.sendSelfPostRequest(updateType, postObject, callback);
+  }
+}
+
+export class VaultObject {
+  marker : MapMarker;
+  job_name : string;
+  page_number : number;
+  work_date : Date;
+  crew_name : string;
+  page_id : number;
+  billing_code : string;
+  coordinate : Coord;
+  tmp_coordinate : Coord;
+  id : number;
+
+  constructor(vaultInfo, marker : MapMarker) {
+    this.job_name = vaultInfo.job_name;
+    this.page_number = vaultInfo.page_number;
+    this.work_date = new Date(vaultInfo.work_date);
+    this.crew_name = vaultInfo.crew_name;
+    this.page_id = vaultInfo.page_id;
+    this.coordinate = vaultInfo.coordinate;
+    this.billing_code = vaultInfo.billing_code;
+    this.id = vaultInfo.id;
+    this.marker = marker;
+    this.tmp_coordinate = marker.point;
+
+    this.bindPopup()
+  }
+
+  resetCoordinate() {
+    this.marker.point = this.tmp_coordinate;
+    this.marker.resetMarker();
+  }
+
+  generatePopupHTML() {
+    let html = `
+    <div class="infoPopup">
+      <h3 class="popupCrewName">${this.crew_name}</h3>
+      <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
+      <h3 class="popupRock">${this.billing_code}</h3>
+      <a class="popupEdit" onclick="editObject('vault', ${this.id}, '${this.billing_code}')" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
+      <a class="popupDelete" onclick="deleteObject('vaults', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
+    </div>
+    `;
+    return html;
+  }
+
+  bindPopup() {
+    this.marker.mapObject.bindPopup(this.generatePopupHTML());
+  }
+
+  editSelf(newDate : Date) {
+    let postObject = {
+      work_date: newDate,
+      coordinate: [...this.marker.point],
+      id: this.id,
+      billing_code: this.billing_code,
+      object_type: "vault",
+    };
+    this.marker.sendSelfPostRequest("edit", postObject, (res : string) => { console.log('updated vault...') })
+  }
+
 }
 
 

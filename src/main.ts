@@ -32,5 +32,5 @@ app.use('/editData', editDataPOST);
 app.use('/viewTickets', viewTickets);
 
 app.listen(PORT, () => {
-  console.log(`listening @ http://192.168.86.36:3000`);
+  console.log(`listening @ http://192.168.1.247:3000`);
 });

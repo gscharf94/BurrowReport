@@ -61,7 +61,7 @@ function checkCredentials() {
   if (correctCredentials) {
     document.cookie = `username=${username};path=/`;
     document.cookie = `admin=${admin};path=/`;
-    window.location.replace('http://192.168.86.36:3000/viewJobs');
+    window.location.replace('http://192.168.1.247:3000/viewJobs');
   } else {
     alert('incorrect username or password');
   }
@@ -72,7 +72,7 @@ function checkCredentials() {
  */
 function redirectLoggedInUser() {
   if (validUserLoggedIn()) {
-    window.location.replace('http://192.168.86.36:3000/viewJobs');
+    window.location.replace('http://192.168.1.247:3000/viewJobs');
   }
 }
 

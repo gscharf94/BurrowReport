@@ -69,7 +69,7 @@ function toggleNavBar() {
 function logout() {
     document.cookie = `username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     document.cookie = `admin=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    window.location.replace('http://192.168.86.36:3000/');
+    window.location.replace('http://192.168.1.247:3000/');
 }
 autoHideNavBar();
 

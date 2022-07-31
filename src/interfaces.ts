@@ -26,6 +26,8 @@ export interface UploadBoreObject extends UploadObject {
 export interface UploadVaultObject extends UploadObject {
   coordinate : Coord,
   size : number,
+
+  billing_code ?: string,
 }
 
 export interface DownloadObject {

@@ -62,7 +62,6 @@ export function updateVault(vaultInfo : UploadVaultObject) : void {
     UPDATE vaults
     SET
       coordinate='{${vaultInfo.coordinate[0]}, ${vaultInfo.coordinate[1]}}',
-      vault_size=${vaultInfo.size},
       work_date='${formatDateToPsql(new Date(vaultInfo.work_date))}'
     WHERE
       id=${vaultInfo.id};
@@ -92,7 +91,7 @@ export async function insertVault(vaultData : UploadVaultObject) : Promise<[numb
         page_id,
         page_number,
         work_date,
-        vault_size,
+        billing_code,
         coordinate,
         crew_name
       )
@@ -102,7 +101,7 @@ export async function insertVault(vaultData : UploadVaultObject) : Promise<[numb
       ${pageId},
       ${vaultData.page_number},
       '${formatDateToPsql(new Date(vaultData.work_date))}',
-      ${vaultData.size},
+      '${vaultData.billing_code}',
       '{${vaultData.coordinate[0]}, ${vaultData.coordinate[1]}}',
       '${vaultData.crew_name}'
       )
