@@ -10,11 +10,13 @@ declare global {
 window.toggleNavBar = toggleNavBar;
 window.logout = logout;
 
-if (getUserInfo().admin == true) {
+const USER_INFO = getUserInfo();
+
+if (USER_INFO.admin) {
   console.log('this happens');
   document
     .getElementById('adminLink')
-    .style.visibility = "visible"
+    .style.display = "block";
 }
 
 function checkForNavCookie() : boolean {

@@ -3,11 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const website_js_1 = require("../../helperFunctions/website.js");
 window.toggleNavBar = toggleNavBar;
 window.logout = logout;
-if ((0, website_js_1.getUserInfo)().admin == true) {
+const USER_INFO = (0, website_js_1.getUserInfo)();
+if (USER_INFO.admin) {
     console.log('this happens');
     document
         .getElementById('adminLink')
-        .style.visibility = "visible";
+        .style.display = "block";
 }
 function checkForNavCookie() {
     let cookies = document.cookie;

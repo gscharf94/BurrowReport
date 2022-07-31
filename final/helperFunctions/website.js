@@ -8,10 +8,12 @@ exports.clearAllEventListeners = exports.sendPostRequest = exports.formatDate = 
  * @returns {{ username : string, admin : boolean }} - object with username + admin
  */
 function getUserInfo() {
-    let [usernameCookie, adminCookie] = document.cookie.split(";");
-    let username = usernameCookie.split("=")[1];
-    let admin = adminCookie.split("=")[1];
-    return { username: username, admin: Boolean(admin) };
+    let cookies = document.cookie;
+    let usernameRegex = /username=(\w+)/;
+    let usernameResults = cookies.match(usernameRegex);
+    let adminRegex = /admin=(true|false)/;
+    let adminResults = cookies.match(adminRegex);
+    return { username: usernameResults[1], admin: (adminResults[1] == 'true') ? true : false };
 }
 exports.getUserInfo = getUserInfo;
 /**

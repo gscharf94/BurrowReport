@@ -15,10 +15,12 @@ exports.clearAllEventListeners = exports.sendPostRequest = exports.formatDate = 
  * @returns {{ username : string, admin : boolean }} - object with username + admin
  */
 function getUserInfo() {
-    let [usernameCookie, adminCookie] = document.cookie.split(";");
-    let username = usernameCookie.split("=")[1];
-    let admin = adminCookie.split("=")[1];
-    return { username: username, admin: Boolean(admin) };
+    let cookies = document.cookie;
+    let usernameRegex = /username=(\w+)/;
+    let usernameResults = cookies.match(usernameRegex);
+    let adminRegex = /admin=(true|false)/;
+    let adminResults = cookies.match(adminRegex);
+    return { username: usernameResults[1], admin: (adminResults[1] == 'true') ? true : false };
 }
 exports.getUserInfo = getUserInfo;
 /**
@@ -150,11 +152,13 @@ __webpack_unused_export__ = ({ value: true });
 const website_js_1 = __webpack_require__(939);
 window.toggleNavBar = toggleNavBar;
 window.logout = logout;
-if ((0, website_js_1.getUserInfo)().admin == true) {
+const USER_INFO = (0, website_js_1.getUserInfo)();
+debugger;
+if (USER_INFO.admin) {
     console.log('this happens');
     document
         .getElementById('adminLink')
-        .style.visibility = "visible";
+        .style.display = "block";
 }
 function checkForNavCookie() {
     let cookies = document.cookie;
