@@ -4,24 +4,27 @@ block style
   link(rel="stylesheet", href="/stylesheets/viewJobs.css")
 
 block content
-
-  each job in jobs
-    if job.active
-      div(id=`${job.job_name}Container`).jobContainer
-        p.jobName #{job.job_name}
-        p.jobClient #{job.client}
-        a(href=`#`).addProduction Add Production
-        div.addProductionContainer
-          img(src="/images/icons/plus-square.svg", onclick=`togglePageLinks('${job.job_name}')`).addProductionIcon
-          div.dropdownPageLinks
-            each page in job.pages
-              a(href=`/inputProduction/${job.client}/${job.job_name}/${page}`).pageLink SH#{page}
-        a(href="#").viewProduction View Production
-        img(src="/images/icons/hard-hat-solid.svg").viewProductionIcon
-        a(href=`/viewTickets/${job.job_name}`).viewTickets View Tickets
-        img(src="/images/icons/ticket.png").viewTicketsIcon
-        a(href="#").downloadPrints Download Print
-        img(src="/images/icons/download.png").downloadPrintsIcon
+  div#controls
+    h1#viewJobsHeader Job List
+    input(type="checkbox" id="oldJobCheckbox")
+    label(for="oldJobCheckbox") Show Inactive Jobs
+    
+  div#jobsContainer
+    each job in jobs
+      if job.active
+        div(id=`${job.job_name}Container`).jobContainer
+          p.jobName #{job.job_name}
+          p.jobClient #{job.client}
+          a(href=`#`).addProduction Report
+          div.addProductionContainer
+            img(src="/images/icons/plus-square.svg", onclick=`togglePageLinks('${job.job_name}')`).addProductionIcon
+            div.dropdownPageLinks
+              each page in job.pages
+                a(href=`/inputProduction/${job.client}/${job.job_name}/${page}`).pageLink SH#{page}
+          a(href=`/viewTickets/${job.job_name}`).viewTickets Tickets
+          img(src="/images/icons/ticket.png").viewTicketsIcon
+          a(href="#").downloadPrints Prints
+          img(src="/images/icons/download.png").downloadPrintsIcon
 
 
 block scripts

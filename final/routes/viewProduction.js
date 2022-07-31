@@ -8,7 +8,6 @@ const express_1 = __importDefault(require("express"));
 exports.router = express_1.default.Router();
 exports.router.get('/', (req, res) => {
     (async () => {
-        // res.render('viewProduction', { test: 'gustavo' });
-        res.send('hello my friend');
-    });
+        res.render('viewProduction', { test: 'gustavo' });
+    })();
 });

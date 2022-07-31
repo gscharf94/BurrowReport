@@ -5,7 +5,6 @@ export const router = express.Router();
 
 router.get('/', (req, res) => {
   (async () => {
-    // res.render('viewProduction', { test: 'gustavo' });
-    res.send('hello my friend');
-  });
+    res.render('viewProduction', { test: 'gustavo' });
+  })();
 });
