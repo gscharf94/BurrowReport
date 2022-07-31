@@ -1,5 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const website_js_1 = require("../../helperFunctions/website.js");
 window.toggleNavBar = toggleNavBar;
 window.logout = logout;
+if ((0, website_js_1.getUserInfo)().admin == true) {
+    console.log('this happens');
+    document
+        .getElementById('adminLink')
+        .style.visibility = "visible";
+}
 function checkForNavCookie() {
     let cookies = document.cookie;
     if (cookies.includes('navBarToggle')) {
@@ -11,14 +20,14 @@ function checkForNavCookie() {
 }
 function getNavCookie() {
     let cookies = document.cookie;
-    let regex = /navBarToggle=(.+)\s*/;
+    let regex = /navBarToggle=(true|false)/;
     let cookieValResults = cookies.match(regex);
     let cookieVal = cookieValResults[1];
     if (cookieVal == "true" || cookieVal == "false") {
         return cookieVal;
     }
     else {
-        return "false";
+        return "none";
     }
 }
 function autoHideNavBar() {

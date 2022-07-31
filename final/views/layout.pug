@@ -20,6 +20,8 @@ html
           a(href="/viewLocates") Locates
         li.linkList
           a(href="#", onclick="logout();") Logout
+        li.linkList#adminLink
+          a(href="/admin") Admin
     img(id="toggleButton", onclick="toggleNavBar()", src="/images/icons/caret-square-left.svg")
 
 
@@ -27,5 +29,5 @@ html
     div#content
       block content
 
-    script(src="/scripts/layout.js")
+    script(src="/packed/layout.js")
     block scripts

@@ -1,10 +1,21 @@
-interface window {
-  toggleNavBar : () => void;
-  logout : () => void;
+import { getUserInfo } from '../../helperFunctions/website.js';
+
+declare global {
+  interface Window {
+    toggleNavBar : () => void;
+    logout : () => void;
+  }
 }
 
 window.toggleNavBar = toggleNavBar;
 window.logout = logout;
+
+if (getUserInfo().admin == true) {
+  console.log('this happens');
+  document
+    .getElementById('adminLink')
+    .style.visibility = "visible"
+}
 
 function checkForNavCookie() : boolean {
   let cookies = document.cookie;
@@ -15,15 +26,15 @@ function checkForNavCookie() : boolean {
   }
 }
 
-function getNavCookie() : "true" | "false" {
+function getNavCookie() : "true" | "false" | "none" {
   let cookies = document.cookie;
-  let regex = /navBarToggle=(.+)\s*/;
+  let regex = /navBarToggle=(true|false)/;
   let cookieValResults = cookies.match(regex);
   let cookieVal : string = cookieValResults[1];
   if (cookieVal == "true" || cookieVal == "false") {
     return cookieVal;
   } else {
-    return "false";
+    return "none";
   }
 }
 

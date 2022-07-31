@@ -104,3 +104,7 @@ nav {
   align-items: center;
   transition: width 0.25s ease-in-out;
 }
+
+#adminLink {
+  visibility: hidden;
+}
