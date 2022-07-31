@@ -8,10 +8,12 @@ import {
 declare global {
   interface Window {
     formatJobs : () => void;
+    selectJob : (jobId : number) => void;
   }
 }
 
 window.formatJobs = formatJobs;
+window.selectJob = selectJob;
 
 
 //@ts-ignore
@@ -19,7 +21,7 @@ const JOBS : JobDownloadObject[] = parseJSON(JOBS_JSON);
 //@ts-ignore
 const CREWS : CrewDownloadObject[] = parseJSON(CREWS_JSON);
 //@ts-ignore
-const CREWS_JOBS : CrewsJobsDownloadObject[] = parseJSON(CREWS_JOBS_JSON);
+let CREWS_JOBS : CrewsJobsDownloadObject[] = parseJSON(CREWS_JOBS_JSON);
 
 console.log(JOBS);
 console.log(CREWS);
@@ -33,12 +35,17 @@ function initialization() {
         return;
       }
       let data = getSelections();
+      console.log(data);
       if (isJobActive(data.jobId)) {
         alert('job is already assigned');
         return;
       }
       changeJobs(data.crewId, data.jobId, "add");
       toggleJob(data.jobId);
+      CREWS_JOBS.push({
+        crew_id: data.crewId,
+        job_id: data.jobId,
+      });
     });
   document
     .getElementById('removeJobButton')
@@ -50,19 +57,41 @@ function initialization() {
       if (isJobActive(data.jobId)) {
         toggleJob(data.jobId);
         changeJobs(data.crewId, data.jobId, "remove");
+        CREWS_JOBS = CREWS_JOBS
+          .filter(val => !(val.crew_id == data.crewId && val.job_id == data.jobId));
       } else {
         alert('cannot remove job that is not assigned');
       }
     });
 }
 
+function selectJob(jobId : number) {
+  formatJobs();
+  let jobEles = document.querySelectorAll('#availableJobs p');
+  for (const ele of jobEles) {
+    ele.classList.remove('selectedJob');
+    let eleId = Number(ele.id.slice(3,));
+    if (eleId == jobId) {
+      ele.classList.add('selectedJob');
+    }
+  }
+}
+
+function getJobSelection() : number {
+  let jobEles = document.querySelectorAll('#availableJobs p');
+  for (const ele of jobEles) {
+    if (ele.classList.contains('selectedJob')) {
+      return Number(ele.id.slice(3,));
+    }
+  }
+  return -1;
+}
+
 function getSelections() : { crewId : number, jobId : number } {
   let crewSelect = <HTMLSelectElement>document.getElementById('crewSelect');
-  let jobSelect = <HTMLSelectElement>document.getElementById('jobSelect');
-
   return {
     crewId: Number(crewSelect.value),
-    jobId: Number(jobSelect.value),
+    jobId: getJobSelection(),
   };
 }
 
@@ -74,12 +103,10 @@ function validateInput() : boolean {
     msg += "please select a crew\n";
     result = false;
   }
-  let jobSelect = <HTMLSelectElement>document.getElementById('jobSelect');
-  if (jobSelect.value == "-1") {
+  if (getJobSelection() == -1) {
     msg += "please select a job";
     result = false;
   }
-
   if (!result) {
     alert(msg);
   }
@@ -116,13 +143,20 @@ function formatJobs() {
     }
   }
 
+  let jobEles = document.querySelectorAll('#availableJobs p');
+  for (const ele of jobEles) {
+    ele.classList.remove('assignedJob');
+    if (crewJobs.includes(Number(ele.id.slice(3,)))) {
+      ele.classList.add('assignedJob');
+    }
+  }
 }
 
-function generateJobSelectHTML(jobs : JobDownloadObject[]) : string {
-  let html = `<option value="-1"> --- </option>`
+function generateJobsHTML(jobs : JobDownloadObject[]) : string {
+  let html = "";
   for (const job of jobs) {
     html += `
-      <option value="${job.id}">${job.job_name}</option>
+      <p id="job${job.id}" class="job" onclick="window.selectJob(${job.id})">${job.job_name}</p>
     `;
   }
   return html;
@@ -133,10 +167,8 @@ function populateSelectElements() {
     .getElementById('crewSelect')
     .innerHTML = generateCrewSelectHTML(CREWS);
 
-
-  let jobSelect = <HTMLSelectElement>document.getElementById('jobSelect');
-  jobSelect.innerHTML = generateJobSelectHTML(JOBS);
-  jobSelect.value = "-1";
+  let jobsElement = document.getElementById('availableJobs');
+  jobsElement.innerHTML = generateJobsHTML(JOBS);
 }
 
 function changeJobs(crewId : number, jobId : number, requestType : 'add' | 'remove') {
@@ -151,11 +183,10 @@ function changeJobs(crewId : number, jobId : number, requestType : 'add' | 'remo
 }
 
 function isJobActive(jobId : number) : boolean {
-  let options = document.querySelectorAll('#jobSelect option');
-  for (const option of options) {
-    //@ts-ignore
-    if (Number(option.value) == jobId) {
-      if (option.classList.contains('assignedOption')) {
+  let jobEles = document.querySelectorAll('#availableJobs p');
+  for (const ele of jobEles) {
+    if (Number(ele.id.slice(3,)) == jobId) {
+      if (ele.classList.contains('assignedJob')) {
         return true;
       } else {
         return false;
@@ -165,11 +196,10 @@ function isJobActive(jobId : number) : boolean {
 }
 
 function toggleJob(jobId : number) {
-  let options = document.querySelectorAll('#jobSelect option');
-  for (const option of options) {
-    //@ts-ignore
-    if (Number(option.value) == jobId) {
-      option.classList.toggle('assignedOption');
+  let jobEles = document.querySelectorAll('#availableJobs p');
+  for (const ele of jobEles) {
+    if (Number(ele.id.slice(3,)) == jobId) {
+      ele.classList.toggle('assignedJob');
     }
   }
 }
