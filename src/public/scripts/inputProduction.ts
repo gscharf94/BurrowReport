@@ -4,7 +4,7 @@ import {
   DownloadBoreObject, DownloadVaultObject, BoreLogRow, ClientOptions
 } from '../../interfaces';
 import { getUserInfo, redirectToLoginPage, clearAllEventListeners, sendPostRequest } from '../../helperFunctions/website.js';
-import { MapLine, MapMarker as MapMarkerTest, MapObject as MapObjectTest, BoreObject, VaultObject as VaultObjectTest } from '../../classes/leafletClasses.js';
+import { MapLine, MapMarker, MapObject, BoreObject, VaultObject } from '../../classes/leafletClasses.js';
 
 redirectToLoginPage();
 
@@ -12,23 +12,15 @@ declare global {
   interface Window {
     addBoreStart : (itemOptionsIndex : number) => void,
     addVaultStart : () => void,
-    cancelClick : () => void,
     incrementBoreLogRow : (sourceElement : HTMLElement) => void;
     decrementBoreLogRow : (sourceElement : HTMLElement) => void;
     toggleBoreLog : () => void;
     deleteObject : (table : 'vaults' | 'bores' | 'rocks', id : number) => void,
     editObject : (objectType : 'vault' | 'bore', id : number, billingCode : string) => void;
     boresAndRocks : BoreObject[],
-    vaults : VaultObjectTest[],
+    vaults : VaultObject[],
     map : L.Map;
   }
-}
-
-interface LineOptions {
-  color ?: string,
-  weight ?: number,
-  dashed ?: boolean,
-  editable ?: boolean,
 }
 
 interface MarkerZoomLevels {
@@ -170,311 +162,9 @@ let vaults : DownloadVaultObject[] = parseJSON(vaultsJSON);
 
 const USERINFO = getUserInfo();
 
-class VaultObject {
-  marker : MapMarker;
-  job_name : string;
-  page_number : number;
-  work_date : Date;
-  crew_name : string;
-  page_id : number;
-  vault_size : number;
-  coordinate : Coord;
-  id : number;
-  tmp_coordinate : Coord;
-  current_zoom : number;
-
-  constructor(vaultInfo : DownloadVaultObject) {
-    this.job_name = vaultInfo.job_name;
-    this.page_number = vaultInfo.page_number;
-    this.work_date = new Date(vaultInfo.work_date);
-    this.crew_name = vaultInfo.crew_name;
-    this.page_id = vaultInfo.page_id;
-    this.coordinate = vaultInfo.coordinate;
-    this.vault_size = vaultInfo.vault_size;
-    this.id = vaultInfo.id;
-    this.current_zoom = map.getZoom();
-
-    this.drawMarker();
-  }
-
-  drawMarker() {
-    this.marker = new MapMarker(this.coordinate, false, VAULT_ICON_TRANS[this.vault_size]);
-    this.bindPopup();
-  }
-
-  bindPopup() {
-    // let popup = L.popup({
-    //   className: "leafletPopupContainer",
-    //   autoPan: false,
-    //   closeButton: true,
-    // });
-    // popup.setContent(this.generatePopupHTML());
-    // this.marker.mapObject.on('click', (event) => {
-    //   popup.setLatLng(event.latlng);
-    //   map.addLayer(popup);
-    // });
-
-    this.marker.mapObject.bindPopup(this.generatePopupHTML());
-  }
-
-  generatePopupHTML() {
-    let html = `
-    <div class="infoPopup">
-      <h3 class="popupCrewName">${this.crew_name}</h3>
-      <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
-      <h3 class="popupFootage">${VAULT_NAME_TRANS[this.vault_size]}</h3>
-      <a class="popupEdit" onclick="editObject('vault', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_edit.png">Edit</a>
-      <a class="popupDelete" onclick="deleteObject('vaults', ${this.id})" href="#"><img class="popupImage" src="/images/icons/small_delete.png">Delete</a>
-    </div>
-    `
-    return html;
-  }
-
-  editMarker() {
-    this.tmp_coordinate = [this.coordinate[0], this.coordinate[1]];
-    this.marker.icon = ICONS.question;
-    this.marker.draggable = true;
-    this.marker.hideObject();
-    this.marker.createSelf();
-
-    let elementsToShow = [
-      'dateLabel', 'dateInput',
-      'vaultLabel', 'vaultSelect',
-      'submit', 'cancel',
-    ];
-    let elementsToHide = [
-      'footageLabel', 'footageInput',
-      'addBore', 'addVault', 'addRock',
-    ];
-
-    hideAndShowElements(elementsToShow, elementsToHide);
-
-    let vaultSelect = <HTMLSelectElement>document.getElementById('vaultSelect');
-    let dateInput = <HTMLInputElement>document.getElementById('dateInput');
-
-    vaultSelect.value = String(this.vault_size);
-    dateInput.value = formatDateToInputElement(this.work_date);
-
-    let cancelButton = document.getElementById('cancel');
-    let submitButton = document.getElementById('submit');
-
-    const submitOneTime = () => {
-      if (validateVaultInput() === false) {
-        return;
-      }
-      this.vault_size = getVaultValue();
-      this.work_date = getDateValue();
-      this.coordinate = this.marker.point;
-      this.tmp_coordinate = [-100, -100];
-
-      let postObject : UploadVaultObject = {
-        coordinate: this.coordinate,
-        job_name: JOB_NAME,
-        crew_name: USERINFO.username,
-        id: this.id,
-        page_number: PAGE_NUMBER,
-        work_date: this.work_date,
-        size: this.vault_size,
-        object_type: "vault",
-      };
-      const cb = (res : string) => {
-        console.log(`vault: ${this.id} has been updated and response recieved\nres:`);
-        console.log(res);
-      }
-      sendPostRequest('editData', postObject, cb);
-      this.marker.draggable = false;
-      this.marker.icon = VAULT_ICON_TRANS[this.vault_size];
-      this.marker.hideObject();
-      this.marker.createSelf();
-      this.bindPopup();
-      initialization();
-      cancelButton.removeEventListener('click', cancelOneTime);
-      submitButton.removeEventListener('click', submitOneTime);
-    }
-
-    const cancelOneTime = () => {
-      this.coordinate = [this.tmp_coordinate[0], this.tmp_coordinate[1]];
-      this.tmp_coordinate = [-100, -100];
-      this.marker.point = this.coordinate;
-      this.marker.icon = VAULT_ICON_TRANS[this.vault_size];
-      this.marker.hideObject();
-      this.marker.createSelf();
-      this.bindPopup();
-      initialization();
-      cancelButton.removeEventListener('click', cancelOneTime);
-      submitButton.removeEventListener('click', submitOneTime);
-    }
-
-    submitButton.addEventListener('click', submitOneTime);
-    cancelButton.addEventListener('click', cancelOneTime);
-  }
-}
-
-class MapObject {
-  /**
-   * @type {boolean} - hidden. whether or not object should be showing. this 
-   * will be useful in determing whether to count a bore for a counts 
-   */
-  hidden : boolean;
-  /**
-   * @type {L.Layer} - the map object leaflet interacts with. this is how we
-   * delete / hide / show / add event listeners
-   * for each different child class (MapLine, MapMarker)
-   * this will be a slightly difference, Polyline vs Marker
-   */
-  mapObject : L.Layer;
-
-  constructor() {
-    this.hidden = false;
-  }
-
-  /**
-   * simply removes the .mapObject
-   * from the map
-   * which will always be the refrence point
-   * for the thing that leaflet handles
-   */
-  hideObject() {
-    map.removeLayer(this.mapObject);
-    this.hidden = true;
-  }
-
-  /**
-   * the inverse of hideObject
-   * this adds an element to the map so 
-   * leaflet displays it
-   */
-  showObject() {
-    this.mapObject.addTo(map);
-    this.hidden = false;
-  }
-
-  sendSelfPost(postObject : UploadBoreObject | UploadVaultObject, callback : (res : string) => void) {
-    sendPostRequest('inputData', postObject, callback);
-  }
-}
-
-class MapMarker extends MapObject {
-  /**
-   * @type {Coord} - the gps position for the class instance
-   * note this isn't the same as the this.mapObject leaflet position
-   * we update it whenever the user drags so it remains the same
-   */
-  point : Coord;
-  /**
-   * @type {boolean} - whether or not the marker should be draggable
-   * only when placing vaults and lines should markers be draggable
-   * when loading in a marker from the database, it should be static
-   */
-  draggable : boolean;
-  /**
-   * @type {L.Icon} - this is an icon type for the marker. will be different
-   * depending on if it's going to be a line marker or the semi-transparent
-   * marker in between points
-   *
-   * TODO: this also handles the size and anchor of the marker, which needs
-   * to be adjusted with every zoom in or out
-   */
-  icon : L.Icon;
-
-  constructor(point : Coord, draggable : boolean, icon : L.Icon) {
-    super();
-    this.point = point;
-    this.draggable = draggable;
-    this.icon = icon;
-    this.createSelf();
-  }
-
-  changeSizeOnZoom(newZoom : number, trans : MarkerZoomLevels) {
-    let newOptions = trans[newZoom];
-    this.icon.options.iconSize = newOptions.size;
-    this.icon.options.iconAnchor = newOptions.anchor;
-    //@ts-ignore
-    this.mapObject.setIcon(this.icon);
-  }
-
-  /**
-   * it creates the map object for the marker
-   * marker is simpler than line.. only needs 1 gps point
-   *
-   * then some options
-   * draggable - whether or not user can drag marker
-   * icon - the size, anchor, marker image, etc needs to be implemented
-   * TODO
-   */
-  createSelf() {
-    this.mapObject = L.marker(this.point, {
-      draggable: this.draggable,
-      icon: this.icon,
-    });
-    this.mapObject.on('drag', (event) => {
-      this.updatePoint(event.target.getLatLng());
-    });
-    this.showObject();
-  }
-
-  /**
-   * updates the class this.point with a new coordinate
-   * presumably after the user has dragged something
-   *
-   * @param {Object} newPos - {lat: number, lng: number} - it's what leaflet exports. we turn it into our own format
-   */
-  updatePoint(newPos : { lat : number, lng : number }) {
-    this.point = [newPos.lat, newPos.lng];
-
-    // this.updateMapPoint();
-  }
-
-  updateMapPoint() {
-    //@ts-ignore
-    this.mapObject.setLatLng(this.point)
-  }
-
-  readyToSubmit() : boolean {
-    if (!this.point) {
-      alert('ERROR\n\nPlease finish placing the vault.');
-      return false;
-    }
-    if (validateVaultInput() === false) {
-      return false;
-    }
-
-    return true;
-  }
-
-  submitSelf() {
-    let postObject : UploadVaultObject = {
-      size: getVaultValue(),
-      coordinate: this.point,
-      work_date: getDateValue(),
-      job_name: JOB_NAME,
-      crew_name: USERINFO.username,
-      page_number: PAGE_NUMBER,
-      object_type: "vault",
-    }
-    let callback = (res : string) => {
-      let [vaultId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])]
-      let newVaultObject = new VaultObject({
-        job_name: JOB_NAME,
-        page_number: PAGE_NUMBER,
-        page_id: pageId,
-        work_date: postObject.work_date,
-        crew_name: USERINFO.username,
-        id: vaultId,
-        coordinate: this.point,
-        vault_size: postObject.size,
-        billing_code: "DTXX",
-      });
-      // window.vaults.push(newVaultObject);
-      this.hideObject();
-    }
-    this.sendSelfPost(postObject, callback);
-  }
-}
 
 window.addBoreStart = addBoreStart;
 window.addVaultStart = addVaultStart;
-window.cancelClick = cancelClick;
 window.deleteObject = deleteObject;
 window.editObject = editObject;
 window.incrementBoreLogRow = incrementBoreLogRow;
@@ -545,14 +235,14 @@ function drawSavedBoresAndRocks() : void {
 function drawSavedVaults() : void {
   for (const vault of vaults) {
     let options = getOptionsFromBillingCode(vault.billing_code);
-    let marker = new MapMarkerTest(
+    let marker = new MapMarker(
       map,
       true,
       vault.coordinate,
       generateIcon('vault', options.primary_color, [20, 20]),
     );
     marker.toggleDraggable();
-    window.vaults.push(new VaultObjectTest(vault, marker));
+    window.vaults.push(new VaultObject(vault, marker));
   }
 }
 
@@ -676,14 +366,14 @@ function findOptions(id : number) : ClientOptions {
   }
 }
 
-function cancelCallback(mapObject : MapLine | MapMarkerTest) {
+function cancelCallback(mapObject : MapLine | MapMarker) {
   mapObject.removeSelf();
   map.off('click');
   initialization();
   clearAllEventListeners(['submit', 'cancel']);
 }
 
-function newVaultSubmitCallback(marker : MapMarkerTest, billingCode : string) {
+function newVaultSubmitCallback(marker : MapMarker, billingCode : string) {
   let date = getDateValue();
   marker.submitSelf({
     workDate: date,
@@ -698,7 +388,7 @@ function newVaultSubmitCallback(marker : MapMarkerTest, billingCode : string) {
       window
         .vaults
         .push(
-          new VaultObjectTest({
+          new VaultObject({
             job_name: JOB_NAME,
             crew_name: USERINFO.username,
             page_number: PAGE_NUMBER,
@@ -754,7 +444,7 @@ function newBoreSubmitCallback(line : MapLine, billingCode : string) {
   clearAllEventListeners(['submit', 'cancel']);
 }
 
-function checkIfVaultIsReady(marker : MapMarkerTest) : boolean {
+function checkIfVaultIsReady(marker : MapMarker) : boolean {
   if (validateVaultInput() === false) {
     return false;
   }
@@ -841,7 +531,7 @@ function addVaultStart() {
     let pos = ev.latlng;
     console.log(options);
     let icon = generateIcon('vault', options.primary_color, [20, 20]);
-    let marker = new MapMarkerTest(map, true, [pos.lat, pos.lng], icon);
+    let marker = new MapMarker(map, true, [pos.lat, pos.lng], icon);
     clearAllEventListeners(['submit', 'cancel']);
 
     document
@@ -859,87 +549,6 @@ function addVaultStart() {
         newVaultSubmitCallback(marker, options.billing_code);
       });
   });
-}
-
-/**
- * the user has clicked on the add vault button so now we start the process
- * of adding a bore... 
- * 1 - we show/hide the correct elements
- *
- * @returns {void}
- */
-// function addVaultStart() : void {
-//   const elementsToShow = [
-//     'dateLabel', 'dateInput',
-//     'vaultLabel', 'vaultSelect',
-//     'cancel', 'submit',
-//   ];
-//   const elementsToHide = [
-//     'footageLabel', 'footageInput',
-//     'addRock', 'addBore', 'boreLogToggle',
-//   ];
-//   hideAndShowElements(elementsToShow, elementsToHide);
-
-//   let cancelButton = document.getElementById('cancel');
-//   let submitButton = document.getElementById('submit');
-
-//   cancelButton.addEventListener('click', () => {
-//     initialization();
-//     map.off('click');
-//     clearAllEventListeners(['submit', 'cancel']);
-//   });
-
-//   submitButton.addEventListener('click', () => {
-//     alert('Please place the vault');
-//   });
-
-//   const clickVaultOneTime = (event : L.LeafletMouseEvent) => {
-//     let point : Coord = [event.latlng.lat, event.latlng.lng];
-//     let marker = new MapMarker(point, true, ICONS.question);
-
-//     const zoomHandler = () => {
-//       let zoomLevel = map.getZoom();
-//       marker.changeSizeOnZoom(zoomLevel, QUESTION_ZOOM_LEVELS);
-//     }
-
-//     map.on('zoomend', zoomHandler);
-
-//     clearAllEventListeners(['cancel', 'submit']);
-//     let cancelButton = document.getElementById('cancel');
-//     let submitButton = document.getElementById('submit');
-
-//     cancelButton.addEventListener('click', () => {
-//       marker.hideObject();
-//       initialization();
-//       map.off('click');
-//       clearAllEventListeners(['cancel', 'submit']);
-//     });
-
-//     submitButton.addEventListener('click', () => {
-//       if (!marker.readyToSubmit()) {
-//         return;
-//       }
-//       marker.submitSelf();
-//       initialization();
-//       map.off('click');
-//       map.off('zoomend', zoomHandler);
-//       clearAllEventListeners(['cancel', 'submit']);
-//     });
-//     map.off('click', clickVaultOneTime);
-//   }
-//   map.on('click', clickVaultOneTime);
-// }
-
-/**
- * user clicks cancel, so we need to show/hide the proper elements
- * as well as fix the logic to restart everthing
- *
- * TO DO 
- *
- * @returns {void}
- */
-function cancelClick() : void {
-  initialization();
 }
 
 
@@ -1134,7 +743,7 @@ function deleteObject(table : 'vaults' | 'bores', id : number) : void {
   sendPostRequest('deleteData', { id: id, tableName: table }, callback);
 }
 
-function editVaultCallback(vault : VaultObjectTest) {
+function editVaultCallback(vault : VaultObject) {
   let date = getDateValue();
   vault.editSelf(date);
   vault.bindPopup();
@@ -1228,7 +837,7 @@ function editObject(objectType : 'vault' | 'bore', id : number, billingCode : st
   }
 }
 
-function cancelEditCallback(obj : BoreObject | VaultObjectTest) {
+function cancelEditCallback(obj : BoreObject | VaultObject) {
   if (obj instanceof BoreObject) {
     obj.line.removeAllLineMarkers();
     obj.resetCoordinates();
@@ -1237,7 +846,7 @@ function cancelEditCallback(obj : BoreObject | VaultObjectTest) {
     clearAllEventListeners(["submit", "cancel"]);
     return;
   }
-  if (obj instanceof VaultObjectTest) {
+  if (obj instanceof VaultObject) {
     obj.resetCoordinate();
     obj.marker.toggleDraggable();
     obj.bindPopup();

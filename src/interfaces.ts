@@ -11,6 +11,7 @@ export interface UploadObject {
   crew_name : string,
   object_type : UploadObjects,
   id ?: number,
+  billing_code : string,
 }
 
 export interface UploadBoreObject extends UploadObject {
@@ -18,16 +19,11 @@ export interface UploadBoreObject extends UploadObject {
   footage : number,
   rock : boolean,
   bore_log : BoreLogRow[],
-
-  // need to move to parent
-  billing_code : string,
 }
 
 export interface UploadVaultObject extends UploadObject {
   coordinate : Coord,
   size : number,
-
-  billing_code ?: string,
 }
 
 export interface DownloadObject {
@@ -37,6 +33,7 @@ export interface DownloadObject {
   work_date : Date,
   crew_name : string,
   id : number,
+  billing_code : string,
 }
 
 export interface DownloadBoreObject extends DownloadObject {
@@ -44,17 +41,11 @@ export interface DownloadBoreObject extends DownloadObject {
   coordinates : Coord[],
   rock : boolean,
   bore_logs : BoreLogRow[],
-
-  //needs to be moved
-  billing_code : string;
 }
 
 export interface DownloadVaultObject extends DownloadObject {
   coordinate : Coord,
   vault_size : number,
-
-  // this needs to be moved to DownloadObject but we just testing
-  billing_code : string,
 }
 
 export type Coord = [number, number];
