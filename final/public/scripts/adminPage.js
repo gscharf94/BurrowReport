@@ -11,6 +11,63 @@ const CREWS_JOBS = (0, website_js_1.parseJSON)(CREWS_JOBS_JSON);
 console.log(JOBS);
 console.log(CREWS);
 console.log(CREWS_JOBS);
+function initialization() {
+    document
+        .getElementById('addJobButton')
+        .addEventListener('click', () => {
+        if (!validateInput()) {
+            return;
+        }
+        let data = getSelections();
+        if (isJobActive(data.jobId)) {
+            alert('job is already assigned');
+            return;
+        }
+        changeJobs(data.crewId, data.jobId, "add");
+        toggleJob(data.jobId);
+    });
+    document
+        .getElementById('removeJobButton')
+        .addEventListener('click', () => {
+        if (!validateInput()) {
+            return;
+        }
+        let data = getSelections();
+        if (isJobActive(data.jobId)) {
+            toggleJob(data.jobId);
+            changeJobs(data.crewId, data.jobId, "remove");
+        }
+        else {
+            alert('cannot remove job that is not assigned');
+        }
+    });
+}
+function getSelections() {
+    let crewSelect = document.getElementById('crewSelect');
+    let jobSelect = document.getElementById('jobSelect');
+    return {
+        crewId: Number(crewSelect.value),
+        jobId: Number(jobSelect.value),
+    };
+}
+function validateInput() {
+    let result = true;
+    let msg = "ERROR\n";
+    let crewSelect = document.getElementById('crewSelect');
+    if (crewSelect.value == "") {
+        msg += "please select a crew\n";
+        result = false;
+    }
+    let jobSelect = document.getElementById('jobSelect');
+    if (jobSelect.value == "-1") {
+        msg += "please select a job";
+        result = false;
+    }
+    if (!result) {
+        alert(msg);
+    }
+    return result;
+}
 function generateCrewSelectHTML(crews) {
     let html = "";
     for (const crew of crews) {
@@ -52,4 +109,38 @@ function populateSelectElements() {
     jobSelect.innerHTML = generateJobSelectHTML(JOBS);
     jobSelect.value = "-1";
 }
+function changeJobs(crewId, jobId, requestType) {
+    let callback = (res) => {
+        console.log(`${requestType} job id: ${jobId} to crew id: ${crewId}`);
+    };
+    (0, website_js_1.sendPostRequest)('alterJobs', {
+        requestType: requestType,
+        crewId: crewId,
+        jobId: jobId,
+    }, callback);
+}
+function isJobActive(jobId) {
+    let options = document.querySelectorAll('#jobSelect option');
+    for (const option of options) {
+        //@ts-ignore
+        if (Number(option.value) == jobId) {
+            if (option.classList.contains('assignedOption')) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+}
+function toggleJob(jobId) {
+    let options = document.querySelectorAll('#jobSelect option');
+    for (const option of options) {
+        //@ts-ignore
+        if (Number(option.value) == jobId) {
+            option.classList.toggle('assignedOption');
+        }
+    }
+}
 populateSelectElements();
+initialization();

@@ -310,3 +310,33 @@ export async function getJobState(jobName : string) : Promise<States> {
   let response = await pool.query(query);
   return response.rows[0].state;
 }
+
+export function assignJobToCrew(crewId : number, jobId : number) : void {
+  let query = `
+    INSERT INTO crews_jobs
+      (crew_id, job_id)
+    VALUES
+      (${crewId}, ${jobId});
+  `;
+  console.log(query);
+  pool.query(query, (err, res) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+}
+
+export function removeJobFromCrew(crewId : number, jobId : number) : void {
+  let query = `
+    DELETE FROM crews_jobs
+    WHERE
+      crew_id=${crewId} AND
+      job_id=${jobId};
+  `;
+  console.log(query);
+  pool.query(query, (err, res) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+}

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getJobState = exports.getJobTickets = exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.updateVault = exports.updateBore = exports.deleteObject = exports.getPageId = void 0;
+exports.removeJobFromCrew = exports.assignJobToCrew = exports.getJobState = exports.getJobTickets = exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.updateVault = exports.updateBore = exports.deleteObject = exports.getPageId = void 0;
 const db_js_1 = require("../db.js");
 /**
  * takes a job name and a page number and returns a page id
@@ -307,3 +307,33 @@ async function getJobState(jobName) {
     return response.rows[0].state;
 }
 exports.getJobState = getJobState;
+function assignJobToCrew(crewId, jobId) {
+    let query = `
+    INSERT INTO crews_jobs
+      (crew_id, job_id)
+    VALUES
+      (${crewId}, ${jobId});
+  `;
+    console.log(query);
+    db_js_1.pool.query(query, (err, res) => {
+        if (err) {
+            console.log(err);
+        }
+    });
+}
+exports.assignJobToCrew = assignJobToCrew;
+function removeJobFromCrew(crewId, jobId) {
+    let query = `
+    DELETE FROM crews_jobs
+    WHERE
+      crew_id=${crewId} AND
+      job_id=${jobId};
+  `;
+    console.log(query);
+    db_js_1.pool.query(query, (err, res) => {
+        if (err) {
+            console.log(err);
+        }
+    });
+}
+exports.removeJobFromCrew = removeJobFromCrew;
