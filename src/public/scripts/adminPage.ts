@@ -63,6 +63,9 @@ function initialization() {
         alert('cannot remove job that is not assigned');
       }
     });
+
+  let crewSelectElement = <HTMLSelectElement>document.getElementById('crewSelect');
+  crewSelectElement.value = "";
 }
 
 function selectJob(jobId : number) {
@@ -128,6 +131,7 @@ function generateCrewSelectHTML(crews : CrewDownloadObject[]) : string {
 function formatJobs() {
   let crewSelect = <HTMLSelectElement>document.getElementById('crewSelect');
   let selectedCrewId = Number(crewSelect.value);
+  populateJobs();
 
   let crewJobs =
     CREWS_JOBS
@@ -162,13 +166,16 @@ function generateJobsHTML(jobs : JobDownloadObject[]) : string {
   return html;
 }
 
-function populateSelectElements() {
+function populateJobs() {
+  console.log('this happens../');
+  let jobsElement = document.getElementById('availableJobs');
+  jobsElement.innerHTML = generateJobsHTML(JOBS);
+}
+
+function populateSelectElement() {
   document
     .getElementById('crewSelect')
     .innerHTML = generateCrewSelectHTML(CREWS);
-
-  let jobsElement = document.getElementById('availableJobs');
-  jobsElement.innerHTML = generateJobsHTML(JOBS);
 }
 
 function changeJobs(crewId : number, jobId : number, requestType : 'add' | 'remove') {
@@ -204,5 +211,5 @@ function toggleJob(jobId : number) {
   }
 }
 
-populateSelectElements();
+populateSelectElement();
 initialization();
