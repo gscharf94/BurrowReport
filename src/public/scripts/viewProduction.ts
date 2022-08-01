@@ -1,6 +1,14 @@
 import { getUserInfo, parseJSON, formatDate } from '../../helperFunctions/website.js';
 import { JobDownloadObject, CrewDownloadObject, DownloadBoreObject, DownloadVaultObject } from '../../interfaces';
 
+declare global {
+  interface Window {
+    filterByCrews : (crew : string) => void,
+  }
+}
+
+window.filterByCrews = filterByCrews;
+
 //@ts-ignore
 const BORES : DownloadBoreObject[] = parseJSON(BORES_JSON);
 //@ts-ignore
@@ -31,8 +39,22 @@ function isVaultCheckboxActive() : boolean {
   return checkbox.checked;
 }
 
+function getSelectValue(elementId : string) : string {
+  let element = <HTMLSelectElement>document.getElementById(elementId);
+  return element.value;
+}
+
+function addEventListenersToSelectElements() {
+  document
+    .getElementById('crewSelect')
+    .addEventListener('change', () => {
+      let crewVal = getSelectValue('crewSelect');
+      filterByCrews(crewVal);
+    });
+}
+
 function populateSelectElement(elementId : string, data : string[]) {
-  let html = ""
+  let html = `<option value="-1"> --- </option>`;
   for (const row of data) {
     html += `
       <option>${row}</option>
@@ -89,6 +111,28 @@ function generateTotalsHTML(totals : { [key : string] : number }) : string {
   return html;
 }
 
+function filterByCrews(crew : string) {
+  let rows = document.querySelectorAll('#productionTable tr');
+  if (crew == "-1") {
+    for (const row of rows) {
+      row.classList.remove('hiddenRow');
+    }
+    return;
+  }
+  for (const row of rows) {
+    row.classList.remove('hiddenRow');
+    let cells = row.querySelectorAll('td');
+    if (cells.length == 0) {
+      continue;
+    }
+
+    let rowCrew = cells[3].textContent.trim();
+    if (crew != rowCrew) {
+      row.classList.add('hiddenRow');
+    }
+  }
+}
+
 function generateProductionTableHTML(bores : DownloadBoreObject[], vaults : DownloadVaultObject[]) : string {
   let html = `<table id="productionTable">`;
   html += `
@@ -138,6 +182,7 @@ function initialization() {
     CLIENTS,
     CODES,
   );
+  addEventListenersToSelectElements();
 }
 
 

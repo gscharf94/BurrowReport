@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const website_js_1 = require("../../helperFunctions/website.js");
+window.filterByCrews = filterByCrews;
 //@ts-ignore
 const BORES = (0, website_js_1.parseJSON)(BORES_JSON);
 //@ts-ignore
@@ -25,8 +26,20 @@ function isVaultCheckboxActive() {
     let checkbox = document.getElementById('vaultCheckbox');
     return checkbox.checked;
 }
+function getSelectValue(elementId) {
+    let element = document.getElementById(elementId);
+    return element.value;
+}
+function addEventListenersToSelectElements() {
+    document
+        .getElementById('crewSelect')
+        .addEventListener('change', () => {
+        let crewVal = getSelectValue('crewSelect');
+        filterByCrews(crewVal);
+    });
+}
 function populateSelectElement(elementId, data) {
-    let html = "";
+    let html = `<option value="-1"> --- </option>`;
     for (const row of data) {
         html += `
       <option>${row}</option>
@@ -78,6 +91,26 @@ function generateTotalsHTML(totals) {
     }
     return html;
 }
+function filterByCrews(crew) {
+    let rows = document.querySelectorAll('#productionTable tr');
+    if (crew == "-1") {
+        for (const row of rows) {
+            row.classList.remove('hiddenRow');
+        }
+        return;
+    }
+    for (const row of rows) {
+        row.classList.remove('hiddenRow');
+        let cells = row.querySelectorAll('td');
+        if (cells.length == 0) {
+            continue;
+        }
+        let rowCrew = cells[3].textContent.trim();
+        if (crew != rowCrew) {
+            row.classList.add('hiddenRow');
+        }
+    }
+}
 function generateProductionTableHTML(bores, vaults) {
     let html = `<table id="productionTable">`;
     html += `
@@ -121,5 +154,6 @@ function initialization() {
     populateProductionTable(sortedBoresBillingCode, VAULTS);
     updateTotals();
     populateSelectElements([...new Set(CREWS.map(val => val.crew_name))], [...new Set(JOBS.map(val => val.job_name))], CLIENTS, CODES);
+    addEventListenersToSelectElements();
 }
 initialization();
