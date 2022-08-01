@@ -21,7 +21,6 @@ function hideJobs(username, crewsJobs) {
             userJobs.push(row.job_id);
         }
     }
-    console.log(userJobs);
     for (const element of jobContainers) {
         let jobId = Number(element.id.slice(12));
         if (!userJobs.includes(jobId)) {
@@ -45,10 +44,19 @@ function togglePageLinks(jobId) {
         dropdown.classList.add('showPageLinks');
     }
 }
+function isCrewAssignedToJob(jobId) {
+    for (const row of CREWS_JOBS) {
+        if (row.crew_name == USERINFO.username && row.job_id == jobId) {
+            return true;
+        }
+    }
+    return false;
+}
 function toggleInactiveJobs() {
     let jobContainers = document.querySelectorAll('.jobContainer');
     for (const element of jobContainers) {
-        if (element.classList.contains('inactiveJob')) {
+        let jobId = Number(element.id.slice(12));
+        if (element.classList.contains('inactiveJob') && isCrewAssignedToJob(jobId)) {
             element.classList.toggle('hiddenContainer');
         }
     }
