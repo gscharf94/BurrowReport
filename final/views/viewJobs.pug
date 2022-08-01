@@ -13,12 +13,12 @@ block content
     each job in jobs
       - let containerClass;
       - (job.active)? containerClass = 'jobContainer' : containerClass = 'jobContainer hiddenContainer inactiveJob'
-      div(id=`${job.job_name}Container` class=`${containerClass}`)
+      div(id=`jobContainer${job.id}` class=`${containerClass}`)
         p.jobName #{job.job_name}
         p.jobClient #{job.client}
-        a(href=`#` onclick=`togglePageLinks('${job.job_name}')`).addProduction Report
+        a(href=`#` onclick=`togglePageLinks('${job.id}')`).addProduction Report
         div.addProductionContainer
-          img(src="/images/icons/plus-square.svg", onclick=`togglePageLinks('${job.job_name}')`).addProductionIcon
+          img(src="/images/icons/plus-square.svg", onclick=`togglePageLinks('${job.id}')`).addProductionIcon
           div.dropdownPageLinks
             each page in job.pages
               a(href=`/inputProduction/${job.client}/${job.job_name}/${page}`).pageLink SH#{page}
@@ -29,4 +29,6 @@ block content
 
 
 block scripts
+  script.
+    CREWS_JOBS_JSON="#{crewsJobsJSON}"
   script(src="/packed/viewJobs.js")

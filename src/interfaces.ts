@@ -127,4 +127,5 @@ export interface CrewDownloadObject {
 export interface CrewsJobsDownloadObject {
   crew_id : number,
   job_id : number,
+  crew_name ?: string,
 }

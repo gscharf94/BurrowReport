@@ -1,10 +1,18 @@
-import { parseJSON, redirectToLoginPage } from '../../helperFunctions/website.js';
+import { parseJSON, redirectToLoginPage, getUserInfo } from '../../helperFunctions/website.js';
+import { CrewsJobsDownloadObject, CrewDownloadObject } from '../../interfaces';
+
+//@ts-ignore
+const CREWS_JOBS : CrewsJobsDownloadObject[] = parseJSON(CREWS_JOBS_JSON);
+
+console.log(CREWS_JOBS);
+
+const USERINFO = getUserInfo();
 
 redirectToLoginPage();
 
 declare global {
   interface Window {
-    togglePageLinks : (jobName : string) => void;
+    togglePageLinks : (jobId : number) => void;
     toggleInactiveJobs : () => void;
   }
 }
@@ -15,10 +23,28 @@ window.toggleInactiveJobs = toggleInactiveJobs;
 function initialization() {
   let checkbox = <HTMLInputElement>document.getElementById('oldJobCheckbox');
   checkbox.checked = false;
+  hideJobs(USERINFO.username, CREWS_JOBS);
 }
 
-function togglePageLinks(jobName : string) : void {
-  let jobContainer = document.getElementById(`${jobName}Container`);
+function hideJobs(username : string, crewsJobs : CrewsJobsDownloadObject[]) {
+  let jobContainers = document.querySelectorAll('.jobContainer');
+  let userJobs = [];
+  for (const row of crewsJobs) {
+    if (row.crew_name == username) {
+      userJobs.push(row.job_id);
+    }
+  }
+  console.log(userJobs);
+  for (const element of jobContainers) {
+    let jobId = Number(element.id.slice(12,));
+    if (!userJobs.includes(jobId)) {
+      element.classList.add('hiddenContainer');
+    }
+  }
+}
+
+function togglePageLinks(jobId : number) : void {
+  let jobContainer = document.getElementById(`jobContainer${jobId}`);
   let dropdown = jobContainer.querySelector<HTMLElement>('.dropdownPageLinks');
   const shown = dropdown.classList.contains('showPageLinks');
 

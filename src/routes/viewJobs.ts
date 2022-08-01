@@ -7,9 +7,16 @@ router.get('/', (req, res) => {
   (async () => {
     let jobsResults = await pool.query('SELECT * FROM jobs');
     let pagesResults = await pool.query('SELECT * FROM pages');
+    let crewsJobsResults = await pool.query(`
+      SELECT id, crew_name, job_id
+      FROM crews_jobs
+      INNER JOIN crews
+      ON crews.id=crews_jobs.crew_id;
+      `);
 
     let jobs = jobsResults.rows;
     let pages = pagesResults.rows;
+    let crewsJobs = crewsJobsResults.rows;
 
     for (const job of jobs) {
       let jobPages = [];
@@ -23,6 +30,9 @@ router.get('/', (req, res) => {
       });
       job.pages = jobPages;
     }
-    res.render('viewJobs', { jobs: jobs });
+    res.render('viewJobs', {
+      jobs: jobs,
+      crewsJobsJSON: JSON.stringify(crewsJobs),
+    });
   })();
 })
