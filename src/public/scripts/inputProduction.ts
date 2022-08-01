@@ -433,8 +433,6 @@ function newBoreSubmitCallback(line : MapLine, billingCode : string) {
         bore_logs: boreLogs,
         billing_code: billingCode,
         coordinates: [...line.points],
-        // remove this... TODO
-        rock: false,
       }, line));
     },
     "new");

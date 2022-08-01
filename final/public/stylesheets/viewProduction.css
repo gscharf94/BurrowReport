@@ -1,3 +1,78 @@
-html {
-  background-color: black;
+#content {
+  display: flex;
+  flex-direction: column;
+}
+
+#productionControls {
+  display: grid;
+}
+
+#startDate {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+#startDateLabel {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+#endDate {
+  grid-row: 2;
+  grid-column: 2;
+}
+
+#endDateLabel {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+#jobSelect {
+  grid-row: 2;
+  grid-column: 5;
+}
+
+#jobSelectLabel {
+  grid-row: 1;
+  grid-column: 5;
+}
+
+#crewSelect {
+  grid-row: 2;
+  grid-column: 4;
+}
+
+#crewSelectLabel {
+  grid-row: 1;
+  grid-column: 4;
+}
+
+#billingCodeSelect {
+  grid-row: 2;
+  grid-column: 3;
+}
+
+#billingCodeSelectLabel {
+  grid-row: 1;
+  grid-column: 3;
+}
+
+#vaultCheckbox {
+  grid-row: 4;
+  grid-column: 5;
+}
+
+#vaultCheckboxLabel {
+  grid-row: 3;
+  grid-column: 5;
+}
+
+#clientSelect {
+  grid-row: 4;
+  grid-column: 4;
+}
+
+#clientSelectLabel {
+  grid-row: 3;
+  grid-column: 4;
 }

@@ -2,13 +2,38 @@ extends layout.pug
 
 
 block style
-  link(rel="stylesheet", href="/stylesheets/viewJobs.jss")
+  link(rel="stylesheet", href="/stylesheets/viewProduction.css")
 
 
 block content
-  h1 hello world
-  h2 #{test}
+  div#productionControls
+    select(name="crewSelect", id="crewSelect")
+    input(name="startDate", id="startDate", type="date")
+    input(name="endDate", id="endDate", type="date")
+    select(name="jobSelect", id="jobSelect")
+    select(name="billingCodeSelect", id="billingCodeSelect")
+    input(name="vaultCheckbox" type="checkbox", id="vaultCheckbox")
+    select(name="clientSelect", id="clientSelect")
+    label(for="crewSelect", id="crewSelectLabel") Filter by Crew
+    label(for="startDate", id="startDateLabel") Start
+    label(for="endDate", id="endDateLabel") End
+    label(for="jobSelect", id="jobSelectLabel") Filter by Job
+    label(for="billingCodeSelect", id="billingCodeSelectLabel") Filter by Code
+    label(for="vaultCheckbox", id="vaultCheckboxLabel") Show Vaults
+    label(for="clientSelect", id="clientSelectLabel") Filter by Client
+
+  div#productionHeaders
+    p A1= 150'
+    p I9= 150'
+    p DT20= 50
+
+  div#productionTableContainer
 
 
 block scripts
+  script.
+    BORES_JSON="#{boresJSON}"
+    VAULTS_JSON="#{vaultsJSON}"
+    JOBS_JSON="#{jobsJSON}"
+    CREWS_JSON="#{crewsJSON}"
   script(src="/packed/viewProduction.js")

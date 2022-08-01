@@ -39,13 +39,11 @@ export interface DownloadObject {
 export interface DownloadBoreObject extends DownloadObject {
   footage : number,
   coordinates : Coord[],
-  rock : boolean,
   bore_logs : BoreLogRow[],
 }
 
 export interface DownloadVaultObject extends DownloadObject {
   coordinate : Coord,
-  vault_size : number,
 }
 
 export type Coord = [number, number];
