@@ -10,12 +10,17 @@ const JOBS = (0, website_js_1.parseJSON)(JOBS_JSON);
 //@ts-ignore
 const CREWS = (0, website_js_1.parseJSON)(CREWS_JSON);
 const CLIENTS = [...new Set(JOBS.map(val => val.client))];
+const CODES = [
+    ...new Set(BORES.map(val => val.billing_code)),
+    ...new Set(VAULTS.map(val => val.billing_code))
+];
 const USERINFO = (0, website_js_1.getUserInfo)();
 console.log(BORES);
 console.log(VAULTS);
 console.log(JOBS);
 console.log(CREWS);
 console.log(CLIENTS);
+console.log(CODES);
 function isVaultCheckboxActive() {
     let checkbox = document.getElementById('vaultCheckbox');
     return checkbox.checked;
@@ -31,10 +36,11 @@ function populateSelectElement(elementId, data) {
         .getElementById(elementId)
         .innerHTML = html;
 }
-function populateSelectElements(crews, jobs, clients) {
+function populateSelectElements(crews, jobs, clients, codes) {
     populateSelectElement('crewSelect', crews);
     populateSelectElement('jobSelect', jobs);
     populateSelectElement('clientSelect', clients);
+    populateSelectElement('billingCodeSelect', codes);
 }
 function updateTotals() {
     let rows = document.querySelectorAll('#productionTable tr');
@@ -65,7 +71,7 @@ function generateTotalsHTML(totals) {
     for (const total in totals) {
         html += `
       <div class="headerElement">
-        <p class="billingCodeHeader"> ${total} </p>
+        <p class="billingCodeHeader"> ${total}= </p>
         <p class="qtyHeader"> ${totals[total]} </p>
       </div>
     `;
@@ -114,6 +120,6 @@ function initialization() {
     });
     populateProductionTable(sortedBoresBillingCode, VAULTS);
     updateTotals();
-    populateSelectElements([...new Set(CREWS.map(val => val.crew_name))], [...new Set(JOBS.map(val => val.job_name))], CLIENTS);
+    populateSelectElements([...new Set(CREWS.map(val => val.crew_name))], [...new Set(JOBS.map(val => val.job_name))], CLIENTS, CODES);
 }
 initialization();

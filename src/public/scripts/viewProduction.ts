@@ -11,6 +11,10 @@ const JOBS : JobDownloadObject[] = parseJSON(JOBS_JSON);
 const CREWS : CrewDownloadObject[] = parseJSON(CREWS_JSON);
 
 const CLIENTS : string[] = [...new Set(JOBS.map(val => val.client))];
+const CODES : string[] = [
+  ...new Set(BORES.map(val => val.billing_code)),
+  ...new Set(VAULTS.map(val => val.billing_code))
+];
 
 const USERINFO = getUserInfo();
 
@@ -19,6 +23,8 @@ console.log(VAULTS);
 console.log(JOBS);
 console.log(CREWS);
 console.log(CLIENTS);
+console.log(CODES);
+
 
 function isVaultCheckboxActive() : boolean {
   let checkbox = <HTMLInputElement>document.getElementById('vaultCheckbox');
@@ -37,10 +43,11 @@ function populateSelectElement(elementId : string, data : string[]) {
     .innerHTML = html;
 }
 
-function populateSelectElements(crews : string[], jobs : string[], clients : string[]) {
+function populateSelectElements(crews : string[], jobs : string[], clients : string[], codes : string[]) {
   populateSelectElement('crewSelect', crews);
   populateSelectElement('jobSelect', jobs);
   populateSelectElement('clientSelect', clients);
+  populateSelectElement('billingCodeSelect', codes);
 }
 
 function updateTotals() {
@@ -74,7 +81,7 @@ function generateTotalsHTML(totals : { [key : string] : number }) : string {
   for (const total in totals) {
     html += `
       <div class="headerElement">
-        <p class="billingCodeHeader"> ${total} </p>
+        <p class="billingCodeHeader"> ${total}= </p>
         <p class="qtyHeader"> ${totals[total]} </p>
       </div>
     `
@@ -129,6 +136,7 @@ function initialization() {
     [...new Set(CREWS.map(val => val.crew_name))],
     [...new Set(JOBS.map(val => val.job_name))],
     CLIENTS,
+    CODES,
   );
 }
 
