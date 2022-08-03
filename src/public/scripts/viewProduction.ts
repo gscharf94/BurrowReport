@@ -1,13 +1,15 @@
-import { getUserInfo, parseJSON, formatDate } from '../../helperFunctions/website.js';
-import { JobDownloadObject, CrewDownloadObject, DownloadBoreObject, DownloadVaultObject } from '../../interfaces';
+import { getUserInfo, parseJSON, formatDate, redirectToLoginPage } from '../../helperFunctions/website.js';
+import { JobDownloadObject, CrewDownloadObject, DownloadBoreObject, DownloadVaultObject, ProductionObject } from '../../interfaces';
+
+redirectToLoginPage();
 
 declare global {
   interface Window {
-    filterByCrews : (crew : string) => void,
+    filterData : () => void,
   }
 }
 
-window.filterByCrews = filterByCrews;
+window.filterData = filterData;
 
 //@ts-ignore
 const BORES : DownloadBoreObject[] = parseJSON(BORES_JSON);
@@ -26,13 +28,56 @@ const CODES : string[] = [
 
 const USERINFO = getUserInfo();
 
+let DATA = aggregateData(BORES, VAULTS);
+
 console.log(BORES);
 console.log(VAULTS);
 console.log(JOBS);
 console.log(CREWS);
 console.log(CLIENTS);
 console.log(CODES);
+console.log(DATA);
 
+
+function filterDataByKey(data : ProductionObject[], key : string) : ProductionObject[] {
+  const groupBy = (arr, key) => {
+    return arr.reduce((res, val) => {
+      (res[val[key]] = res[val[key]] || []).push(
+        val
+      );
+      return res;
+    }, {});
+  }
+  return groupBy(data, key);
+}
+
+
+function aggregateData(bores : DownloadBoreObject[], vaults : DownloadVaultObject[]) : ProductionObject[] {
+  let data : ProductionObject[] = [];
+  for (const bore of bores) {
+    data.push({
+      objectType: "BORE",
+      billingCode: bore.billing_code,
+      workDate: new Date(bore.work_date),
+      crewName: bore.crew_name,
+      jobName: bore.job_name,
+      quantity: bore.footage,
+      page_number: bore.page_number,
+    });
+  }
+  for (const vault of vaults) {
+    data.push({
+      objectType: "VAULT",
+      billingCode: vault.billing_code,
+      workDate: new Date(vault.work_date),
+      crewName: vault.crew_name,
+      jobName: vault.job_name,
+      quantity: 1,
+      page_number: vault.page_number,
+    });
+  }
+  return data;
+}
 
 function isVaultCheckboxActive() : boolean {
   let checkbox = <HTMLInputElement>document.getElementById('vaultCheckbox');
@@ -45,12 +90,19 @@ function getSelectValue(elementId : string) : string {
 }
 
 function addEventListenersToSelectElements() {
-  document
-    .getElementById('crewSelect')
-    .addEventListener('change', () => {
-      let crewVal = getSelectValue('crewSelect');
-      filterByCrews(crewVal);
-    });
+  let eles = [
+    'billingCodeSelect',
+    'crewSelect',
+    'jobSelect',
+    'clientSelect',
+  ];
+  for (const eleId of eles) {
+    document
+      .getElementById(eleId)
+      .addEventListener('change', () => {
+        filterData();
+      });
+  }
 }
 
 function populateSelectElement(elementId : string, data : string[]) {
@@ -72,27 +124,16 @@ function populateSelectElements(crews : string[], jobs : string[], clients : str
   populateSelectElement('billingCodeSelect', codes);
 }
 
-function updateTotals() {
-  let rows = document.querySelectorAll('#productionTable tr');
+function updateTotals(data : ProductionObject[]) {
+  let filtered = filterDataByKey(data, 'billingCode');
   let totals = {}
-  for (const row of rows) {
-    let cells = row.querySelectorAll('td')
-    if (cells.length == 0) {
-      continue;
-    }
-
-    let billingCode = cells[1].textContent.trim();
-    let qty = cells[5].textContent.trim();
-    if (qty.search('ft') != -1) {
-      qty = qty.slice(0, -2);
-    }
-    if (totals[billingCode]) {
-      totals[billingCode] += Number(qty);
-    } else {
-      totals[billingCode] = Number(qty);
+  for (const item in filtered) {
+    totals[item] = filtered[item][0].quantity;
+    //@ts-ignore
+    for (let i = 1; i < filtered[item].length; i++) {
+      totals[item] += filtered[item][i].quantity;
     }
   }
-
   document
     .getElementById('productionHeaders')
     .innerHTML = generateTotalsHTML(totals);
@@ -111,29 +152,37 @@ function generateTotalsHTML(totals : { [key : string] : number }) : string {
   return html;
 }
 
-function filterByCrews(crew : string) {
-  let rows = document.querySelectorAll('#productionTable tr');
-  if (crew == "-1") {
-    for (const row of rows) {
-      row.classList.remove('hiddenRow');
-    }
-    return;
-  }
-  for (const row of rows) {
-    row.classList.remove('hiddenRow');
-    let cells = row.querySelectorAll('td');
-    if (cells.length == 0) {
-      continue;
-    }
+function runThroughFilters(data : ProductionObject[]) : ProductionObject[] {
+  let filters = [
+    { parameter: 'crewName', value: getSelectValue('crewSelect') },
+    { parameter: 'billingCode', value: getSelectValue('billingCodeSelect') },
+    { parameter: 'jobName', value: getSelectValue('jobSelect') },
+    { parameter: 'clientName', value: getSelectValue('clientSelect') },
+  ]
 
-    let rowCrew = cells[3].textContent.trim();
-    if (crew != rowCrew) {
-      row.classList.add('hiddenRow');
+  for (const filter of filters) {
+    if (filter.value != "-1") {
+      let filteredData = filterDataByKey(data, filter.parameter)
+      if (!filteredData[filter.value]) {
+        return [];
+      } else {
+        data = filteredData[filter.value]
+      }
     }
   }
+  return data;
 }
 
-function generateProductionTableHTML(bores : DownloadBoreObject[], vaults : DownloadVaultObject[]) : string {
+function filterData() {
+  let filteredData = runThroughFilters(DATA);
+  populateProductionTable(filteredData);
+  updateTotals(filteredData);
+}
+
+function generateProductionTableHTML(data : ProductionObject[]) : string {
+  if (data.length == 0) {
+    return `<h1 id="noDataHeader">NO DATA</h1>`;
+  }
   let html = `<table id="productionTable">`;
   html += `
     <tr>
@@ -145,37 +194,30 @@ function generateProductionTableHTML(bores : DownloadBoreObject[], vaults : Down
       <th> Qty </th>
     </tr>
   `;
-  for (const bore of bores) {
+  for (const row of data) {
     html += `
       <tr>
-        <td> BORE </td>
-        <td> ${bore.billing_code} </td>
-        <td> ${formatDate(bore.work_date)} </td>
-        <td> ${bore.crew_name} </td>
-        <td> ${bore.job_name} </td>
-        <td> ${bore.footage}ft </td>
+        <td> ${(row.objectType == "BORE") ? "BORE" : "VAULT"} </td>
+        <td> ${row.billingCode} </td>
+        <td> ${formatDate(row.workDate)} </td>
+        <td> ${row.crewName} </td>
+        <td> ${row.jobName} </td>
+        <td> ${row.quantity}${(row.objectType == "BORE") ? "ft" : ""} </td>
       </tr>
     `;
   }
   return html;
 }
 
-function populateProductionTable(bores : DownloadBoreObject[], vaults : DownloadVaultObject[]) {
+function populateProductionTable(data : ProductionObject[]) {
   document
     .getElementById('productionTableContainer')
-    .innerHTML = generateProductionTableHTML(bores, vaults);
+    .innerHTML = generateProductionTableHTML(data);
 }
 
 function initialization() {
-  let sortedBoresBillingCode = BORES.sort((a, b) => {
-    if (a.billing_code < b.billing_code) {
-      return -1;
-    } else {
-      return 1;
-    }
-  });
-  populateProductionTable(sortedBoresBillingCode, VAULTS);
-  updateTotals();
+  populateProductionTable(DATA);
+  updateTotals(DATA);
   populateSelectElements(
     [...new Set(CREWS.map(val => val.crew_name))],
     [...new Set(JOBS.map(val => val.job_name))],

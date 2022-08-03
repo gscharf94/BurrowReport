@@ -2,6 +2,16 @@ export type RefreshedTickets = {
   [key : string] : string,
 }
 
+export interface ProductionObject {
+  objectType : 'BORE' | 'VAULT',
+  billingCode : string,
+  workDate : Date,
+  crewName : string,
+  jobName : string,
+  quantity : number,
+  page_number : number,
+}
+
 export type UploadObjects = 'vault' | 'bore';
 
 export interface UploadObject {
