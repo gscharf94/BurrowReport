@@ -10,6 +10,7 @@ export interface ProductionObject {
   jobName : string,
   quantity : number,
   page_number : number,
+  client : string,
 }
 
 export type UploadObjects = 'vault' | 'bore';
@@ -44,6 +45,7 @@ export interface DownloadObject {
   crew_name : string,
   id : number,
   billing_code : string,
+  client ?: string,
 }
 
 export interface DownloadBoreObject extends DownloadObject {

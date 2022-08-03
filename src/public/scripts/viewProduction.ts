@@ -39,7 +39,7 @@ console.log(CODES);
 console.log(DATA);
 
 
-function filterDataByKey(data : ProductionObject[], key : string) : ProductionObject[] {
+function filterDataByKey(data : ProductionObject[], key : string) : { [key : string] : ProductionObject[] } {
   const groupBy = (arr, key) => {
     return arr.reduce((res, val) => {
       (res[val[key]] = res[val[key]] || []).push(
@@ -63,6 +63,7 @@ function aggregateData(bores : DownloadBoreObject[], vaults : DownloadVaultObjec
       jobName: bore.job_name,
       quantity: bore.footage,
       page_number: bore.page_number,
+      client: bore.client,
     });
   }
   for (const vault of vaults) {
@@ -74,6 +75,7 @@ function aggregateData(bores : DownloadBoreObject[], vaults : DownloadVaultObjec
       jobName: vault.job_name,
       quantity: 1,
       page_number: vault.page_number,
+      client: vault.client,
     });
   }
   return data;
@@ -128,10 +130,9 @@ function updateTotals(data : ProductionObject[]) {
   let filtered = filterDataByKey(data, 'billingCode');
   let totals = {}
   for (const item in filtered) {
-    totals[item] = filtered[item][0].quantity;
-    //@ts-ignore
+    totals[item] = [filtered[item][0].quantity, filtered[item][0].objectType];
     for (let i = 1; i < filtered[item].length; i++) {
-      totals[item] += filtered[item][i].quantity;
+      totals[item][0] += filtered[item][i].quantity;
     }
   }
   document
@@ -139,13 +140,13 @@ function updateTotals(data : ProductionObject[]) {
     .innerHTML = generateTotalsHTML(totals);
 }
 
-function generateTotalsHTML(totals : { [key : string] : number }) : string {
+function generateTotalsHTML(totals : { [key : string] : [number, string] }) : string {
   let html = "";
   for (const total in totals) {
     html += `
       <div class="headerElement">
         <p class="billingCodeHeader"> ${total}= </p>
-        <p class="qtyHeader"> ${totals[total]} </p>
+        <p class="qtyHeader"> ${totals[total][0]}${(totals[total][1] == "BORE") ? "ft" : ""} </p>
       </div>
     `
   }
@@ -157,12 +158,13 @@ function runThroughFilters(data : ProductionObject[]) : ProductionObject[] {
     { parameter: 'crewName', value: getSelectValue('crewSelect') },
     { parameter: 'billingCode', value: getSelectValue('billingCodeSelect') },
     { parameter: 'jobName', value: getSelectValue('jobSelect') },
-    { parameter: 'clientName', value: getSelectValue('clientSelect') },
+    { parameter: 'client', value: getSelectValue('clientSelect') },
   ]
 
   for (const filter of filters) {
     if (filter.value != "-1") {
       let filteredData = filterDataByKey(data, filter.parameter)
+      console.log(filteredData);
       if (!filteredData[filter.value]) {
         return [];
       } else {
