@@ -25,6 +25,16 @@ console.log(CREWS);
 console.log(CLIENTS);
 console.log(CODES);
 console.log(DATA);
+function resetTableVaults(vault) {
+    if (vault) {
+        DATA = aggregateData(BORES, []);
+    }
+    else {
+        DATA = aggregateData(BORES, VAULTS);
+    }
+    resetProductionTable();
+    filterData();
+}
 function filterDataByKey(data, key) {
     const groupBy = (arr, key) => {
         return arr.reduce((res, val) => {
@@ -84,6 +94,11 @@ function addEventListenersToSelectElements() {
             filterData();
         });
     }
+    document
+        .getElementById('vaultCheckbox')
+        .addEventListener('change', () => {
+        resetTableVaults(isVaultCheckboxActive());
+    });
 }
 function populateSelectElement(elementId, data) {
     let html = `<option value="-1"> --- </option>`;
@@ -137,6 +152,7 @@ function runThroughFilters(data) {
     for (const filter of filters) {
         if (filter.value != "-1") {
             let filteredData = filterDataByKey(data, filter.parameter);
+            console.log('f data');
             console.log(filteredData);
             if (!filteredData[filter.value]) {
                 return [];
@@ -151,6 +167,8 @@ function runThroughFilters(data) {
 function filterData() {
     let filteredData = runThroughFilters(DATA);
     populateProductionTable(filteredData);
+    console.log('filterdtaa');
+    console.log(filteredData);
     updateTotals(filteredData);
 }
 function generateProductionTableHTML(data) {
@@ -186,6 +204,10 @@ function populateProductionTable(data) {
     document
         .getElementById('productionTableContainer')
         .innerHTML = generateProductionTableHTML(data);
+}
+function resetProductionTable() {
+    populateProductionTable(DATA);
+    updateTotals(DATA);
 }
 function initialization() {
     populateProductionTable(DATA);

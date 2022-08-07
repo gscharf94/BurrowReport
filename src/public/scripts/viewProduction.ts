@@ -38,6 +38,15 @@ console.log(CLIENTS);
 console.log(CODES);
 console.log(DATA);
 
+function resetTableVaults(vault : boolean) {
+  if (vault) {
+    DATA = aggregateData(BORES, []);
+  } else {
+    DATA = aggregateData(BORES, VAULTS);
+  }
+  resetProductionTable();
+  filterData();
+}
 
 function filterDataByKey(data : ProductionObject[], key : string) : { [key : string] : ProductionObject[] } {
   const groupBy = (arr, key) => {
@@ -105,6 +114,11 @@ function addEventListenersToSelectElements() {
         filterData();
       });
   }
+  document
+    .getElementById('vaultCheckbox')
+    .addEventListener('change', () => {
+      resetTableVaults(isVaultCheckboxActive());
+    });
 }
 
 function populateSelectElement(elementId : string, data : string[]) {
@@ -164,6 +178,7 @@ function runThroughFilters(data : ProductionObject[]) : ProductionObject[] {
   for (const filter of filters) {
     if (filter.value != "-1") {
       let filteredData = filterDataByKey(data, filter.parameter)
+      console.log('f data');
       console.log(filteredData);
       if (!filteredData[filter.value]) {
         return [];
@@ -178,6 +193,8 @@ function runThroughFilters(data : ProductionObject[]) : ProductionObject[] {
 function filterData() {
   let filteredData = runThroughFilters(DATA);
   populateProductionTable(filteredData);
+  console.log('filterdtaa');
+  console.log(filteredData);
   updateTotals(filteredData);
 }
 
@@ -215,6 +232,11 @@ function populateProductionTable(data : ProductionObject[]) {
   document
     .getElementById('productionTableContainer')
     .innerHTML = generateProductionTableHTML(data);
+}
+
+function resetProductionTable() {
+  populateProductionTable(DATA);
+  updateTotals(DATA);
 }
 
 function initialization() {
