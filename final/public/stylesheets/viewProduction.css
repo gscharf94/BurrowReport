@@ -108,10 +108,18 @@ th {
   text-align: center;
 }
 
+.lightRow {
+  background-color: #D2D2D2;
+}
+
+.darkRow {
+  background-color: #E1E1E1;
+}
+
 #productionTable tr {}
 
 #productionTable td {
-  background-color: var(--color-3);
+  /* background-color: var(--color-3); */
   font-size: 2.5ch;
 }
 

@@ -257,9 +257,10 @@ function generateProductionTableHTML(data : ProductionObject[]) : string {
       <th> Qty </th>
     </tr>
   `;
+  let c = 1;
   for (const row of data) {
     html += `
-      <tr>
+      <tr class="${(c++ % 2 == 0) ? 'darkRow' : 'lightrow'}">
         <td> ${(row.objectType == "BORE") ? "BORE" : "VAULT"} </td>
         <td> ${row.billingCode} </td>
         <td> ${formatDate(row.workDate)} </td>
