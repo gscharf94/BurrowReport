@@ -100,9 +100,13 @@ const generateIcon = (markerType : 'line' | 'vault', color : string, size : [num
     });
   }
   let conversion = {
-    'green': '/images/icons/DT20.png',
-    'blue': '/images/icons/DT36.png',
-    'yellow': '/images/icons/DT30.png',
+    'green': '/images/icons/greenVault.svg',
+    'blue': '/images/icons/blueVault.svg',
+    'red': '/images/icons/redVault.svg',
+    'pink': '/images/icons/pinkVault.svg',
+    'yellow': '/images/icons/yellowVault.svg',
+    'cyan': '/images/icons/cyanVault.svg',
+    'orange': '/images/icons/orangeVault.svg',
   };
   return L.icon({
     iconUrl: conversion[color],
@@ -229,7 +233,7 @@ function drawSavedBoresAndRocks() : void {
         points: [...bore.coordinates],
         color: options.primary_color,
         dashed: options.dashed,
-      }, generateIcon('line', '', [20, 20]));
+      }, generateIcon('line', '', [100, 100]));
     window.boresAndRocks.push(new BoreObject(bore, boreLine));
   }
 }
@@ -241,7 +245,7 @@ function drawSavedVaults() : void {
       map,
       true,
       vault.coordinate,
-      generateIcon('vault', options.primary_color, [20, 20]),
+      generateIcon('vault', options.primary_color, [100, 100]),
     );
     marker.toggleDraggable();
     window.vaults.push(new VaultObject(vault, marker));
@@ -530,7 +534,7 @@ function addVaultStart() {
     map.off('click');
     let pos = ev.latlng;
     console.log(options);
-    let icon = generateIcon('vault', options.primary_color, [100, 100]);
+    let icon = generateIcon('vault', options.primary_color, [85, 85]);
     let marker = new MapMarker(map, true, [pos.lat, pos.lng], icon);
     clearAllEventListeners(['submit', 'cancel']);
 

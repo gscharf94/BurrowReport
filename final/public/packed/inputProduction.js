@@ -755,9 +755,13 @@ const generateIcon = (markerType, color, size) => {
         });
     }
     let conversion = {
-        'green': '/images/icons/DT20.png',
-        'blue': '/images/icons/DT36.png',
-        'yellow': '/images/icons/DT30.png',
+        'green': '/images/icons/greenVault.svg',
+        'blue': '/images/icons/blueVault.svg',
+        'red': '/images/icons/redVault.svg',
+        'pink': '/images/icons/pinkVault.svg',
+        'yellow': '/images/icons/yellowVault.svg',
+        'cyan': '/images/icons/cyanVault.svg',
+        'orange': '/images/icons/orangeVault.svg',
     };
     return leaflet_1.default.icon({
         iconUrl: conversion[color],
@@ -863,14 +867,14 @@ function drawSavedBoresAndRocks() {
             points: [...bore.coordinates],
             color: options.primary_color,
             dashed: options.dashed,
-        }, generateIcon('line', '', [20, 20]));
+        }, generateIcon('line', '', [100, 100]));
         window.boresAndRocks.push(new leafletClasses_js_1.BoreObject(bore, boreLine));
     }
 }
 function drawSavedVaults() {
     for (const vault of vaults) {
         let options = getOptionsFromBillingCode(vault.billing_code);
-        let marker = new leafletClasses_js_1.MapMarker(map, true, vault.coordinate, generateIcon('vault', options.primary_color, [20, 20]));
+        let marker = new leafletClasses_js_1.MapMarker(map, true, vault.coordinate, generateIcon('vault', options.primary_color, [100, 100]));
         marker.toggleDraggable();
         window.vaults.push(new leafletClasses_js_1.VaultObject(vault, marker));
     }
@@ -1128,7 +1132,7 @@ function addVaultStart() {
         map.off('click');
         let pos = ev.latlng;
         console.log(options);
-        let icon = generateIcon('vault', options.primary_color, [100, 100]);
+        let icon = generateIcon('vault', options.primary_color, [85, 85]);
         let marker = new leafletClasses_js_1.MapMarker(map, true, [pos.lat, pos.lng], icon);
         (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
         document
