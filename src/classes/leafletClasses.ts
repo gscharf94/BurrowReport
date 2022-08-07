@@ -90,7 +90,7 @@ export class TicketObject {
     this.line = new MapLine(this.map, this.lineRenderer, {
       points: this.coordinates,
       color: this.determineColor(this.status),
-    });
+    }, L.icon({ iconUrl: "null" }));
   }
 
   changeColor(color : string) {
@@ -184,6 +184,7 @@ export class MapLine extends MapObject<L.Polyline> {
   originalColor : string;
   renderer : L.Canvas;
   lineMarkers : MapMarker[];
+  lineMarkerIcon : L.Icon;
 
   constructor(
     map : L.Map, renderer : L.Canvas,
@@ -191,7 +192,7 @@ export class MapLine extends MapObject<L.Polyline> {
       points, color = 'purple', weight = 8, dashed = false
     } : {
       points : Coord[], color ?: string, weight ?: number, dashed ?: boolean
-    }) {
+    }, lineMarkerIcon : L.Icon) {
     super(map);
     this.points = points;
     this.color = color;
@@ -204,6 +205,8 @@ export class MapLine extends MapObject<L.Polyline> {
     if (this.points.length > 1) {
       this.addSelf();
     }
+
+    this.lineMarkerIcon = lineMarkerIcon;
   }
 
   removeSelf() {
@@ -270,12 +273,7 @@ export class MapLine extends MapObject<L.Polyline> {
   addLineMarkers() {
     for (const [ind, pos] of this.points.entries()) {
       let marker = new MapMarker(
-        this.map, true, pos,
-        L.icon({
-          iconUrl: "/images/icons/lineMarker.png",
-          iconAnchor: [20, 20],
-          iconSize: [40, 40],
-        }), ind);
+        this.map, true, pos, this.lineMarkerIcon, ind);
       marker.mapObject.on('drag', (ev) => {
         this.updatePoint(ev.target.getLatLng(), marker.index);
       });
@@ -287,14 +285,9 @@ export class MapLine extends MapObject<L.Polyline> {
   }
 
   addLineMarker(pos : Coord) {
-    // TODO need to move icon stuff out of here
     let marker = new MapMarker(
       this.map, true, pos,
-      L.icon({
-        iconUrl: "/images/icons/lineMarker.png",
-        iconAnchor: [20, 20],
-        iconSize: [40, 40],
-      }),
+      this.lineMarkerIcon,
       this.lineMarkers.length,
     );
     marker.mapObject.on('drag', (ev) => {

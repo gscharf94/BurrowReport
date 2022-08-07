@@ -88,7 +88,7 @@ class TicketObject {
         this.line = new MapLine(this.map, this.lineRenderer, {
             points: this.coordinates,
             color: this.determineColor(this.status),
-        });
+        }, leaflet_1.default.icon({ iconUrl: "null" }));
     }
     changeColor(color) {
         this.line.changeColor(color);
@@ -174,7 +174,8 @@ class MapLine extends MapObject {
     originalColor;
     renderer;
     lineMarkers;
-    constructor(map, renderer, { points, color = 'purple', weight = 8, dashed = false }) {
+    lineMarkerIcon;
+    constructor(map, renderer, { points, color = 'purple', weight = 8, dashed = false }, lineMarkerIcon) {
         super(map);
         this.points = points;
         this.color = color;
@@ -186,6 +187,7 @@ class MapLine extends MapObject {
         if (this.points.length > 1) {
             this.addSelf();
         }
+        this.lineMarkerIcon = lineMarkerIcon;
     }
     removeSelf() {
         super.removeSelf();
@@ -242,11 +244,7 @@ class MapLine extends MapObject {
     }
     addLineMarkers() {
         for (const [ind, pos] of this.points.entries()) {
-            let marker = new MapMarker(this.map, true, pos, leaflet_1.default.icon({
-                iconUrl: "/images/icons/lineMarker.png",
-                iconAnchor: [20, 20],
-                iconSize: [40, 40],
-            }), ind);
+            let marker = new MapMarker(this.map, true, pos, this.lineMarkerIcon, ind);
             marker.mapObject.on('drag', (ev) => {
                 this.updatePoint(ev.target.getLatLng(), marker.index);
             });
@@ -257,12 +255,7 @@ class MapLine extends MapObject {
         }
     }
     addLineMarker(pos) {
-        // TODO need to move icon stuff out of here
-        let marker = new MapMarker(this.map, true, pos, leaflet_1.default.icon({
-            iconUrl: "/images/icons/lineMarker.png",
-            iconAnchor: [20, 20],
-            iconSize: [40, 40],
-        }), this.lineMarkers.length);
+        let marker = new MapMarker(this.map, true, pos, this.lineMarkerIcon, this.lineMarkers.length);
         marker.mapObject.on('drag', (ev) => {
             this.updatePoint(ev.target.getLatLng(), marker.index);
         });

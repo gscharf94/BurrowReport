@@ -65,7 +65,7 @@ const ICONS = {
 const generateIcon = (markerType, color, size) => {
     if (markerType == "line") {
         return leaflet_1.default.icon({
-            iconUrl: "/images/icons/lineMarker.png",
+            iconUrl: "/images/icons/lineMarker.svg",
             iconSize: size,
             iconAnchor: [size[0] / 2, size[1] / 2],
         });
@@ -179,7 +179,7 @@ function drawSavedBoresAndRocks() {
             points: [...bore.coordinates],
             color: options.primary_color,
             dashed: options.dashed,
-        });
+        }, generateIcon('line', '', [20, 20]));
         window.boresAndRocks.push(new leafletClasses_js_1.BoreObject(bore, boreLine));
     }
 }
@@ -387,7 +387,7 @@ function addBoreStart() {
         points: [],
         color: options.primary_color,
         dashed: options.dashed,
-    });
+    }, generateIcon("line", "", [100, 100]));
     map.on('click', (event) => {
         line.addPoint(event.latlng);
     });
@@ -444,7 +444,7 @@ function addVaultStart() {
         map.off('click');
         let pos = ev.latlng;
         console.log(options);
-        let icon = generateIcon('vault', options.primary_color, [20, 20]);
+        let icon = generateIcon('vault', options.primary_color, [100, 100]);
         let marker = new leafletClasses_js_1.MapMarker(map, true, [pos.lat, pos.lng], icon);
         (0, website_js_1.clearAllEventListeners)(['submit', 'cancel']);
         document
