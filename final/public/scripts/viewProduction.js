@@ -80,12 +80,20 @@ function getSelectValue(elementId) {
     let element = document.getElementById(elementId);
     return element.value;
 }
+function resetDateInputs() {
+    let startDate = document.getElementById('startDate');
+    let endDate = document.getElementById('endDate');
+    startDate.value = "";
+    endDate.value = "";
+}
 function addEventListenersToSelectElements() {
     let eles = [
         'billingCodeSelect',
         'crewSelect',
         'jobSelect',
         'clientSelect',
+        'startDate',
+        'endDate',
     ];
     for (const eleId of eles) {
         document
@@ -99,6 +107,14 @@ function addEventListenersToSelectElements() {
         .addEventListener('change', () => {
         resetTableVaults(isVaultCheckboxActive());
     });
+}
+function getDateValues() {
+    let startDate = document.getElementById('startDate');
+    let endDate = document.getElementById('endDate');
+    return {
+        start: new Date(startDate.value),
+        end: new Date(endDate.value),
+    };
 }
 function populateSelectElement(elementId, data) {
     let html = `<option value="-1"> --- </option>`;
@@ -142,6 +158,16 @@ function generateTotalsHTML(totals) {
     }
     return html;
 }
+function validateDateInputs() {
+    let startDate = document.getElementById('startDate');
+    let endDate = document.getElementById('endDate');
+    if (startDate.value == "" || endDate.value == "") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
 function runThroughFilters(data) {
     let filters = [
         { parameter: 'crewName', value: getSelectValue('crewSelect') },
@@ -162,13 +188,26 @@ function runThroughFilters(data) {
             }
         }
     }
+    if (validateDateInputs()) {
+        let dates = getDateValues();
+        data = data.filter(val => compareDates(dates.start, dates.end, val.workDate));
+    }
     return data;
+}
+function compareDates(start, end, current) {
+    let startVal = start.valueOf();
+    let endVal = end.valueOf();
+    let currentVal = current.valueOf();
+    if (currentVal >= startVal && currentVal <= endVal) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 function filterData() {
     let filteredData = runThroughFilters(DATA);
     populateProductionTable(filteredData);
-    console.log('filterdtaa');
-    console.log(filteredData);
     updateTotals(filteredData);
 }
 function generateProductionTableHTML(data) {
@@ -214,5 +253,6 @@ function initialization() {
     updateTotals(DATA);
     populateSelectElements([...new Set(CREWS.map(val => val.crew_name))], [...new Set(JOBS.map(val => val.job_name))], CLIENTS, CODES);
     addEventListenersToSelectElements();
+    resetDateInputs();
 }
 initialization();

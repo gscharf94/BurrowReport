@@ -100,12 +100,21 @@ function getSelectValue(elementId : string) : string {
   return element.value;
 }
 
+function resetDateInputs() {
+  let startDate = <HTMLInputElement>document.getElementById('startDate');
+  let endDate = <HTMLInputElement>document.getElementById('endDate');
+  startDate.value = "";
+  endDate.value = "";
+}
+
 function addEventListenersToSelectElements() {
   let eles = [
     'billingCodeSelect',
     'crewSelect',
     'jobSelect',
     'clientSelect',
+    'startDate',
+    'endDate',
   ];
   for (const eleId of eles) {
     document
@@ -119,6 +128,15 @@ function addEventListenersToSelectElements() {
     .addEventListener('change', () => {
       resetTableVaults(isVaultCheckboxActive());
     });
+}
+
+function getDateValues() : { start : Date, end : Date } {
+  let startDate = <HTMLInputElement>document.getElementById('startDate');
+  let endDate = <HTMLInputElement>document.getElementById('endDate');
+  return {
+    start: new Date(startDate.value),
+    end: new Date(endDate.value),
+  };
 }
 
 function populateSelectElement(elementId : string, data : string[]) {
@@ -167,6 +185,17 @@ function generateTotalsHTML(totals : { [key : string] : [number, string] }) : st
   return html;
 }
 
+function validateDateInputs() : boolean {
+  let startDate = <HTMLInputElement>document.getElementById('startDate');
+  let endDate = <HTMLInputElement>document.getElementById('endDate');
+
+  if (startDate.value == "" || endDate.value == "") {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 function runThroughFilters(data : ProductionObject[]) : ProductionObject[] {
   let filters = [
     { parameter: 'crewName', value: getSelectValue('crewSelect') },
@@ -187,14 +216,28 @@ function runThroughFilters(data : ProductionObject[]) : ProductionObject[] {
       }
     }
   }
+
+  if (validateDateInputs()) {
+    let dates = getDateValues();
+    data = data.filter(val => compareDates(dates.start, dates.end, val.workDate));
+  }
   return data;
+}
+
+function compareDates(start : Date, end : Date, current : Date) : boolean {
+  let startVal = start.valueOf();
+  let endVal = end.valueOf();
+  let currentVal = current.valueOf();
+  if (currentVal >= startVal && currentVal <= endVal) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 function filterData() {
   let filteredData = runThroughFilters(DATA);
   populateProductionTable(filteredData);
-  console.log('filterdtaa');
-  console.log(filteredData);
   updateTotals(filteredData);
 }
 
@@ -249,6 +292,7 @@ function initialization() {
     CODES,
   );
   addEventListenersToSelectElements();
+  resetDateInputs();
 }
 
 
