@@ -28,6 +28,11 @@
   z-index: 1999;
   justify-items: center;
   align-items: center;
+  opacity: 80%;
+}
+
+.controlChild:active {
+  background-color: green !important;
 }
 
 #adminControls {
@@ -94,7 +99,7 @@ button {
   /* height: 80%; */
   /* width: 80%; */
   border: none;
-  border-radius: 5%;
+  border-radius: 10px;
   padding: 10px;
 }
 
@@ -121,7 +126,13 @@ label {
   width: fit-content;
   padding-top: 5px;
   padding-bottom: 5px;
+  border-radius: 10px;
+  text-align-last: center;
 }
+
+.itemSelect option {}
+
+
 
 #addBore {
   grid-row: 1;
@@ -141,6 +152,7 @@ label {
   padding: 5px;
   text-align: center;
   white-space: nowrap;
+  border-radius: 10px;
 }
 
 #addVault {
@@ -174,6 +186,7 @@ label {
   justify-self: left;
   text-align: center;
   background-color: white;
+  border-radius: 10px;
 }
 
 #footageInput {
@@ -184,6 +197,11 @@ label {
   font-size: 3ch;
   justify-self: left;
   text-align: center;
+  border-radius: 10px;
+}
+
+#controls label {
+  border-radius: 10px;
 }
 
 #vaultSelect {
