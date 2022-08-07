@@ -158,6 +158,9 @@ function initialization() {
  * @returns {void}
  */
 function singleInitialization() {
+    drawSavedBoresAndRocks();
+    drawSavedVaults();
+    toggleMovementLinks();
     initialization();
     let footInput = document.getElementById('footageInput');
     footInput.addEventListener('input', () => {
@@ -760,6 +763,7 @@ function toggleMovementLinks() {
  * but we're on a mercator projection... so can't do it with gps
  * thankfully map.project and map.unproject gives us a nice ability
  * to do this without using complicated trig
+ * TODO figure out why im not using this function...
  *
  * @param {Coord} pointA - Coord - [number, number] which is lat/lng
  * @param {Coord} pointB - Coord - same thing.. but the other point
@@ -927,8 +931,4 @@ function toggleBoreLog() {
         container.style.display = "none;";
     }
 }
-// addZoomHandlers();
-drawSavedBoresAndRocks();
-drawSavedVaults();
-toggleMovementLinks();
 singleInitialization();
