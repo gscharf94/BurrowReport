@@ -23,74 +23,6 @@ declare global {
   }
 }
 
-interface MarkerZoomLevels {
-  2 : { size : [number, number], anchor : [number, number] },
-  3 : { size : [number, number], anchor : [number, number] },
-  4 : { size : [number, number], anchor : [number, number] },
-  5 : { size : [number, number], anchor : [number, number] },
-  6 : { size : [number, number], anchor : [number, number] },
-  7 : { size : [number, number], anchor : [number, number] },
-}
-
-const DEFAULT_ICON_SIZE : [number, number] = [14, 14];
-const DEFAULT_ICON_ANCHOR : [number, number] = [7, 7];
-
-const ICON_ZOOM_LEVELS : MarkerZoomLevels = {
-  2: { size: [10, 10], anchor: [5, 5] },
-  3: { size: DEFAULT_ICON_SIZE, anchor: DEFAULT_ICON_ANCHOR },
-  4: { size: [18, 18], anchor: [9, 9] },
-  5: { size: [26, 26], anchor: [13, 13] },
-  6: { size: [44, 44], anchor: [22, 22] },
-  7: { size: [70, 70], anchor: [35, 35] },
-}
-
-const QUESTION_ZOOM_LEVELS : MarkerZoomLevels = {
-  2: { size: [14, 14], anchor: [7, 7] },
-  3: { size: [18, 18], anchor: [9, 9] },
-  4: { size: [24, 24], anchor: [12, 12] },
-  5: { size: [32, 32], anchor: [16, 16] },
-  6: { size: [54, 54], anchor: [27, 27] },
-  7: { size: [86, 86], anchor: [43, 43] },
-}
-
-const ICONS = {
-  lineMarker: L.icon({
-    iconUrl: "/images/icons/lineMarker.png",
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-  }),
-  lineMarkerTransparent: L.icon({
-    iconUrl: "/images/icons/lineMarkerTransparent.png",
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
-  }),
-  lineX: L.icon({
-    iconUrl: "/images/icons/lineX.png",
-    iconSize: [46, 46],
-    iconAnchor: [23, 23],
-  }),
-  question: L.icon({
-    iconUrl: "/images/icons/question.png",
-    iconSize: DEFAULT_ICON_SIZE,
-    iconAnchor: DEFAULT_ICON_ANCHOR,
-  }),
-  dt20: L.icon({
-    iconUrl: "/images/icons/DT20.png",
-    iconSize: DEFAULT_ICON_SIZE,
-    iconAnchor: DEFAULT_ICON_ANCHOR,
-  }),
-  dt30: L.icon({
-    iconUrl: "/images/icons/DT30.png",
-    iconSize: DEFAULT_ICON_SIZE,
-    iconAnchor: DEFAULT_ICON_ANCHOR,
-  }),
-  dt36: L.icon({
-    iconUrl: "/images/icons/DT36.png",
-    iconSize: DEFAULT_ICON_SIZE,
-    iconAnchor: DEFAULT_ICON_ANCHOR,
-  }),
-}
-
 const generateIcon = (markerType : 'line' | 'vault', color : string, size : [number, number]) : L.Icon => {
   if (markerType == "line") {
     return L.icon({
@@ -115,36 +47,6 @@ const generateIcon = (markerType : 'line' | 'vault', color : string, size : [num
   });
 }
 
-const VAULT_ICON_TRANS = {
-  0: ICONS.dt20,
-  1: ICONS.dt30,
-  2: ICONS.dt36,
-};
-
-const VAULT_NAME_TRANS = {
-  0: "DT20",
-  1: "DT30",
-  2: "DT36",
-}
-
-const LINE_ZOOM_LEVELS = {
-  2: 7,
-  3: 8,
-  4: 9,
-  5: 10,
-  6: 11,
-  7: 12,
-}
-
-const ROCK_ZOOM_LEVELS = {
-  2: 4,
-  3: 5,
-  4: 6,
-  5: 7,
-  6: 8,
-  7: 9,
-
-}
 
 // need to ignore typescript here cause it doesn't understand
 // that i'm getting fed this info from the html 
