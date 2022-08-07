@@ -809,6 +809,8 @@ const TOTAL_PAGES = parseJSON(totalPagesForJobPug);
 //@ts-ignore
 const CLIENT_OPTIONS = parseJSON(clientOptionsJSON);
 //@ts-ignore
+const CLIENT = clientPug;
+//@ts-ignore
 let boresAndRocks = parseJSON(boresAndRocksJSON);
 //@ts-ignore
 let vaults = parseJSON(vaultsJSON);
@@ -1491,7 +1493,7 @@ function toggleMovementLinks() {
         forwardLink.classList.add('movementActive');
         forwardLink.src = "/images/icons/forward_green.svg";
         forwardLink.addEventListener('click', () => {
-            window.location.href = `http://192.168.1.247:3000/inputProduction/${JOB_NAME}/${PAGE_NUMBER + 1}`;
+            window.location.href = `http://192.168.1.247:3000/inputProduction/${CLIENT}/${JOB_NAME}/${PAGE_NUMBER + 1}`;
         });
     }
     else {
@@ -1502,7 +1504,7 @@ function toggleMovementLinks() {
         backwardLink.classList.add('movementActive');
         backwardLink.src = "/images/icons/backward_green.svg";
         backwardLink.addEventListener('click', () => {
-            window.location.href = `http://192.168.1.247:3000/inputProduction/${JOB_NAME}/${PAGE_NUMBER - 1}`;
+            window.location.href = `http://192.168.1.247:3000/inputProduction/${CLIENT}/${JOB_NAME}/${PAGE_NUMBER - 1}`;
         });
     }
     else {
