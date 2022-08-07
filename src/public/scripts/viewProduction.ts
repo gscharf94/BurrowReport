@@ -253,6 +253,7 @@ function generateProductionTableHTML(data : ProductionObject[]) : string {
       <th> Date </th>
       <th> Crew </th>
       <th> Job </th>
+      <th> Page </th>
       <th> Qty </th>
     </tr>
   `;
@@ -264,6 +265,7 @@ function generateProductionTableHTML(data : ProductionObject[]) : string {
         <td> ${formatDate(row.workDate)} </td>
         <td> ${row.crewName} </td>
         <td> ${row.jobName} </td>
+        <td> ${row.page_number} </td>
         <td> ${row.quantity}${(row.objectType == "BORE") ? "ft" : ""} </td>
       </tr>
     `;

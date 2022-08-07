@@ -222,6 +222,7 @@ function generateProductionTableHTML(data) {
       <th> Date </th>
       <th> Crew </th>
       <th> Job </th>
+      <th> Page </th>
       <th> Qty </th>
     </tr>
   `;
@@ -233,6 +234,7 @@ function generateProductionTableHTML(data) {
         <td> ${(0, website_js_1.formatDate)(row.workDate)} </td>
         <td> ${row.crewName} </td>
         <td> ${row.jobName} </td>
+        <td> ${row.page_number} </td>
         <td> ${row.quantity}${(row.objectType == "BORE") ? "ft" : ""} </td>
       </tr>
     `;
