@@ -46,7 +46,8 @@
 }
 
 .movementArrow {
-  width: 70px;
+  width: 100px;
+  opacity: 75%;
   /* background-color: gray; */
   pointer-events: none;
   /* border-radius: 15px; */
