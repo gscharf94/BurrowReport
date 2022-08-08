@@ -49,8 +49,36 @@ async function setupPage(url : string) : Promise<[puppeteer.Browser, puppeteer.P
   return [browser, page];
 }
 
+function parseTicketTextFlorida(text : string) : { city : string, street : string, cross_street : string, input_date : Date, expiration_date : Date, description : string } {
+  let streetRegex = /Street  : (.*)/;
+  let streetResult = text.match(streetRegex);
 
+  let crossStreetRegex = /Cross 1 : (.*)/;
+  let crossStreetResult = text.match(crossStreetRegex);
 
+  let callInDateRegex = /Taken: (\d{2}\/\d{2}\/\d{2})/;
+  let callInDateResult = text.match(callInDateRegex);
+  let callInDate = new Date(callInDateResult[1]);
+
+  let expirationDateRegex = /Exp Date : (\d{2}\/\d{2}\/\d{2})/;
+  let expirationDateResult = text.match(expirationDateRegex);
+  let expirationDate = new Date(expirationDateResult[1]);
+
+  let descriptionRegex = /Locat: ([\s\d\w\(\)\,\.\;\&\'\"\-\/]*):/;
+  let descriptionResult = text.match(descriptionRegex);
+
+  let cityRegex = /GeoPlace: (.*)/;
+  let cityResult = text.match(cityRegex);
+
+  return {
+    city: cityResult[1],
+    street: streetResult[1],
+    cross_street: crossStreetResult[1],
+    input_date: callInDate,
+    expiration_date: expirationDate,
+    description: trimDescription(descriptionResult[1]),
+  };
+}
 
 async function getTicketInfoFlorida(ticket : string) : Promise<TicketInfo> {
   const [browser, page] = await setupPage(FLORIDAURL);
@@ -110,11 +138,20 @@ async function getTicketInfoFlorida(ticket : string) : Promise<TicketInfo> {
     return responses;
   });
 
-  console.log(responses);
+  let parsedInfo = parseTicketTextFlorida(ticketText);
+  let ticketInfo : TicketInfo = {
+    ticket_number: ticket,
+    city: parsedInfo.city,
+    street: parsedInfo.street,
+    cross_street: parsedInfo.cross_street,
+    input_date: parsedInfo.input_date,
+    expiration_date: parsedInfo.expiration_date,
+    description: parsedInfo.description,
+    responses: responses,
+  }
 
-  return {
-    ticket_number: 'test',
-  };
+  browser.close()
+  return ticketInfo;
 }
 
 /**

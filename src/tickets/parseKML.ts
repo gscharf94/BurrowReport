@@ -90,5 +90,4 @@ async function parseKml(jobName : string) : Promise<void> {
   }
 }
 
-parseKml('P4745');
-parseKml('P4729');
+parseKml('JB2');

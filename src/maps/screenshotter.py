@@ -11,8 +11,15 @@ import pyautogui as pg
 import time
 import os
 
-PAGES = 7
-OUTPUT_PATH = "/home/gustavo/Pictures/Screenshots"
+PAGES = 4
+JOB_NAME = "JB2"
+OUTPUT_PATH = "/home/gustavo/Documents/programming_stuff/burrowReport/final/public/maps/originals/"
+
+def make_job_folder(job, path):
+    try:
+        os.mkdir(f'{path}/{job}')
+    except OSError as err:
+        print(err)
 
 def count_down(n):
     print(f'COUNTDOWN... T-{n}s')
@@ -43,9 +50,10 @@ def get_pos():
     return [NW, SE]
 
 def take_screenshot(nw, ne, i):
-    os.system(f'maim -g {W}x{H}+{NW[0]}+{NW[1]} {OUTPUT_PATH}/{i}.png')
+    os.system(f'maim -g {W}x{H}+{NW[0]}+{NW[1]} {OUTPUT_PATH}/{JOB_NAME}/{i}.png')
     time.sleep(1)
 
+make_job_folder(JOB_NAME, OUTPUT_PATH)
 
 NW, SE = get_pos()
 

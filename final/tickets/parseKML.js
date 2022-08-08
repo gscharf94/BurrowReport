@@ -86,5 +86,4 @@ async function parseKml(jobName) {
         }
     }
 }
-parseKml('P4745');
-parseKml('P4729');
+parseKml('JB2');

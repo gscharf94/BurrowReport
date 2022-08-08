@@ -15,4 +15,4 @@ async function updateJobInfo(jobName : string) {
   }
 }
 
-updateJobInfo('P4745');
+updateJobInfo('JB2');

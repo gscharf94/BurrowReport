@@ -14,4 +14,4 @@ async function updateJobInfo(jobName) {
         (0, getTicketInfo_js_1.updateTicketInfo)(ticketInfo);
     }
 }
-updateJobInfo('P4745');
+updateJobInfo('JB2');

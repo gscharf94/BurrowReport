@@ -49,6 +49,30 @@ async function setupPage(url) {
     await page.goto(url);
     return [browser, page];
 }
+function parseTicketTextFlorida(text) {
+    let streetRegex = /Street  : (.*)/;
+    let streetResult = text.match(streetRegex);
+    let crossStreetRegex = /Cross 1 : (.*)/;
+    let crossStreetResult = text.match(crossStreetRegex);
+    let callInDateRegex = /Taken: (\d{2}\/\d{2}\/\d{2})/;
+    let callInDateResult = text.match(callInDateRegex);
+    let callInDate = new Date(callInDateResult[1]);
+    let expirationDateRegex = /Exp Date : (\d{2}\/\d{2}\/\d{2})/;
+    let expirationDateResult = text.match(expirationDateRegex);
+    let expirationDate = new Date(expirationDateResult[1]);
+    let descriptionRegex = /Locat: ([\s\d\w\(\)\,\.\;\&\'\"\-\/]*):/;
+    let descriptionResult = text.match(descriptionRegex);
+    let cityRegex = /GeoPlace: (.*)/;
+    let cityResult = text.match(cityRegex);
+    return {
+        city: cityResult[1],
+        street: streetResult[1],
+        cross_street: crossStreetResult[1],
+        input_date: callInDate,
+        expiration_date: expirationDate,
+        description: (0, webScraping_js_1.trimDescription)(descriptionResult[1]),
+    };
+}
 async function getTicketInfoFlorida(ticket) {
     const [browser, page] = await setupPage(FLORIDAURL);
     const ticketNumberInputSelector = "#mat-input-0";
@@ -97,10 +121,19 @@ async function getTicketInfoFlorida(ticket) {
         }
         return responses;
     });
-    console.log(responses);
-    return {
-        ticket_number: 'test',
+    let parsedInfo = parseTicketTextFlorida(ticketText);
+    let ticketInfo = {
+        ticket_number: ticket,
+        city: parsedInfo.city,
+        street: parsedInfo.street,
+        cross_street: parsedInfo.cross_street,
+        input_date: parsedInfo.input_date,
+        expiration_date: parsedInfo.expiration_date,
+        description: parsedInfo.description,
+        responses: responses,
     };
+    browser.close();
+    return ticketInfo;
 }
 /**
  * takes a ticket number and gets all the info from it online
