@@ -10,8 +10,10 @@ const webScraping_js_1 = require("../helperFunctions/webScraping.js");
 const database_js_1 = require("../helperFunctions/database.js");
 const KENTUCKYPHONE = "5615018160";
 const KENTUCKYURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
-const HEADLESS = true;
-const GLOBALDELAY = 50;
+const FLORIDAPHONE = "5615018160";
+const FLORIDAURL = "https://exactix.sunshine811.com/findTicketByNumberAndPhone";
+const HEADLESS = false;
+const GLOBAL_DELAY = 50;
 /**
  * takes in the info grabbed by web scraper
  * and then updates the ticket in the system with
@@ -38,7 +40,64 @@ function updateTicketInfo(info) {
     db_js_1.pool.query(query);
 }
 exports.updateTicketInfo = updateTicketInfo;
+async function setupPage(url) {
+    const browser = await puppeteer_1.default.launch({
+        headless: HEADLESS,
+        slowMo: GLOBAL_DELAY,
+    });
+    const page = await browser.newPage();
+    await page.goto(url);
+    return [browser, page];
+}
 async function getTicketInfoFlorida(ticket) {
+    const [browser, page] = await setupPage(FLORIDAURL);
+    const ticketNumberInputSelector = "#mat-input-0";
+    const phoneNumberInputSelector = "#iq-phone-0 > input";
+    const findButtonSelector = ".mat-button > span:nth-child(1)";
+    await (0, webScraping_js_1.typeAndWaitSelector)(page, ticketNumberInputSelector, 0, ticket);
+    await (0, webScraping_js_1.typeAndWaitSelector)(page, phoneNumberInputSelector, 0, KENTUCKYPHONE);
+    await (0, webScraping_js_1.clickAndWaitSelector)(page, findButtonSelector, 0);
+    const ticketTextSelector = "ticket-details-printing-text-and-service-areas.ng-star-inserted > pre:nth-child(2)";
+    await page.waitForSelector(ticketTextSelector);
+    let ticketText = await page.$eval(ticketTextSelector, el => el.innerHTML);
+    console.log(ticketText);
+    let responses = await page.evaluate(() => {
+        let responses = [];
+        const tableSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ng-component > div.page-content > div:nth-child(3) > ticket-anon-simple-view > div > ticket-details-printing-text-and-service-areas > iq-view-list > div.iq-list-items";
+        const headerSelector = ".iq-list-header > .ng-star-inserted";
+        const headers = document.querySelectorAll(headerSelector);
+        let translations = {
+            utility_type: "Utility Type(s)",
+            utility_name: "Service Area",
+            response: "Positive Response",
+        };
+        let indexes = {
+            utility_type: 0,
+            utility_name: 0,
+            response: 0,
+        };
+        for (let i = 0; i < headers.length; i++) {
+            for (const item in translations) {
+                if (headers[i].textContent.trim() == translations[item]) {
+                    indexes[item] = i;
+                }
+            }
+        }
+        let table = document.querySelector(tableSelector);
+        let rows = table.querySelectorAll('.iq-list-item');
+        for (const row of rows) {
+            let cells = row.querySelectorAll('.column-fixed');
+            console.log(cells);
+            let response = {
+                utility_name: cells[indexes['utility_name']].textContent.trim(),
+                utility_type: cells[indexes['utility_type']].textContent.trim(),
+                response: cells[indexes['response']].textContent.trim(),
+            };
+            responses.push(response);
+        }
+        return responses;
+    });
+    console.log(responses);
     return {
         ticket_number: 'test',
     };
@@ -51,12 +110,7 @@ async function getTicketInfoFlorida(ticket) {
  * @returns {Promise<TicketInfo>} - TicketInfo - the information for the ticket
  */
 async function getTicketInfoKentucky(ticket) {
-    const browser = await puppeteer_1.default.launch({
-        headless: HEADLESS,
-        slowMo: GLOBALDELAY,
-    });
-    const page = await browser.newPage();
-    await page.goto(KENTUCKYURL);
+    const [browser, page] = await setupPage(KENTUCKYURL);
     const ticketNumberInputSelector = "#mat-input-0";
     const phoneNumberInputSelector = "#iq-phone-0 > input";
     const findButtonSelector = ".mat-button > span:nth-child(1)";
@@ -137,3 +191,4 @@ async function getTicketInfo(ticket, state) {
     }
 }
 exports.getTicketInfo = getTicketInfo;
+getTicketInfo('213203879', 'Florida');

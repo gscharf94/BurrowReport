@@ -11,7 +11,7 @@ import pyautogui as pg
 import time
 import os
 
-PAGES = 13
+PAGES = 7
 OUTPUT_PATH = "/home/gustavo/Pictures/Screenshots"
 
 def count_down(n):
