@@ -11,6 +11,11 @@ block content
   div#controls.control
     h1#filterHeader.controlChild UTILITY_NAME
     button(onclick="clearUtilityFilter()")#clearFilterButton.controlChild Clear Filter
+  div#sideControls.control
+    button(onclick="refreshJob()")#refreshJobButton.controlChild Refresh Tickets
+    button(onclick="updatePositiveResponse()")#updatePositiveResponseButton.controlChild Update Responses
+    button#submitButton.controlChild Submit
+    button#cancelButton.controlChild Cancel
 
 block scripts
   script.

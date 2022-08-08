@@ -57,12 +57,14 @@ class TicketObject {
     map;
     lineRenderer;
     status;
+    currentColor;
     constructor(map, renderer, info) {
         this.ticket_number = info.ticket_number;
         this.coordinates = info.coordinates;
         this.map = map;
         this.responses = this.parseResponses(info.responses);
         this.status = (0, tickets_js_1.checkResponses)(this.responses);
+        this.currentColor = this.determineColor(this.status);
         this.lineRenderer = renderer;
         this.expiration_date = info.expiration_date;
         this.createLine();
@@ -92,6 +94,7 @@ class TicketObject {
     }
     changeColor(color) {
         this.line.changeColor(color);
+        this.currentColor = color;
         this.bindPopup();
     }
     determineColor([clear, pending]) {

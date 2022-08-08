@@ -13,6 +13,8 @@ const tickets = (0, website_js_1.parseJSON)(TICKETS_JSON);
 let ticketObjects = [];
 window.filterByUtility = filterByUtility;
 window.clearUtilityFilter = clearUtilityFilter;
+window.refreshJob = refreshJob;
+window.updatePositiveResponse = updatePositiveResponse;
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
 let map = leaflet_1.default.map('map');
 populateTicketArray(tickets);
@@ -25,6 +27,51 @@ leaflet_1.default.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
     accessToken: 'pk.eyJ1IjoiZ3NjaGFyZjk0IiwiYSI6ImNreWd2am9mODBjbnMyb29sNjZ2Mnd1OW4ifQ.1cSadM_VR54gigTAsVVGng'
 }).addTo(map);
 map.setView(getAverageGPS(tickets), 17);
+function updatePositiveResponse() {
+    alert('This can take 10+ minutes for big jobs. Please come back later');
+}
+function refreshJob() {
+    alert('Please click on the tickets you would like to refresh');
+    let submitButton = document.getElementById('submitButton');
+    let cancelButton = document.getElementById('cancelButton');
+    submitButton.style.display = "block";
+    cancelButton.style.display = "block";
+    const resetTickets = () => {
+        (0, website_js_1.clearAllEventListeners)(["submitButton", "cancelButton"]);
+        submitButton.style.display = "none";
+        cancelButton.style.display = "none";
+        for (const ticket of ticketObjects) {
+            ticket.line.mapObject.off('click');
+            ticket.changeColor(ticket.determineColor(ticket.status));
+        }
+    };
+    submitButton.addEventListener('click', () => {
+        alert('sending all selected tickets to refresh.. come back in 20 minutes');
+        let ticketsToUpdate = [];
+        for (const ticket of ticketObjects) {
+            if (ticket.currentColor == "purple") {
+                ticketsToUpdate.push(ticket.ticket_number);
+            }
+        }
+        resetTickets();
+        console.log('tickets to update..');
+        console.log(ticketsToUpdate);
+    });
+    cancelButton.addEventListener('click', () => {
+        resetTickets();
+    });
+    for (const ticket of ticketObjects) {
+        const changeToPurple = () => {
+            console.log('changing to purple...');
+            ticket.changeColor('purple');
+            ticket.line.mapObject.unbindPopup();
+            ticket.line.mapObject.off('click', changeToPurple);
+        };
+        ticket.changeColor('black');
+        ticket.line.mapObject.unbindPopup();
+        ticket.line.mapObject.on('click', changeToPurple);
+    }
+}
 function populateTicketArray(tickets) {
     for (const ticket of tickets) {
         ticketObjects.push(new leafletClasses_js_1.TicketObject(map, renderer, ticket));

@@ -42,7 +42,6 @@
 
 .responseTable td {
   font-size: 2.5ch;
-  padding: 40px;
   text-align: center;
 }
 
@@ -93,6 +92,41 @@
   z-index: 1999;
   justify-items: center;
   align-items: center;
+}
+
+#sideControls {
+  width: 15%;
+  height: 100%;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  z-index: 1999;
+  justify-items: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+#submitButton {
+  display: none;
+  margin-top: 150px !important;
+  background-color: green !important;
+}
+
+#cancelButton {
+  display: none;
+  background-color: red !important;
+}
+
+#sideControls button {
+  width: 80%;
+  font-size: 3ch;
+  border: none;
+  border-radius: none;
+  margin: 15px;
+  background-color: black;
+  color: white;
+  font-weight: bold;
 }
 
 .control {

@@ -1050,5 +1050,4 @@ function toggleBoreLog() : void {
   }
 }
 
-
 singleInitialization();

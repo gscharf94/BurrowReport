@@ -93,12 +93,3 @@ async function refreshTickets(tickets, state) {
     }
 }
 exports.refreshTickets = refreshTickets;
-let tickets = [
-    '2207131444',
-    '2207131382',
-    '2207131406',
-    '2207131424',
-    '2207131430',
-    '2207131453',
-];
-refreshTickets(tickets, 'Kentucky');

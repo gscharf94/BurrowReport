@@ -55,6 +55,7 @@ export class TicketObject {
   map : L.Map;
   lineRenderer : L.Canvas;
   status : [number, number];
+  currentColor : string;
 
   constructor(map : L.Map, renderer : L.Canvas, info : TicketInfoDownload) {
     this.ticket_number = info.ticket_number;
@@ -62,6 +63,7 @@ export class TicketObject {
     this.map = map;
     this.responses = this.parseResponses(info.responses);
     this.status = checkResponses(this.responses);
+    this.currentColor = this.determineColor(this.status);
     this.lineRenderer = renderer;
     this.expiration_date = info.expiration_date;
 
@@ -95,6 +97,7 @@ export class TicketObject {
 
   changeColor(color : string) {
     this.line.changeColor(color);
+    this.currentColor = color;
     this.bindPopup();
   }
 
