@@ -4,7 +4,7 @@ import { typeAndWaitSelector, clickAndWaitSelector } from '../helperFunctions/we
 import { updateTicketRefresh } from '../helperFunctions/database.js';
 import { getJobTickets } from '../helperFunctions/database.js';
 
-const HEADLESS = true;
+const HEADLESS = false;
 const GLOBALDELAY = 50;
 
 const KENTUCKYLOGINURL = "https://811.kentucky811.org/login";
@@ -28,10 +28,6 @@ async function refreshTicketsKentucky(tickets : string[]) : Promise<RefreshedTic
     updateTicketRefresh(ticket, newTicket);
   }
 
-  // setTimeout(() => {
-  //   browser.close();
-  // }, 3000);
-
   browser.close();
   return newTickets;
 }
@@ -49,7 +45,6 @@ async function refreshTicketKentucky(ticket : string, page : puppeteer.Page) : P
   await clickAndWaitSelector(page, copyTicketButtonSelector, 2000);
 
   try {
-    // const agreeButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ticket-details > div > div > div > div:nth-child(2) > iq-icon-button:nth-child(1) > button > div";
     const agreeButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ng-component > div > div > div > div:nth-child(2) > iq-icon-button:nth-child(1) > button > div";
     await clickAndWaitSelector(page, agreeButtonSelector, 0);
   } catch {

@@ -50,7 +50,12 @@ function refreshJob() {
         let ticketsToUpdate = [];
         for (const ticket of ticketObjects) {
             if (ticket.currentColor == "purple") {
-                ticketsToUpdate.push(ticket.ticket_number);
+                let ticketInfo = {
+                    ticket_number: ticket.ticket_number,
+                    state: ticket.state,
+                    input_date: ticket.input_date,
+                };
+                ticketsToUpdate.push(ticketInfo);
             }
         }
         resetTickets();

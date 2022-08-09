@@ -7,7 +7,7 @@ exports.refreshTickets = void 0;
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const webScraping_js_1 = require("../helperFunctions/webScraping.js");
 const database_js_1 = require("../helperFunctions/database.js");
-const HEADLESS = true;
+const HEADLESS = false;
 const GLOBALDELAY = 50;
 const KENTUCKYLOGINURL = "https://811.kentucky811.org/login";
 const KENTUCKYTICKETURL = "https://811.kentucky811.org/tickets/dashboard";
@@ -25,9 +25,6 @@ async function refreshTicketsKentucky(tickets) {
         newTickets[ticket] = newTicket;
         (0, database_js_1.updateTicketRefresh)(ticket, newTicket);
     }
-    // setTimeout(() => {
-    //   browser.close();
-    // }, 3000);
     browser.close();
     return newTickets;
 }
@@ -41,7 +38,6 @@ async function refreshTicketKentucky(ticket, page) {
     await (0, webScraping_js_1.clickAndWaitSelector)(page, ticketMenuButtonSelector, 1500);
     await (0, webScraping_js_1.clickAndWaitSelector)(page, copyTicketButtonSelector, 2000);
     try {
-        // const agreeButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ticket-details > div > div > div > div:nth-child(2) > iq-icon-button:nth-child(1) > button > div";
         const agreeButtonSelector = "body > app-root > div > desktop-root > div > mat-sidenav-container > mat-sidenav-content > div > ng-component > div > div > div > div:nth-child(2) > iq-icon-button:nth-child(1) > button > div";
         await (0, webScraping_js_1.clickAndWaitSelector)(page, agreeButtonSelector, 0);
     }

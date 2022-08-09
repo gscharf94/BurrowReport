@@ -66,6 +66,15 @@ export class TicketObject {
     this.currentColor = this.determineColor(this.status);
     this.lineRenderer = renderer;
     this.expiration_date = info.expiration_date;
+    this.input_date = info.input_date;
+    this.state = info.state;
+    this.active = info.active;
+    this.last_update = info.last_update;
+    this.city = info.city;
+    this.street = info.street;
+    this.description = info.description;
+    this.cross_street = info.cross_street;
+    this.job_name = info.job_name;
 
     this.createLine();
     this.bindPopup();
