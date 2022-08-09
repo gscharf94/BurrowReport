@@ -54,8 +54,9 @@ function refreshJob() {
             }
         }
         resetTickets();
-        console.log('tickets to update..');
-        console.log(ticketsToUpdate);
+        (0, website_js_1.sendPostRequest)('refreshTickets', { tickets: ticketsToUpdate }, (res) => {
+            console.log(res);
+        });
     });
     cancelButton.addEventListener('click', () => {
         resetTickets();

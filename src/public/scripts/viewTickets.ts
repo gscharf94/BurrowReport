@@ -1,4 +1,4 @@
-import { parseJSON, redirectToLoginPage, clearAllEventListeners } from '../../helperFunctions/website.js';
+import { parseJSON, redirectToLoginPage, clearAllEventListeners, sendPostRequest } from '../../helperFunctions/website.js';
 import { TicketInfoDownload, Coord } from '../../interfaces';
 import { MapLine, TicketObject } from '../../classes/leafletClasses.js';
 import { checkResponse, checkResponses } from '../../helperFunctions/tickets.js';
@@ -69,9 +69,9 @@ function refreshJob() {
       }
     }
     resetTickets();
-
-    console.log('tickets to update..');
-    console.log(ticketsToUpdate);
+    sendPostRequest('refreshTickets', { tickets: ticketsToUpdate }, (res : string) => {
+      console.log(res);
+    });
   });
 
   cancelButton.addEventListener('click', () => {
