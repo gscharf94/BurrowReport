@@ -135,7 +135,13 @@ function drawSavedBoresAndRocks() : void {
         points: [...bore.coordinates],
         color: options.primary_color,
         dashed: options.dashed,
+        weight: (options.dashed) ? 5 : 10,
       }, generateIcon('line', '', [100, 100]));
+
+    // dashed lines get priority
+    if (!options.dashed) {
+      boreLine.mapObject.bringToBack();
+    }
     window.boresAndRocks.push(new BoreObject(bore, boreLine));
   }
 }
