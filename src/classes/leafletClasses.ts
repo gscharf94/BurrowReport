@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload, BoreLogRow, UploadBoreObject, UploadVaultObject, DownloadBoreObject } from '../interfaces';
-import { checkResponses } from '../helperFunctions/tickets.js';
+import { checkResponses, checkResponse } from '../helperFunctions/tickets.js';
 import { formatDate, sendPostRequest } from '../helperFunctions/website.js';
 import { convertCoords } from '../helperFunctions/leafletHelpers.js';
 
@@ -102,7 +102,6 @@ export class TicketObject {
       points: this.coordinates,
       color: this.determineColor(this.status),
     }, L.icon({ iconUrl: "null" }));
-    debugger;
   }
 
   changeColor(color : string) {
@@ -137,23 +136,17 @@ export class TicketObject {
       <table class="responseTable">
       `;
     for (const resp of this.responses) {
-      let name : string;
       let rowClass : string;
-      if (resp.response.search('Marke') != -1) {
-        name = "Marked";
-        rowClass = "clear"
-      } else if (resp.response.search('Clea') != -1) {
-        name = "Clear";
-        rowClass = "clear"
-      } else if (resp.response == "") {
-        name = "No Response"
+      let name : string;
+      if (checkResponse(resp)) {
+        rowClass = "clear";
+      } else {
         rowClass = "noResponse"
-      } else if (resp.response.search('Exca') != -1) {
-        name = "Pending"
-        rowClass = "pending"
       }
-      else {
-        name = resp.response.slice(0, 15);
+      if (resp.response == "") {
+        name = "No Response";
+      } else {
+        name = resp.response.slice(0, 20);
       }
       html += `
         <tr class="${rowClass}">

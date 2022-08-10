@@ -5,13 +5,19 @@ export function checkResponse(response : TicketResponse) : boolean {
   if (res == "") {
     return false;
   }
+  if (res.search('not service') != -1) {
+    return true;
+  }
   if (res.search('unmarked') != -1) {
     return false;
   }
-  if (res.search('clear - no conflict') != -1) {
+  if (res.search('no conflict') != -1) {
     return true;
   }
-  if (res.search('marked - ') != -1) {
+  if (res.search('clear no') != -1) {
+    return true;
+  }
+  if (res.search('marked') != -1) {
     return true;
   }
 }

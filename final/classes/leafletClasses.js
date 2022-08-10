@@ -100,7 +100,6 @@ class TicketObject {
             points: this.coordinates,
             color: this.determineColor(this.status),
         }, leaflet_1.default.icon({ iconUrl: "null" }));
-        debugger;
     }
     changeColor(color) {
         this.line.changeColor(color);
@@ -132,26 +131,19 @@ class TicketObject {
       <table class="responseTable">
       `;
         for (const resp of this.responses) {
-            let name;
             let rowClass;
-            if (resp.response.search('Marke') != -1) {
-                name = "Marked";
+            let name;
+            if ((0, tickets_js_1.checkResponse)(resp)) {
                 rowClass = "clear";
-            }
-            else if (resp.response.search('Clea') != -1) {
-                name = "Clear";
-                rowClass = "clear";
-            }
-            else if (resp.response == "") {
-                name = "No Response";
-                rowClass = "noResponse";
-            }
-            else if (resp.response.search('Exca') != -1) {
-                name = "Pending";
-                rowClass = "pending";
             }
             else {
-                name = resp.response.slice(0, 15);
+                rowClass = "noResponse";
+            }
+            if (resp.response == "") {
+                name = "No Response";
+            }
+            else {
+                name = resp.response.slice(0, 20);
             }
             html += `
         <tr class="${rowClass}">
