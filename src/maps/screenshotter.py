@@ -11,8 +11,12 @@ import pyautogui as pg
 import time
 import os
 
-PAGES = 4
-JOB_NAME = "JB2"
+JOB_NAME = input("job name... \n")
+
+PAGES = input("# of pages... \n")
+while not PAGES.isdigit():
+    PAGES = input("please enter a number... \n")
+
 OUTPUT_PATH = "/home/gustavo/Documents/programming_stuff/burrowReport/final/public/maps/originals/"
 
 def make_job_folder(job, path):

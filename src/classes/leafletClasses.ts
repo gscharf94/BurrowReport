@@ -102,6 +102,7 @@ export class TicketObject {
       points: this.coordinates,
       color: this.determineColor(this.status),
     }, L.icon({ iconUrl: "null" }));
+    debugger;
   }
 
   changeColor(color : string) {

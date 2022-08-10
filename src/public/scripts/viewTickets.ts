@@ -9,6 +9,7 @@ redirectToLoginPage();
 //@ts-ignore
 const tickets : TicketInfoDownload[] = parseJSON(TICKETS_JSON);
 let ticketObjects : TicketObject[] = [];
+const JOB_NAME = tickets[0].job_name;
 
 declare global {
   interface Window {
@@ -41,6 +42,10 @@ map.setView(getAverageGPS(tickets), 17);
 
 function updatePositiveResponse() {
   alert('This can take 10+ minutes for big jobs. Please come back later');
+  console.log(`sending request to server to update positive responses for job: ${JOB_NAME}`);
+  sendPostRequest('updateJobResponses', { jobName: JOB_NAME }, (res : string) => {
+    console.log(`recieved response:\n${res}`);
+  });
 }
 
 function refreshJob() {
@@ -52,8 +57,8 @@ function refreshJob() {
 
   const resetTickets = () => {
     clearAllEventListeners(["submitButton", "cancelButton"]);
-    submitButton.style.display = "none";
-    cancelButton.style.display = "none";
+    document.getElementById('submitButton').style.display = "none";
+    document.getElementById('cancelButton').style.display = "none";
     for (const ticket of ticketObjects) {
       ticket.line.mapObject.off('click');
       ticket.changeColor(ticket.determineColor(ticket.status))

@@ -2,7 +2,7 @@ import { pool } from '../db.js';
 import { updateTicketInfo, getTicketInfo } from './getTicketInfo.js';
 import { getJobTickets, getJobState } from '../helperFunctions/database.js';
 
-async function updateJobInfo(jobName : string) {
+export async function updateJobInfo(jobName : string) {
   let tickets = await getJobTickets(jobName);
   let state = await getJobState(jobName);
   for (const ticket of tickets) {
@@ -14,5 +14,3 @@ async function updateJobInfo(jobName : string) {
     updateTicketInfo(ticketInfo);
   }
 }
-
-updateJobInfo('JB2');

@@ -11,6 +11,7 @@ const leaflet_1 = __importDefault(require("leaflet"));
 //@ts-ignore
 const tickets = (0, website_js_1.parseJSON)(TICKETS_JSON);
 let ticketObjects = [];
+const JOB_NAME = tickets[0].job_name;
 window.filterByUtility = filterByUtility;
 window.clearUtilityFilter = clearUtilityFilter;
 window.refreshJob = refreshJob;
@@ -29,6 +30,10 @@ leaflet_1.default.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
 map.setView(getAverageGPS(tickets), 17);
 function updatePositiveResponse() {
     alert('This can take 10+ minutes for big jobs. Please come back later');
+    console.log(`sending request to server to update positive responses for job: ${JOB_NAME}`);
+    (0, website_js_1.sendPostRequest)('updateJobResponses', { jobName: JOB_NAME }, (res) => {
+        console.log(`recieved response:\n${res}`);
+    });
 }
 function refreshJob() {
     alert('Please click on the tickets you would like to refresh');
@@ -38,8 +43,8 @@ function refreshJob() {
     cancelButton.style.display = "block";
     const resetTickets = () => {
         (0, website_js_1.clearAllEventListeners)(["submitButton", "cancelButton"]);
-        submitButton.style.display = "none";
-        cancelButton.style.display = "none";
+        document.getElementById('submitButton').style.display = "none";
+        document.getElementById('cancelButton').style.display = "none";
         for (const ticket of ticketObjects) {
             ticket.line.mapObject.off('click');
             ticket.changeColor(ticket.determineColor(ticket.status));

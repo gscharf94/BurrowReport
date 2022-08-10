@@ -224,4 +224,3 @@ async function getTicketInfo(ticket, state) {
     }
 }
 exports.getTicketInfo = getTicketInfo;
-getTicketInfo('213203879', 'Florida');

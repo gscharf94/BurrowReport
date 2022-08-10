@@ -3,7 +3,7 @@ import { pool } from '../db.js';
 
 const CLIENT = "Light";
 const STATE = "Florida";
-const JOB = "JB2";
+const JOB = "JB4";
 
 let filesPath = `${process.cwd()}/final/public/maps/originals/${JOB}`;
 let files = fs.readdirSync(filesPath);

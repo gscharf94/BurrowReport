@@ -256,6 +256,3 @@ export async function getTicketInfo(ticket : string, state : States) : Promise<T
     return await getTicketInfoFlorida(ticket);
   }
 }
-
-
-getTicketInfo('213203879', 'Florida');

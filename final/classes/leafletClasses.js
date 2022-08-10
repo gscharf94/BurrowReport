@@ -100,6 +100,7 @@ class TicketObject {
             points: this.coordinates,
             color: this.determineColor(this.status),
         }, leaflet_1.default.icon({ iconUrl: "null" }));
+        debugger;
     }
     changeColor(color) {
         this.line.changeColor(color);

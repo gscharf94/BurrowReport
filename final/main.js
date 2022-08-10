@@ -17,6 +17,7 @@ const viewTickets_js_1 = require("./routes/viewTickets.js");
 const adminPage_js_1 = require("./routes/adminPage.js");
 const alterJobsPOST_js_1 = require("./routes/alterJobsPOST.js");
 const refreshTicketsPOST_js_1 = require("./routes/refreshTicketsPOST.js");
+const updateJobResponsesPOST_js_1 = require("./routes/updateJobResponsesPOST.js");
 const app = (0, express_1.default)();
 const PORT = 3000;
 app.locals.basedir = "/";
@@ -36,6 +37,7 @@ app.use('/viewTickets', viewTickets_js_1.router);
 app.use('/admin', adminPage_js_1.router);
 app.use('/alterJobs', alterJobsPOST_js_1.router);
 app.use('/refreshTickets', refreshTicketsPOST_js_1.router);
+app.use('/updateJobResponses', updateJobResponsesPOST_js_1.router);
 app.listen(PORT, () => {
     console.log(`listening @ http://192.168.1.247:3000`);
 });
