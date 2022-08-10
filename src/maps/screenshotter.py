@@ -23,7 +23,7 @@ def make_job_folder(job, path):
     try:
         os.mkdir(f'{path}/{job}')
     except OSError as err:
-        print(err)
+        print(f'dir for job {job} already exists')
 
 def count_down(n):
     print(f'COUNTDOWN... T-{n}s')
@@ -67,6 +67,6 @@ H = SE[1] - NW[1]
 print('make sure pdf is in focus')
 
 count_down(5)
-for i in range(PAGES):
+for i in range(int(PAGES)):
     take_screenshot(NW, SE, i+1)
     move_down()
