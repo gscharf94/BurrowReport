@@ -17,6 +17,7 @@ declare global {
     clearUtilityFilter : () => void;
     refreshJob : () => void;
     updatePositiveResponse : () => void;
+    filterByExpirationDate : () => void;
   }
 }
 
@@ -24,6 +25,7 @@ window.filterByUtility = filterByUtility;
 window.clearUtilityFilter = clearUtilityFilter;
 window.refreshJob = refreshJob;
 window.updatePositiveResponse = updatePositiveResponse;
+window.filterByExpirationDate = filterByExpirationDate;
 
 let renderer = L.canvas({ tolerance: 20 });
 let map = L.map('map');
@@ -150,5 +152,11 @@ function clearUtilityFilter() {
   toggleControls();
   for (const ticket of ticketObjects) {
     ticket.changeColor(ticket.line.originalColor);
+  }
+}
+
+function filterByExpirationDate() {
+  for (const ticket of ticketObjects) {
+    ticket.changeColor(ticket.colorByExpirationDate());
   }
 }

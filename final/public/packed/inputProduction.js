@@ -113,6 +113,21 @@ class TicketObject {
         this.currentColor = color;
         this.bindPopup();
     }
+    colorByExpirationDate() {
+        let today = new Date();
+        let expirationDate = new Date(this.expiration_date);
+        const MS_IN_ONE_DAY = 86400000;
+        if (expirationDate.valueOf() - today.valueOf() < (4 * MS_IN_ONE_DAY)) {
+            return 'rgb(255, 0, 0)';
+        }
+        if (expirationDate.valueOf() - today.valueOf() < (7 * MS_IN_ONE_DAY)) {
+            return 'rgb(253, 114, 0)';
+        }
+        if (expirationDate.valueOf() - today.valueOf() < (14 * MS_IN_ONE_DAY)) {
+            return 'rgb(253, 234, 0)';
+        }
+        return 'rgb(0, 255, 0)';
+    }
     determineColor([clear, pending]) {
         if (pending == 0) {
             return 'rgb(3, 255, 56)';
