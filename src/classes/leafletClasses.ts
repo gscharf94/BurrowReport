@@ -127,19 +127,16 @@ export class TicketObject {
 
   determineColor([clear, pending] : [number, number]) : string {
     if (pending == 0) {
-      return 'rgb(3, 255, 56)';
+      return 'rgb(0, 225, 0)';
     }
     if (pending == 1) {
-      return 'rgb(3, 153, 35)';
+      return 'rgb(135, 215, 0)';
     }
-    if (clear == 0) {
-      return 'rgb(255, 0, 0)';
-    }
-    if (Math.abs(pending - clear) == 2) {
-      return 'rgb(255, 255, 0)';
-    } else {
-      return 'orange';
-    }
+    let percentClear = clear / (clear + pending);
+    let red = 255 - (255 * percentClear);
+    let green = 200 * percentClear;
+    console.log(`red: ${red}, green: ${green}, 0`)
+    return `rgb(${red}, ${green}, 0)`;
   }
 
   bindPopup() {
