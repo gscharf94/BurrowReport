@@ -8,7 +8,8 @@ module.exports = {
     inputProduction: __dirname + "/final/public/scripts/inputProduction.js",
     viewTickets: __dirname + "/final/public/scripts/viewTickets.js",
     viewProduction: __dirname + "/final/public/scripts/viewProduction.js",
-    adminPage: __dirname + "/final/public/scripts/adminPage.js"
+    adminPage: __dirname + "/final/public/scripts/adminPage.js",
+    asBuilts: __dirname + "/final/public/scripts/asBuilts.js",
   },
   output: {
     path: __dirname + "/final/public/packed/"

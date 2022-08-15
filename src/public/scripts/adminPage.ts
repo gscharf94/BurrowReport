@@ -9,11 +9,13 @@ declare global {
   interface Window {
     formatJobs : () => void;
     selectJob : (jobId : number) => void;
+    goToAsBuilt : () => void;
   }
 }
 
 window.formatJobs = formatJobs;
 window.selectJob = selectJob;
+window.goToAsBuilt = goToAsBuilt;
 
 
 //@ts-ignore
@@ -211,5 +213,22 @@ function toggleJob(jobId : number) {
   }
 }
 
+function populateJobSelect() {
+  let html = `<option value="-1">---</option>`;
+  for (const job of JOBS) {
+    html += `<option value="${job.id}">${job.job_name}</option>`;
+  }
+  document
+    .getElementById('jobSelect')
+    .innerHTML = html;
+}
+
+function goToAsBuilt() {
+  let jobSelect = <HTMLSelectElement>document.getElementById('jobSelect');
+  let jobId = Number(jobSelect.value);
+  window.location.href = `http://192.168.1.247:3000/asBuilts/${jobId}/-1`;
+}
+
 populateSelectElement();
+populateJobSelect();
 initialization();

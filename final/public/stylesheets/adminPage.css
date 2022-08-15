@@ -29,6 +29,17 @@
   margin-top: 3vh;
 }
 
+#asBuiltJobs {
+  grid-column: 1 /span 2;
+  justify-self: center;
+}
+
+#asBuiltJobs button {
+  font-size: 4ch;
+  border: none;
+  margin-left: 10px;
+}
+
 #availableJobs p {
   text-align: center;
   font-size: 3.5ch;

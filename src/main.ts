@@ -14,6 +14,7 @@ import { router as adminPage } from './routes/adminPage.js';
 import { router as alterJobsPOST } from './routes/alterJobsPOST.js';
 import { router as refreshTicketsPOST } from './routes/refreshTicketsPOST.js';
 import { router as updateJobResponsesPOST } from './routes/updateJobResponsesPOST.js';
+import { router as asBuilts } from './routes/asBuilts.js';
 
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/admin', adminPage);
 app.use('/alterJobs', alterJobsPOST);
 app.use('/refreshTickets', refreshTicketsPOST);
 app.use('/updateJobResponses', updateJobResponsesPOST);
+app.use('/asBuilts', asBuilts);
 
 app.listen(PORT, () => {
   console.log(`listening @ http://192.168.1.247:3000`);
