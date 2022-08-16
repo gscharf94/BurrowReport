@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload, BoreLogRow, UploadBoreObject, UploadVaultObject, DownloadBoreObject } from '../interfaces';
+import { Coord, TicketResponse, States, TicketInfo, TicketInfoDownload, BoreLogRow, UploadBoreObject, UploadVaultObject, DownloadBoreObject, DownloadVaultObject } from '../interfaces';
 import { checkResponses, checkResponse } from '../helperFunctions/tickets.js';
 import { formatDate, sendPostRequest } from '../helperFunctions/website.js';
 import { convertCoords } from '../helperFunctions/leafletHelpers.js';
@@ -418,8 +418,9 @@ export class VaultObject {
   coordinate : Coord;
   tmp_coordinate : Coord;
   id : number;
+  showId : boolean;
 
-  constructor(vaultInfo, marker : MapMarker) {
+  constructor(vaultInfo : DownloadVaultObject, marker : MapMarker, showId : boolean = false) {
     this.job_name = vaultInfo.job_name;
     this.page_number = vaultInfo.page_number;
     this.work_date = new Date(vaultInfo.work_date);
@@ -430,6 +431,7 @@ export class VaultObject {
     this.id = vaultInfo.id;
     this.marker = marker;
     this.tmp_coordinate = marker.point;
+    this.showId = showId;
 
     this.bindPopup()
   }
@@ -442,6 +444,7 @@ export class VaultObject {
   generatePopupHTML() {
     let html = `
     <div class="infoPopup">
+      ${(this.showId) ? `<h3>${this.id}</h3>` : ''}
       <h3 class="popupCrewName">${this.crew_name}</h3>
       <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
       <h3 class="popupRock">${this.billing_code}</h3>
@@ -483,8 +486,9 @@ export class BoreObject {
   billing_code : string;
   id : number;
   bore_logs : BoreLogRow[];
+  showId : boolean;
 
-  constructor(boreInfo : DownloadBoreObject, line : MapLine) {
+  constructor(boreInfo : DownloadBoreObject, line : MapLine, showId : boolean = false) {
     this.job_name = boreInfo.job_name;
     this.page_number = boreInfo.page_number;
     this.work_date = boreInfo.work_date;
@@ -496,14 +500,15 @@ export class BoreObject {
     this.id = boreInfo.id;
     this.bore_logs = boreInfo.bore_logs;
     this.line = line;
+    this.showId = showId;
 
     this.bindPopup();
   }
 
-  generatePopupHTML(addId : boolean = false) {
+  generatePopupHTML() {
     let html = `
     <div class="infoPopup">
-      ${(addId) ? `<h3>${this.id}</h3>` : ''}
+      ${(this.showId) ? `<h3>${this.id}</h3>` : ''}
       <h3 class="popupCrewName">${this.crew_name}</h3>
       <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
       <h3 class="popupFootage">${this.footage}ft</h3>

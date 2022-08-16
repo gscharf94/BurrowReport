@@ -78,14 +78,14 @@ function drawBores() {
     for (const bore of BORES) {
         let options = getOptionsFromBillingCode(bore.billing_code);
         let line = new leafletClasses_js_1.MapLine(map, renderer, { points: bore.coordinates, color: options.primary_color, dashed: options.dashed }, generateIcon('line', 'pink', [100, 100]));
-        window.bores.push(new leafletClasses_js_1.BoreObject(bore, line));
+        window.bores.push(new leafletClasses_js_1.BoreObject(bore, line, true));
     }
 }
 function drawVaults() {
     for (const vault of VAULTS) {
         let options = getOptionsFromBillingCode(vault.billing_code);
         let marker = new leafletClasses_js_1.MapMarker(map, false, vault.coordinate, generateIcon('marker', options.primary_color, [100, 100]));
-        window.vaults.push(new leafletClasses_js_1.VaultObject(vault, marker));
+        window.vaults.push(new leafletClasses_js_1.VaultObject(vault, marker, true));
     }
 }
 drawBores();

@@ -94,7 +94,7 @@ function drawBores() {
     let line = new MapLine(
       map, renderer, { points: bore.coordinates, color: options.primary_color, dashed: options.dashed }, generateIcon('line', 'pink', [100, 100])
     );
-    window.bores.push(new BoreObject(bore, line));
+    window.bores.push(new BoreObject(bore, line, true));
   }
 }
 
@@ -102,7 +102,7 @@ function drawVaults() {
   for (const vault of VAULTS) {
     let options = getOptionsFromBillingCode(vault.billing_code);
     let marker = new MapMarker(map, false, vault.coordinate, generateIcon('marker', options.primary_color, [100, 100]));
-    window.vaults.push(new VaultObject(vault, marker));
+    window.vaults.push(new VaultObject(vault, marker, true));
   }
 }
 

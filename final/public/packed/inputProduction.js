@@ -377,7 +377,8 @@ class VaultObject {
     coordinate;
     tmp_coordinate;
     id;
-    constructor(vaultInfo, marker) {
+    showId;
+    constructor(vaultInfo, marker, showId = false) {
         this.job_name = vaultInfo.job_name;
         this.page_number = vaultInfo.page_number;
         this.work_date = new Date(vaultInfo.work_date);
@@ -388,6 +389,7 @@ class VaultObject {
         this.id = vaultInfo.id;
         this.marker = marker;
         this.tmp_coordinate = marker.point;
+        this.showId = showId;
         this.bindPopup();
     }
     resetCoordinate() {
@@ -397,6 +399,7 @@ class VaultObject {
     generatePopupHTML() {
         let html = `
     <div class="infoPopup">
+      ${(this.showId) ? `<h3>${this.id}</h3>` : ''}
       <h3 class="popupCrewName">${this.crew_name}</h3>
       <h3 class="popupWorkDate">${(0, website_js_1.formatDate)(this.work_date)}</h3>
       <h3 class="popupRock">${this.billing_code}</h3>
@@ -434,7 +437,8 @@ class BoreObject {
     billing_code;
     id;
     bore_logs;
-    constructor(boreInfo, line) {
+    showId;
+    constructor(boreInfo, line, showId = false) {
         this.job_name = boreInfo.job_name;
         this.page_number = boreInfo.page_number;
         this.work_date = boreInfo.work_date;
@@ -446,12 +450,13 @@ class BoreObject {
         this.id = boreInfo.id;
         this.bore_logs = boreInfo.bore_logs;
         this.line = line;
+        this.showId = showId;
         this.bindPopup();
     }
-    generatePopupHTML(addId = false) {
+    generatePopupHTML() {
         let html = `
     <div class="infoPopup">
-      ${(addId) ? `<h3>${this.id}</h3>` : ''}
+      ${(this.showId) ? `<h3>${this.id}</h3>` : ''}
       <h3 class="popupCrewName">${this.crew_name}</h3>
       <h3 class="popupWorkDate">${(0, website_js_1.formatDate)(this.work_date)}</h3>
       <h3 class="popupFootage">${this.footage}ft</h3>
