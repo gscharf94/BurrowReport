@@ -6,11 +6,22 @@ block style
 
 block content
   div#map
+  div#controls.control
+    input(id="startDateInput", name="startDateInput", type="date").controlChild
+    input(id="endDateInput", name="endDateInput", type="date").controlChild
+    label(id="startDateLabel", for="startDateInput") Start Date
+    label(id="endDateLabel", for="endDateInput") End Date
+    button#filterByDateButton.controlChild Filter By Date
+    button#generateLabelsButton.controlChild Generate Bore Labels
+    button#generateTotalsButton.controlChild Generate Totals Popup
+    h1(onclick="window.toggleControls()")#xButton.controlChild X
+
 
 block scripts
   script.
     BORES_JSON="#{boresJSON}"
     VAULTS_JSON="#{vaultsJSON}"
+    CLIENT_OPTIONS_JSON="#{clientOptionsJSON}"
     JOB_NAME_PUG="#{jobName}"
     PAGE_NUMBER_PUG="#{pageNumber}"
   script(src="/packed/asBuilts.js")

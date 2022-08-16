@@ -14,6 +14,7 @@ exports.router.get('/:jobId/:pageNumber', (req, res) => {
         let jobName = jobQuery.rows[0].job_name;
         let boresQuery = await db_js_1.pool.query(`SELECT * FROM bores where job_name='${jobName}'`);
         let vaultsQuery = await db_js_1.pool.query(`SELECT * FROM vaults where job_name='${jobName}'`);
+        let clientOptionsQuery = await db_js_1.pool.query(`SELECT * FROM client_options`);
         let finalPageNumber;
         if (pageNumber == "-1") {
             let pagesQuery = await db_js_1.pool.query(`SELECT * FROM pages where job_name='${jobName}'`);
@@ -28,6 +29,7 @@ exports.router.get('/:jobId/:pageNumber', (req, res) => {
             vaultsJSON: JSON.stringify(vaultsQuery.rows),
             jobName: jobName,
             pageNumber: finalPageNumber,
+            clientOptionsJSON: JSON.stringify(clientOptionsQuery.rows),
         });
     })();
 });

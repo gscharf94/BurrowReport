@@ -500,9 +500,10 @@ export class BoreObject {
     this.bindPopup();
   }
 
-  generatePopupHTML() {
+  generatePopupHTML(addId : boolean = false) {
     let html = `
     <div class="infoPopup">
+      ${(addId) ? `<h3>${this.id}</h3>` : ''}
       <h3 class="popupCrewName">${this.crew_name}</h3>
       <h3 class="popupWorkDate">${formatDate(this.work_date)}</h3>
       <h3 class="popupFootage">${this.footage}ft</h3>

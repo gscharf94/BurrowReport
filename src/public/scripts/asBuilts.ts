@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import { parseJSON, redirectToLoginPage } from '../../helperFunctions/website.js';
-import { DownloadBoreObject, DownloadVaultObject } from '../../interfaces';
+import { DownloadBoreObject, DownloadVaultObject, ClientOptions } from '../../interfaces';
 import { MapLine, MapMarker, BoreObject, VaultObject } from '../../classes/leafletClasses.js';
 
 redirectToLoginPage();
@@ -9,6 +9,7 @@ declare global {
   interface Window {
     bores : BoreObject[],
     vaults : VaultObject[],
+    toggleControls : () => void;
   }
 }
 
@@ -20,15 +21,27 @@ const VAULTS : DownloadVaultObject[] = parseJSON(VAULTS_JSON);
 const JOB_NAME : string = JOB_NAME_PUG;
 //@ts-ignore
 const PAGE_NUMBER : number = Number(PAGE_NUMBER_PUG);
+//@ts-ignore
+const CLIENT_OPTIONS : ClientOptions[] = parseJSON(CLIENT_OPTIONS_JSON);
 
 
 console.log(BORES);
 console.log(VAULTS);
 console.log(JOB_NAME);
 console.log(PAGE_NUMBER);
+console.log(CLIENT_OPTIONS);
 
 window.bores = [];
 window.vaults = [];
+window.toggleControls = toggleControls;
+
+function getOptionsFromBillingCode(billingCode : string) : ClientOptions {
+  for (const option of CLIENT_OPTIONS) {
+    if (option.billing_code == billingCode) {
+      return option;
+    }
+  }
+}
 
 const generateIcon = (markerType : 'line' | 'marker', color : string, size : [number, number]) : L.Icon => {
   if (markerType == "line") {
@@ -68,10 +81,18 @@ L.tileLayer('http://192.168.1.247:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg',
 }).addTo(map);
 map.doubleClickZoom.disable();
 
+function toggleControls() : void {
+  document
+    .getElementById('controls')
+    .classList
+    .toggle('hideControl');
+}
+
 function drawBores() {
   for (const bore of BORES) {
+    let options = getOptionsFromBillingCode(bore.billing_code);
     let line = new MapLine(
-      map, renderer, { points: bore.coordinates }, generateIcon('line', 'pink', [100, 100])
+      map, renderer, { points: bore.coordinates, color: options.primary_color, dashed: options.dashed }, generateIcon('line', 'pink', [100, 100])
     );
     window.bores.push(new BoreObject(bore, line));
   }
@@ -79,7 +100,8 @@ function drawBores() {
 
 function drawVaults() {
   for (const vault of VAULTS) {
-    let marker = new MapMarker(map, false, vault.coordinate, generateIcon('marker', 'red', [100, 100]));
+    let options = getOptionsFromBillingCode(vault.billing_code);
+    let marker = new MapMarker(map, false, vault.coordinate, generateIcon('marker', options.primary_color, [100, 100]));
     window.vaults.push(new VaultObject(vault, marker));
   }
 }

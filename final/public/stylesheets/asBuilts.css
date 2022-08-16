@@ -2,3 +2,95 @@
   height: 100%;
   width: 100%;
 }
+
+#controls {
+  position: absolute;
+  right: 1%;
+  bottom: 0%;
+  width: 27%;
+  height: 25%;
+  z-index: 1999;
+  display: grid;
+  transition: 0.5s;
+}
+
+.control {
+  pointer-events: none;
+}
+
+.controlChild {
+  pointer-events: auto;
+}
+
+#startDateInput {
+  grid-row: 2;
+  grid-column: 2;
+}
+
+#controls label {
+  font-size: 3ch;
+  text-align: right;
+  margin-right: 5px;
+  align-self: center;
+}
+
+#controls button {
+  font-size: 2ch;
+  width: 80%;
+  height: 80%;
+  margin: auto;
+}
+
+#controls input {
+  font-size: 2ch;
+  width: 80%;
+  height: 80%;
+  margin: auto;
+}
+
+#startDateLabel {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+.hideControl {
+  bottom: -22% !important;
+}
+
+#endDateInput {
+  grid-row: 3;
+  grid-column: 2;
+}
+
+#endDateLabel {
+  grid-row: 3;
+  grid-column: 1;
+}
+
+#filterByDateButton {
+  grid-row: 4;
+  grid-column: 2;
+}
+
+#generateLabelsButton {
+  grid-row: 5;
+  grid-column: 2;
+}
+
+#generateTotalsButton {
+  grid-row: 6;
+  grid-column: 2;
+}
+
+#xButton {
+  grid-row: 1;
+  grid-column: 2;
+  text-align: right;
+  margin-top: 3px;
+  margin-right: 10px;
+  font-size: 3.5ch;
+  font-weight: bold;
+  margin-bottom: 0px;
+  height: 10px;
+  cursor: pointer;
+}

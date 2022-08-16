@@ -15,12 +15,23 @@ const VAULTS = (0, website_js_1.parseJSON)(VAULTS_JSON);
 const JOB_NAME = JOB_NAME_PUG;
 //@ts-ignore
 const PAGE_NUMBER = Number(PAGE_NUMBER_PUG);
+//@ts-ignore
+const CLIENT_OPTIONS = (0, website_js_1.parseJSON)(CLIENT_OPTIONS_JSON);
 console.log(BORES);
 console.log(VAULTS);
 console.log(JOB_NAME);
 console.log(PAGE_NUMBER);
+console.log(CLIENT_OPTIONS);
 window.bores = [];
 window.vaults = [];
+window.toggleControls = toggleControls;
+function getOptionsFromBillingCode(billingCode) {
+    for (const option of CLIENT_OPTIONS) {
+        if (option.billing_code == billingCode) {
+            return option;
+        }
+    }
+}
 const generateIcon = (markerType, color, size) => {
     if (markerType == "line") {
         return leaflet_1.default.icon({
@@ -57,15 +68,23 @@ leaflet_1.default.tileLayer('http://192.168.1.247:3000/maps/tiled/{job}/{page}/{
     noWrap: true,
 }).addTo(map);
 map.doubleClickZoom.disable();
+function toggleControls() {
+    document
+        .getElementById('controls')
+        .classList
+        .toggle('hideControl');
+}
 function drawBores() {
     for (const bore of BORES) {
-        let line = new leafletClasses_js_1.MapLine(map, renderer, { points: bore.coordinates }, generateIcon('line', 'pink', [100, 100]));
+        let options = getOptionsFromBillingCode(bore.billing_code);
+        let line = new leafletClasses_js_1.MapLine(map, renderer, { points: bore.coordinates, color: options.primary_color, dashed: options.dashed }, generateIcon('line', 'pink', [100, 100]));
         window.bores.push(new leafletClasses_js_1.BoreObject(bore, line));
     }
 }
 function drawVaults() {
     for (const vault of VAULTS) {
-        let marker = new leafletClasses_js_1.MapMarker(map, false, vault.coordinate, generateIcon('marker', 'red', [100, 100]));
+        let options = getOptionsFromBillingCode(vault.billing_code);
+        let marker = new leafletClasses_js_1.MapMarker(map, false, vault.coordinate, generateIcon('marker', options.primary_color, [100, 100]));
         window.vaults.push(new leafletClasses_js_1.VaultObject(vault, marker));
     }
 }
