@@ -9,7 +9,11 @@ declare global {
   interface Window {
     bores : BoreObject[],
     vaults : VaultObject[],
+    boreLabelPopups : L.Popup[],
     toggleControls : () => void;
+    filterByDate : () => void;
+    resetItems : () => void;
+    generateBoreLabels : () => void;
   }
 }
 
@@ -33,7 +37,58 @@ console.log(CLIENT_OPTIONS);
 
 window.bores = [];
 window.vaults = [];
+window.boreLabelPopups = [];
 window.toggleControls = toggleControls;
+window.filterByDate = filterByDate;
+window.resetItems = resetItems;
+window.generateBoreLabels = generateBoreLabels;
+
+function generateBoreLabelPopup(footage : number, backgroundColor : string, pos : { lat : number, lng : number }) {
+  return L.popup({
+    closeButton: false,
+    className: `boreLabelPopup ${backgroundColor}Background`,
+    autoClose: false,
+    autoPan: false,
+    closeOnClick: false,
+  })
+    .setLatLng(pos)
+    .setContent(`<p class="asBuiltFootage ${backgroundColor}Background">${footage}'</p>`);
+}
+
+function makePopupDraggable(popup : L.Popup) {
+  let pos = map.latLngToLayerPoint(popup.getLatLng());
+  //@ts-ignore
+  L.DomUtil.setPosition(popup._wrapper.parentNode, pos);
+
+  //@ts-ignore
+  let draggable = new L.Draggable(popup._container, popup._wrapper);
+  draggable.enable();
+
+  draggable.on('dragend', function() {
+    let pos = map.layerPointToLatLng(this._newPos);
+    popup.setLatLng(pos);
+  });
+}
+
+function generateBoreLabels() {
+  for (const bore of window.bores) {
+    if (bore.line.hidden) {
+      continue;
+    }
+    let center = bore.line.mapObject.getCenter();
+    let popup = generateBoreLabelPopup(bore.footage, 'yellow', center);
+    map.addLayer(popup);
+    makePopupDraggable(popup);
+    window.boreLabelPopups.push(popup);
+  }
+}
+
+function deleteBoreLabels() {
+  for (const popup of window.boreLabelPopups) {
+    map.removeLayer(popup);
+  }
+  window.boreLabelPopups = [];
+}
 
 function getOptionsFromBillingCode(billingCode : string) : ClientOptions {
   for (const option of CLIENT_OPTIONS) {
@@ -104,6 +159,75 @@ function drawVaults() {
     let marker = new MapMarker(map, false, vault.coordinate, generateIcon('marker', options.primary_color, [100, 100]));
     window.vaults.push(new VaultObject(vault, marker, true));
   }
+}
+
+/**
+ * returns true if the comparison date is in between the start and end dates
+ *
+ * @param {Date} start
+ * @param {Date} end
+ * @param {Date} comparison
+ * @returns {boolean}
+ */
+function compareDates(start : Date, end : Date, comparison : Date) : boolean {
+  let startVal = start.valueOf();
+  let endVal = end.valueOf();
+  let compVal = comparison.valueOf();
+  if (
+    compVal > startVal &&
+    compVal < endVal
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function filterByDate() : void {
+  let dateVals = getDateValues();
+  for (const item of [...window.bores, ...window.vaults]) {
+
+    const withinRange = compareDates(dateVals.start, dateVals.end, new Date(item.work_date));
+
+    if (!withinRange) {
+      if (item instanceof BoreObject) {
+        item.line.removeSelf();
+      }
+      if (item instanceof VaultObject) {
+        item.marker.removeSelf();
+      }
+    }
+
+  }
+}
+
+function resetItems() {
+  deleteBoreLabels();
+  for (const item of [...window.bores, ...window.vaults]) {
+    if (item instanceof BoreObject) {
+      item.line.addSelf();
+    }
+    if (item instanceof VaultObject) {
+      item.marker.addSelf();
+    }
+  }
+}
+
+function getDateValues() : { start : Date, end : Date } {
+  let startDateInput = <HTMLInputElement>document.getElementById('startDateInput');
+  let endDateInput = <HTMLInputElement>document.getElementById('endDateInput');
+  let startDate = new Date(startDateInput.value);
+  let endDate = new Date(endDateInput.value);
+  return { start: startDate, end: endDate };
+}
+
+function validateDateInputs() : boolean {
+  let startDateInput = <HTMLInputElement>document.getElementById('startDateInput');
+  let endDateInput = <HTMLInputElement>document.getElementById('endDateInput');
+  if (startDateInput.value == "" || endDateInput.value == "") {
+    return false;
+  }
+  return true;
 }
 
 drawBores();

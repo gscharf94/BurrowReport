@@ -24,7 +24,52 @@ console.log(PAGE_NUMBER);
 console.log(CLIENT_OPTIONS);
 window.bores = [];
 window.vaults = [];
+window.boreLabelPopups = [];
 window.toggleControls = toggleControls;
+window.filterByDate = filterByDate;
+window.resetItems = resetItems;
+window.generateBoreLabels = generateBoreLabels;
+function generateBoreLabelPopup(footage, backgroundColor, pos) {
+    return leaflet_1.default.popup({
+        closeButton: false,
+        className: `boreLabelPopup ${backgroundColor}Background`,
+        autoClose: false,
+        autoPan: false,
+        closeOnClick: false,
+    })
+        .setLatLng(pos)
+        .setContent(`<p class="asBuiltFootage ${backgroundColor}Background">${footage}'</p>`);
+}
+function makePopupDraggable(popup) {
+    let pos = map.latLngToLayerPoint(popup.getLatLng());
+    //@ts-ignore
+    leaflet_1.default.DomUtil.setPosition(popup._wrapper.parentNode, pos);
+    //@ts-ignore
+    let draggable = new leaflet_1.default.Draggable(popup._container, popup._wrapper);
+    draggable.enable();
+    draggable.on('dragend', function () {
+        let pos = map.layerPointToLatLng(this._newPos);
+        popup.setLatLng(pos);
+    });
+}
+function generateBoreLabels() {
+    for (const bore of window.bores) {
+        if (bore.line.hidden) {
+            continue;
+        }
+        let center = bore.line.mapObject.getCenter();
+        let popup = generateBoreLabelPopup(bore.footage, 'yellow', center);
+        map.addLayer(popup);
+        makePopupDraggable(popup);
+        window.boreLabelPopups.push(popup);
+    }
+}
+function deleteBoreLabels() {
+    for (const popup of window.boreLabelPopups) {
+        map.removeLayer(popup);
+    }
+    window.boreLabelPopups = [];
+}
 function getOptionsFromBillingCode(billingCode) {
     for (const option of CLIENT_OPTIONS) {
         if (option.billing_code == billingCode) {
@@ -87,6 +132,64 @@ function drawVaults() {
         let marker = new leafletClasses_js_1.MapMarker(map, false, vault.coordinate, generateIcon('marker', options.primary_color, [100, 100]));
         window.vaults.push(new leafletClasses_js_1.VaultObject(vault, marker, true));
     }
+}
+/**
+ * returns true if the comparison date is in between the start and end dates
+ *
+ * @param {Date} start
+ * @param {Date} end
+ * @param {Date} comparison
+ * @returns {boolean}
+ */
+function compareDates(start, end, comparison) {
+    let startVal = start.valueOf();
+    let endVal = end.valueOf();
+    let compVal = comparison.valueOf();
+    if (compVal > startVal &&
+        compVal < endVal) {
+        return true;
+    }
+    return false;
+}
+function filterByDate() {
+    let dateVals = getDateValues();
+    for (const item of [...window.bores, ...window.vaults]) {
+        const withinRange = compareDates(dateVals.start, dateVals.end, new Date(item.work_date));
+        if (!withinRange) {
+            if (item instanceof leafletClasses_js_1.BoreObject) {
+                item.line.removeSelf();
+            }
+            if (item instanceof leafletClasses_js_1.VaultObject) {
+                item.marker.removeSelf();
+            }
+        }
+    }
+}
+function resetItems() {
+    deleteBoreLabels();
+    for (const item of [...window.bores, ...window.vaults]) {
+        if (item instanceof leafletClasses_js_1.BoreObject) {
+            item.line.addSelf();
+        }
+        if (item instanceof leafletClasses_js_1.VaultObject) {
+            item.marker.addSelf();
+        }
+    }
+}
+function getDateValues() {
+    let startDateInput = document.getElementById('startDateInput');
+    let endDateInput = document.getElementById('endDateInput');
+    let startDate = new Date(startDateInput.value);
+    let endDate = new Date(endDateInput.value);
+    return { start: startDate, end: endDate };
+}
+function validateDateInputs() {
+    let startDateInput = document.getElementById('startDateInput');
+    let endDateInput = document.getElementById('endDateInput');
+    if (startDateInput.value == "" || endDateInput.value == "") {
+        return false;
+    }
+    return true;
 }
 drawBores();
 drawVaults();

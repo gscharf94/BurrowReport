@@ -11,9 +11,10 @@ block content
     input(id="endDateInput", name="endDateInput", type="date").controlChild
     label(id="startDateLabel", for="startDateInput") Start Date
     label(id="endDateLabel", for="endDateInput") End Date
-    button#filterByDateButton.controlChild Filter By Date
-    button#generateLabelsButton.controlChild Generate Bore Labels
+    button(onclick="window.filterByDate()")#filterByDateButton.controlChild Filter By Date
+    button(onclick="window.generateBoreLabels()")#generateLabelsButton.controlChild Generate Bore Labels
     button#generateTotalsButton.controlChild Generate Totals Popup
+    button(onclick="window.resetItems()")#resetButton.controlChild Reset
     h1(onclick="window.toggleControls()")#xButton.controlChild X
 
 

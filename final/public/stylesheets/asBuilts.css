@@ -39,6 +39,11 @@
   width: 80%;
   height: 80%;
   margin: auto;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: var(--color-2);
+  color: white;
+  border: none;
 }
 
 #controls input {
@@ -93,4 +98,58 @@
   margin-bottom: 0px;
   height: 10px;
   cursor: pointer;
+}
+
+#resetButton {
+  grid-row: 6;
+  grid-column: 1;
+  width: 50% !important;
+  font-size: 2ch;
+  height: 60% !important;
+  background-color: gray !important;
+  color: white;
+  font-weight: bold;
+  border: none;
+}
+
+.boreLabelPopup {
+  cursor: pointer;
+}
+
+.boreLabelPopup>.leaflet-popup-tip-container {
+  display: none;
+}
+
+.boreLabelPopup>.leaflet-popup-content-wrapper>.leaflet-popup-content {
+  margin: 0px !important;
+  width: fit-content !important;
+}
+
+.boreLabelPopup>.leaflet-popup-content-wrapper {
+  box-shadow: none;
+  border-radius: 0px;
+}
+
+.asBuiltFootage {
+  font-size: 2.4ch;
+  font-weight: bold;
+  text-align: center;
+  padding: 0px;
+  margin: 1px !important;
+}
+
+.yellowBackground {
+  background-color: yellow;
+}
+
+.orangeBackground {
+  background-color: orange;
+}
+
+.yellowBackground>.leaflet-popup-content-wrapper {
+  background-color: yellow;
+}
+
+.orangeBackground>.leaflet-popup-content-wrapper {
+  background-color: orange;
 }
