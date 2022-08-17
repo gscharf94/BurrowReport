@@ -6,6 +6,10 @@ import L from 'leaflet';
 
 redirectToLoginPage();
 
+
+//@ts-ignore
+console.log(TICKETS_JSON);
+
 //@ts-ignore
 const tickets : TicketInfoDownload[] = parseJSON(TICKETS_JSON);
 let ticketObjects : TicketObject[] = [];

@@ -646,7 +646,7 @@ exports.redirectToLoginPage = redirectToLoginPage;
  * @returns {{}} - the object pased as an object
  */
 function parseJSON(txt) {
-    return JSON.parse(txt.replace(/&quot;/g, '"'));
+    return JSON.parse(txt.replace(/&quot;/g, '"').replace(/\n/g, ""));
 }
 exports.parseJSON = parseJSON;
 /**

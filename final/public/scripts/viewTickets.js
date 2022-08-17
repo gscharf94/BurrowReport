@@ -9,6 +9,8 @@ const tickets_js_1 = require("../../helperFunctions/tickets.js");
 const leaflet_1 = __importDefault(require("leaflet"));
 (0, website_js_1.redirectToLoginPage)();
 //@ts-ignore
+console.log(TICKETS_JSON);
+//@ts-ignore
 const tickets = (0, website_js_1.parseJSON)(TICKETS_JSON);
 let ticketObjects = [];
 const JOB_NAME = tickets[0].job_name;

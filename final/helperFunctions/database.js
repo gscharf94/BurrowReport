@@ -187,7 +187,7 @@ function formatResponsesToPsql(responses) {
         output += `{`;
         output += `"${response.utility_name}",`;
         output += `"${response.utility_type}",`;
-        output += `"${response.response}",`;
+        output += `"${response.response.replaceAll("'", "")}",`;
         output += `"${(response.contact) ? response.contact : ''}",`;
         output += `"${(response.alternate_contact) ? response.alternate_contact : ''}",`;
         output += `"${(response.emergency_contact) ? response.emergency_contact : ''}",`;
