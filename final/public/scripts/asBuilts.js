@@ -14,14 +14,19 @@ const VAULTS = (0, website_js_1.parseJSON)(VAULTS_JSON);
 //@ts-ignore
 const JOB_NAME = JOB_NAME_PUG;
 //@ts-ignore
+const JOB_ID = Number(JOB_ID_PUG);
+//@ts-ignore
 const PAGE_NUMBER = Number(PAGE_NUMBER_PUG);
 //@ts-ignore
 const CLIENT_OPTIONS = (0, website_js_1.parseJSON)(CLIENT_OPTIONS_JSON);
+//@ts-ignore
+const PAGES = (0, website_js_1.parseJSON)(PAGES_JSON);
 console.log(BORES);
 console.log(VAULTS);
 console.log(JOB_NAME);
 console.log(PAGE_NUMBER);
 console.log(CLIENT_OPTIONS);
+console.log(PAGES);
 window.bores = [];
 window.vaults = [];
 window.boreLabelPopups = [];
@@ -281,8 +286,40 @@ function validateDateInputs() {
     }
     return true;
 }
+function formatPageMovementLinks() {
+    let prev;
+    let next;
+    let currentInd = PAGES.indexOf(PAGE_NUMBER);
+    if (currentInd == 0) {
+        prev = -1;
+    }
+    else {
+        prev = PAGES[currentInd - 1];
+    }
+    if (currentInd == PAGES.length - 1) {
+        next = -1;
+    }
+    else {
+        next = PAGES[currentInd + 1];
+    }
+    let previousButton = document.getElementById('previousPageButton');
+    let nextButton = document.getElementById('nextPageButton');
+    if (prev != -1) {
+        previousButton.classList.toggle('activeLink');
+        previousButton.addEventListener('click', () => {
+            window.location.href = `http://192.168.1.247:3000/asBuilts/${JOB_ID}/${prev}`;
+        });
+    }
+    if (next != -1) {
+        nextButton.classList.toggle('activeLink');
+        nextButton.addEventListener('click', () => {
+            window.location.href = `http://192.168.1.247:3000/asBuilts/${JOB_ID}/${next}`;
+        });
+    }
+}
 function initialization() {
     resetInputs();
+    formatPageMovementLinks();
 }
 function resetInputs() {
     let startDate = document.getElementById('startDateInput');
@@ -290,5 +327,6 @@ function resetInputs() {
     startDate.value = "";
     endDate.value = "";
 }
+initialization();
 drawBores();
 drawVaults();

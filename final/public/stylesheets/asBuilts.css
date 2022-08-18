@@ -226,6 +226,10 @@
   display: flex;
 }
 
+.activeLink {
+  background-color: green !important;
+}
+
 #pageMovementContainer button {
   width: 40% !important;
   font-size: 2.5ch;

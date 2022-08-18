@@ -15,8 +15,8 @@ block content
     button(onclick="window.generateBoreLabels()")#generateLabelsButton.controlChild Generate Bore Labels
     button(onclick="window.generateTotals()")#generateTotalsButton.controlChild Generate Totals Popup
     div#pageMovementContainer
-      button(onclick="window.goToPreviousPage()")#previousPageButton.controlChild << Prev 
-      button(onclick="window.goToNextPage()")#nextPageButton.controlChild Next >>
+      button#previousPageButton.controlChild << Prev 
+      button#nextPageButton.controlChild Next >>
     button(onclick="window.resetItems()")#resetButton.controlChild Reset
     h1(onclick="window.toggleControls()")#xButton.controlChild X
 
@@ -28,4 +28,7 @@ block scripts
     CLIENT_OPTIONS_JSON="#{clientOptionsJSON}"
     JOB_NAME_PUG="#{jobName}"
     PAGE_NUMBER_PUG="#{pageNumber}"
+    PAGES_JSON="#{pagesJSON}"
+    JOB_ID_PUG="#{jobId}"
+
   script(src="/packed/asBuilts.js")

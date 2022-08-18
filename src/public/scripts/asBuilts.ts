@@ -25,16 +25,20 @@ const VAULTS : DownloadVaultObject[] = parseJSON(VAULTS_JSON);
 //@ts-ignore
 const JOB_NAME : string = JOB_NAME_PUG;
 //@ts-ignore
+const JOB_ID : number = Number(JOB_ID_PUG);
+//@ts-ignore
 const PAGE_NUMBER : number = Number(PAGE_NUMBER_PUG);
 //@ts-ignore
 const CLIENT_OPTIONS : ClientOptions[] = parseJSON(CLIENT_OPTIONS_JSON);
-
+//@ts-ignore
+const PAGES : number[] = parseJSON(PAGES_JSON);
 
 console.log(BORES);
 console.log(VAULTS);
 console.log(JOB_NAME);
 console.log(PAGE_NUMBER);
 console.log(CLIENT_OPTIONS);
+console.log(PAGES);
 
 window.bores = [];
 window.vaults = [];
@@ -323,11 +327,47 @@ function validateDateInputs() : boolean {
     return false;
   }
   return true;
+}
+
+
+function formatPageMovementLinks() {
+  let prev : number;
+  let next : number;
+  let currentInd = PAGES.indexOf(PAGE_NUMBER);
+  if (currentInd == 0) {
+    prev = -1;
+  } else {
+    prev = PAGES[currentInd - 1];
+  }
+  if (currentInd == PAGES.length - 1) {
+    next = -1;
+  } else {
+    next = PAGES[currentInd + 1];
+  }
+
+  let previousButton = <HTMLButtonElement>document.getElementById('previousPageButton');
+  let nextButton = <HTMLButtonElement>document.getElementById('nextPageButton');
+
+  if (prev != -1) {
+    previousButton.classList.toggle('activeLink');
+    previousButton.addEventListener('click', () => {
+      window.location.href = `http://192.168.1.247:3000/asBuilts/${JOB_ID}/${prev}`;
+    });
+  }
+
+  if (next != -1) {
+    nextButton.classList.toggle('activeLink');
+    nextButton.addEventListener('click', () => {
+      window.location.href = `http://192.168.1.247:3000/asBuilts/${JOB_ID}/${next}`;
+    });
+  }
 
 }
 
+
 function initialization() {
   resetInputs();
+  formatPageMovementLinks();
 }
 
 function resetInputs() {
@@ -338,5 +378,6 @@ function resetInputs() {
   endDate.value = "";
 }
 
+initialization();
 drawBores();
 drawVaults();
