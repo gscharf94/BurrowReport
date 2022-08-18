@@ -76,6 +76,9 @@ function generateTotalsPopup(items : { billingCode : string, quantity : number }
 function getTotals(startDate : Date, endDate : Date) : { billingCode : string, quantity : number }[] {
   let totals = {};
   for (const item of [...window.bores, ...window.vaults]) {
+    if (!compareDates(startDate, endDate, item.work_date)) {
+      continue;
+    }
     if (totals[item.billing_code]) {
       if (item instanceof BoreObject) {
         totals[item.billing_code] += item.footage;
@@ -101,7 +104,7 @@ function getTotals(startDate : Date, endDate : Date) : { billingCode : string, q
 
 function generateTotals() {
   let popup : L.Popup;
-  if (!validateDateInputs) {
+  if (!validateDateInputs()) {
     let totals = getTotals(new Date('1999-01-01'), new Date('2040-01-01'));
     popup = generateTotalsPopup(totals);
   } else {
@@ -286,6 +289,19 @@ function validateDateInputs() : boolean {
     return false;
   }
   return true;
+
+}
+
+function initialization() {
+  resetInputs();
+}
+
+function resetInputs() {
+  let startDate = <HTMLInputElement>document.getElementById('startDateInput');
+  let endDate = <HTMLInputElement>document.getElementById('endDateInput');
+
+  startDate.value = "";
+  endDate.value = "";
 }
 
 drawBores();

@@ -59,6 +59,9 @@ function generateTotalsPopup(items) {
 function getTotals(startDate, endDate) {
     let totals = {};
     for (const item of [...window.bores, ...window.vaults]) {
+        if (!compareDates(startDate, endDate, item.work_date)) {
+            continue;
+        }
         if (totals[item.billing_code]) {
             if (item instanceof leafletClasses_js_1.BoreObject) {
                 totals[item.billing_code] += item.footage;
@@ -84,7 +87,7 @@ function getTotals(startDate, endDate) {
 }
 function generateTotals() {
     let popup;
-    if (!validateDateInputs) {
+    if (!validateDateInputs()) {
         let totals = getTotals(new Date('1999-01-01'), new Date('2040-01-01'));
         popup = generateTotalsPopup(totals);
     }
@@ -246,6 +249,15 @@ function validateDateInputs() {
         return false;
     }
     return true;
+}
+function initialization() {
+    resetInputs();
+}
+function resetInputs() {
+    let startDate = document.getElementById('startDateInput');
+    let endDate = document.getElementById('endDateInput');
+    startDate.value = "";
+    endDate.value = "";
 }
 drawBores();
 drawVaults();
