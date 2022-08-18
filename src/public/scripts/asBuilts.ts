@@ -95,8 +95,35 @@ function generateTotalsHTML(items : { billingCode : string, quantity : number }[
     `
   }
 
+  if (!validateDateInputs()) {
+    let date = new Date();
+    let day = String(date.getDate()).padStart(2, "0");
+    let month = String(date.getMonth() + 1).padStart(2, "0");
+    let year = date.getFullYear();
+    html += `<h1 class="totalsDateHeader"> ${month}-${day}-${year} </h1>`;
+  } else {
+    if (checkDateEquality()) {
+      let startDateInput = <HTMLInputElement>document.getElementById('startDateInput');
+      html += `<h1 class="totalsDateHeader"> ${startDateInput.value} </h1>`;
+    } else {
+      let startDateInput = <HTMLInputElement>document.getElementById('startDateInput');
+      let endDateInput = <HTMLInputElement>document.getElementById('endDateInput');
+      html += `<h1 class="totalsDateHeader"> ${startDateInput.value} -> ${endDateInput.value} </h1>`;
+    }
+  }
   html += '</div>'
   return html;
+}
+
+function checkDateEquality() : boolean {
+  let startDateInput = <HTMLInputElement>document.getElementById('startDateInput');
+  let endDateInput = <HTMLInputElement>document.getElementById('endDateInput');
+
+  if (startDateInput.value == endDateInput.value) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 function generateTotalsPopup(items : { billingCode : string, quantity : number }[]) {

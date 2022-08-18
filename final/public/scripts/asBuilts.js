@@ -78,8 +78,36 @@ function generateTotalsHTML(items) {
       </div>
     `;
     }
+    if (!validateDateInputs()) {
+        let date = new Date();
+        let day = String(date.getDate()).padStart(2, "0");
+        let month = String(date.getMonth() + 1).padStart(2, "0");
+        let year = date.getFullYear();
+        html += `<h1 class="totalsDateHeader"> ${month}-${day}-${year} </h1>`;
+    }
+    else {
+        if (checkDateEquality()) {
+            let startDateInput = document.getElementById('startDateInput');
+            html += `<h1 class="totalsDateHeader"> ${startDateInput.value} </h1>`;
+        }
+        else {
+            let startDateInput = document.getElementById('startDateInput');
+            let endDateInput = document.getElementById('endDateInput');
+            html += `<h1 class="totalsDateHeader"> ${startDateInput.value} -> ${endDateInput.value} </h1>`;
+        }
+    }
     html += '</div>';
     return html;
+}
+function checkDateEquality() {
+    let startDateInput = document.getElementById('startDateInput');
+    let endDateInput = document.getElementById('endDateInput');
+    if (startDateInput.value == endDateInput.value) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 function generateTotalsPopup(items) {
     return leaflet_1.default.popup({
