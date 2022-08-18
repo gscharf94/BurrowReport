@@ -92,8 +92,9 @@ JOBS = [
     # "CPE-412560",
     # "P4745",
     # "P4729",
-    "JB3",
-    "JB4",
+    # "JB3",
+    # "JB4",
+    "VERM",
 ]
 
 for job in JOBS:
