@@ -14,6 +14,7 @@ declare global {
     filterByDate : () => void;
     resetItems : () => void;
     generateBoreLabels : () => void;
+    generateTotals : () => void;
   }
 }
 
@@ -42,6 +43,7 @@ window.toggleControls = toggleControls;
 window.filterByDate = filterByDate;
 window.resetItems = resetItems;
 window.generateBoreLabels = generateBoreLabels;
+window.generateTotals = generateTotals;
 
 function generateBoreLabelPopup(footage : number, backgroundColor : string, pos : { lat : number, lng : number }) {
   return L.popup({
@@ -53,6 +55,62 @@ function generateBoreLabelPopup(footage : number, backgroundColor : string, pos 
   })
     .setLatLng(pos)
     .setContent(`<p class="asBuiltFootage ${backgroundColor}Background">${footage}'</p>`);
+}
+
+function generateTotalsPopup(items : { billingCode : string, quantity : number }[]) {
+  let content = ``;
+  for (const item of items) {
+    content += `<p>${item.billingCode}= ${item.quantity}</p>`;
+  }
+  return L.popup({
+    closeButton: false,
+    className: `totalsPopup`,
+    autoClose: false,
+    autoPan: false,
+    closeOnClick: false,
+  })
+    .setLatLng([0, 0])
+    .setContent(content);
+}
+
+function getTotals(startDate : Date, endDate : Date) : { billingCode : string, quantity : number }[] {
+  let totals = {};
+  for (const item of [...window.bores, ...window.vaults]) {
+    if (totals[item.billing_code]) {
+      if (item instanceof BoreObject) {
+        totals[item.billing_code] += item.footage;
+      }
+      if (item instanceof VaultObject) {
+        totals[item.billing_code]++;
+      }
+    } else {
+      if (item instanceof BoreObject) {
+        totals[item.billing_code] = item.footage;
+      }
+      if (item instanceof VaultObject) {
+        totals[item.billing_code] = 1;
+      }
+    }
+  }
+  let output = [];
+  for (const code in totals) {
+    output.push({ billingCode: code, quantity: totals[code] });
+  }
+  return output;
+}
+
+function generateTotals() {
+  let popup : L.Popup;
+  if (!validateDateInputs) {
+    let totals = getTotals(new Date('1999-01-01'), new Date('2040-01-01'));
+    popup = generateTotalsPopup(totals);
+  } else {
+    let dates = getDateValues();
+    let totals = getTotals(dates.start, dates.end);
+    popup = generateTotalsPopup(totals);
+  }
+  map.addLayer(popup);
+  makePopupDraggable(popup);
 }
 
 function makePopupDraggable(popup : L.Popup) {
