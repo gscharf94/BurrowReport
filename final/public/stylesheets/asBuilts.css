@@ -106,7 +106,7 @@
   width: 50% !important;
   font-size: 2ch;
   height: 60% !important;
-  background-color: gray !important;
+  background-color: red !important;
   color: white;
   font-weight: bold;
   border: none;
@@ -216,3 +216,25 @@
   align-self: center;
   margin: auto;
 }
+
+#pageMovementContainer {
+  grid-row: 4 /span 2;
+  grid-column: 1;
+  align-self: center;
+  justify-self: center;
+  width: 80%;
+  display: flex;
+}
+
+#pageMovementContainer button {
+  width: 40% !important;
+  font-size: 2.5ch;
+  font-weight: bold;
+  background-color: gray;
+  height: 40px;
+}
+
+
+#nextPageButton {}
+
+#previousPageButton {}
