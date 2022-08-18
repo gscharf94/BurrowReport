@@ -491,7 +491,7 @@ export class BoreObject {
   constructor(boreInfo : DownloadBoreObject, line : MapLine, showId : boolean = false) {
     this.job_name = boreInfo.job_name;
     this.page_number = boreInfo.page_number;
-    this.work_date = boreInfo.work_date;
+    this.work_date = new Date(boreInfo.work_date);
     this.crew_name = boreInfo.crew_name;
     this.page_id = boreInfo.page_id;
     this.footage = boreInfo.footage;
