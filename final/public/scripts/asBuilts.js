@@ -41,11 +41,42 @@ function generateBoreLabelPopup(footage, backgroundColor, pos) {
         .setLatLng(pos)
         .setContent(`<p class="asBuiltFootage ${backgroundColor}Background">${footage}'</p>`);
 }
-function generateTotalsPopup(items) {
-    let content = ``;
-    for (const item of items) {
-        content += `<p>${item.billingCode}= ${item.quantity}</p>`;
+function getImageName(billingCode) {
+    let name;
+    let options = getOptionsFromBillingCode(billingCode);
+    if (options.map_object_type == "MARKER") {
+        name = `${options.primary_color}VaultIcon.svg`;
     }
+    else {
+        name = `${options.primary_color}LineIcon${(options.dashed) ? 'Dashed' : ''}.svg`;
+    }
+    return name;
+}
+function isBore(billingCode) {
+    let options = getOptionsFromBillingCode(billingCode);
+    if (options.map_object_type == "LINE") {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+function generateTotalsHTML(items) {
+    let html = '<div class="totalsPopupContainer">';
+    html += `<h1 class="totalsJobPageHeader">${JOB_NAME} - #${PAGE_NUMBER}</h1>`;
+    for (const item of items) {
+        html += `
+      <div class="totalsRow">
+        <p class="totalsBillingCode">${item.billingCode}=</p>
+        <p class="totalsQuantity">${item.quantity}${(isBore(item.billingCode)) ? 'ft' : ''}</p>
+        <img class="totalsImage" src="/images/icons/${getImageName(item.billingCode)}">
+      </div>
+    `;
+    }
+    html += '</div>';
+    return html;
+}
+function generateTotalsPopup(items) {
     return leaflet_1.default.popup({
         closeButton: false,
         className: `totalsPopup`,
@@ -54,7 +85,7 @@ function generateTotalsPopup(items) {
         closeOnClick: false,
     })
         .setLatLng([0, 0])
-        .setContent(content);
+        .setContent(generateTotalsHTML(items));
 }
 function getTotals(startDate, endDate) {
     let totals = {};

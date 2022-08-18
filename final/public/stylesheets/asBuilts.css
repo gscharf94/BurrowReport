@@ -112,17 +112,37 @@
   border: none;
 }
 
+.totalsPopup {
+  cursor: pointer;
+}
+
 .boreLabelPopup {
   cursor: pointer;
+}
+
+.totalsPopup>.leaflet-popup-tip-container {
+  display: none;
 }
 
 .boreLabelPopup>.leaflet-popup-tip-container {
   display: none;
 }
 
+.totalsPopup>.leaflet-popup-content-wrapper>.leaflet-popup-content {
+  margin: 0px !important;
+  width: 10vw !important;
+}
+
 .boreLabelPopup>.leaflet-popup-content-wrapper>.leaflet-popup-content {
   margin: 0px !important;
   width: fit-content !important;
+}
+
+.totalsPopup>.leaflet-popup-content-wrapper {
+  box-shadow: none;
+  border-radius: 0px;
+  border: 5px solid red;
+  padding: 10px;
 }
 
 .boreLabelPopup>.leaflet-popup-content-wrapper {
@@ -152,4 +172,47 @@
 
 .orangeBackground>.leaflet-popup-content-wrapper {
   background-color: orange;
+}
+
+.totalsPopupContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.totalsJobPageHeader {
+  margin-top: 3px;
+  margin-bottom: 3px;
+  text-align: center;
+}
+
+.totalsRow {
+  display: grid;
+  grid-template-columns: 35% 25% 50%;
+}
+
+.totalsRow p {
+  margin: 0px !important;
+}
+
+.totalsBillingCode {
+  grid-row: 1;
+  grid-column: 1;
+  font-weight: bold;
+  font-size: 3ch;
+}
+
+.totalsQuantity {
+  grid-row: 1;
+  grid-column: 2;
+  text-align: right;
+  font-size: 3ch;
+}
+
+.totalsImage {
+  grid-row: 1;
+  grid-column: 3;
+  max-height: 25px;
+  align-self: center;
+  margin: auto;
 }

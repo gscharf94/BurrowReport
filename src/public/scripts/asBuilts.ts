@@ -57,11 +57,45 @@ function generateBoreLabelPopup(footage : number, backgroundColor : string, pos 
     .setContent(`<p class="asBuiltFootage ${backgroundColor}Background">${footage}'</p>`);
 }
 
-function generateTotalsPopup(items : { billingCode : string, quantity : number }[]) {
-  let content = ``;
-  for (const item of items) {
-    content += `<p>${item.billingCode}= ${item.quantity}</p>`;
+function getImageName(billingCode : string) : string {
+  let name : string;
+  let options = getOptionsFromBillingCode(billingCode);
+  if (options.map_object_type == "MARKER") {
+    name = `${options.primary_color}VaultIcon.svg`;
+  } else {
+    name = `${options.primary_color}LineIcon${(options.dashed) ? 'Dashed' : ''}.svg`;
   }
+  return name;
+}
+
+function isBore(billingCode : string) : boolean {
+  let options = getOptionsFromBillingCode(billingCode);
+  if (options.map_object_type == "LINE") {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function generateTotalsHTML(items : { billingCode : string, quantity : number }[]) : string {
+  let html = '<div class="totalsPopupContainer">';
+  html += `<h1 class="totalsJobPageHeader">${JOB_NAME} - #${PAGE_NUMBER}</h1>`
+
+  for (const item of items) {
+    html += `
+      <div class="totalsRow">
+        <p class="totalsBillingCode">${item.billingCode}=</p>
+        <p class="totalsQuantity">${item.quantity}${(isBore(item.billingCode)) ? 'ft' : ''}</p>
+        <img class="totalsImage" src="/images/icons/${getImageName(item.billingCode)}">
+      </div>
+    `
+  }
+
+  html += '</div>'
+  return html;
+}
+
+function generateTotalsPopup(items : { billingCode : string, quantity : number }[]) {
   return L.popup({
     closeButton: false,
     className: `totalsPopup`,
@@ -70,7 +104,7 @@ function generateTotalsPopup(items : { billingCode : string, quantity : number }
     closeOnClick: false,
   })
     .setLatLng([0, 0])
-    .setContent(content);
+    .setContent(generateTotalsHTML(items));
 }
 
 function getTotals(startDate : Date, endDate : Date) : { billingCode : string, quantity : number }[] {
