@@ -8,24 +8,6 @@ const pdfkit_1 = __importDefault(require("pdfkit"));
 const firaRegular = '../final/fonts/FiraMono-Regular.ttf';
 const firaMedium = '../final/fonts/FiraMono-Medium.ttf';
 const firaBold = '../final/fonts/FiraMono-Bold.ttf';
-const testingBores = generateTestingBores(825);
-const testingBores2 = generateTestingBores(324);
-const testingInfo = {
-    crew_name: 'test_crew',
-    work_date: '2022-08-21',
-    job_name: 'P4745',
-    bore_number: 1,
-    client_name: 'Danella',
-    billing_code: 'A1',
-};
-const testingInfo2 = {
-    crew_name: 'Enerio',
-    work_date: '2022-08-20',
-    job_name: 'P4745',
-    bore_number: 2,
-    client_name: 'Danella',
-    billing_code: 'I9',
-};
 function createFullDocument(bores, res) {
     console.log(bores);
     const doc = new pdfkit_1.default({ autoFirstPage: false });
@@ -141,7 +123,7 @@ function writeEmptyHeader(doc) {
     doc.text(' Job Name:', 50, 60);
     doc.text(' Client Name:', 300, 20);
     doc.text('Billing Code:', 300, 40);
-    doc.text(' Bore Number:', 300, 60);
+    doc.text('     Bore Id:', 300, 60);
 }
 function drawHeaderLines(doc) {
     doc.moveTo(45, 85)
@@ -164,5 +146,3 @@ function writeHeader(info, doc) {
     doc.text(String(info.bore_number), 440, 60);
     drawHeaderLines(doc);
 }
-// let test = [{ info: testingInfo, depths: testingBores }, { info: testingInfo2, depths: testingBores2 }];
-// createFullDocument(test);

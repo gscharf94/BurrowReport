@@ -10,12 +10,13 @@ declare global {
     bores : BoreObject[],
     vaults : VaultObject[],
     boreLabelPopups : L.Popup[],
+    boreIdPopups : L.Popup[],
     toggleControls : () => void;
     filterByDate : () => void;
     resetItems : () => void;
     generateBoreLabels : () => void;
+    generateBoreIdLabels : () => void;
     generateTotals : () => void;
-    testRequest : () => void;
     sendPDFGenerationRequest : () => void;
   }
 }
@@ -45,13 +46,26 @@ console.log(PAGES);
 window.bores = [];
 window.vaults = [];
 window.boreLabelPopups = [];
+window.boreIdPopups = [];
 window.toggleControls = toggleControls;
 window.filterByDate = filterByDate;
 window.resetItems = resetItems;
 window.generateBoreLabels = generateBoreLabels;
+window.generateBoreIdLabels = generateBoreIdLabels;
 window.generateTotals = generateTotals;
-window.testRequest = testRequest;
 window.sendPDFGenerationRequest = sendPDFGenerationRequest;
+
+function generateBoreIdPopup(id : number, pos : { lat : number, lng : number }) : L.Popup {
+  return L.popup({
+    closeButton: false,
+    className: `boreIdPopup`,
+    autoClose: false,
+    autoPan: false,
+    closeOnClick: false,
+  })
+    .setLatLng(pos)
+    .setContent(`<p class="boreId">${id}</p>`)
+}
 
 function generateBoreLabelPopup(footage : number, backgroundColor : string, pos : { lat : number, lng : number }) {
   return L.popup({
@@ -200,6 +214,26 @@ function makePopupDraggable(popup : L.Popup) {
   });
 }
 
+function generateBoreIdLabels() {
+  for (const bore of window.bores) {
+    if (bore.line.hidden) {
+      continue;
+    }
+    let center = bore.line.mapObject.getCenter();
+    let popup = generateBoreIdPopup(bore.id, center);
+    map.addLayer(popup);
+    makePopupDraggable(popup);
+    window.boreIdPopups.push(popup);
+  }
+}
+
+function deleteBoreIdLabels() {
+  for (const popup of window.boreIdPopups) {
+    map.removeLayer(popup);
+  }
+  window.boreIdPopups = [];
+}
+
 function generateBoreLabels() {
   for (const bore of window.bores) {
     if (bore.line.hidden) {
@@ -333,6 +367,7 @@ function filterByDate() : void {
 
 function resetItems() {
   deleteBoreLabels();
+  deleteBoreIdLabels();
   for (const item of [...window.bores, ...window.vaults]) {
     if (item instanceof BoreObject) {
       item.line.addSelf();
@@ -439,7 +474,10 @@ function sendPDFGenerationRequest() {
   let postObject = {
     boreInfo: []
   };
-  for (const bore of BORES) {
+  for (const bore of window.bores) {
+    if (bore.line.hidden) {
+      continue;
+    }
     let depths = convertArrayToBoreLog(bore.bore_logs);
     let info = {
       crew_name: bore.crew_name,
@@ -464,57 +502,6 @@ function sendPDFGenerationRequest() {
     window.URL.revokeObjectURL(url);
   }
   sendPostRequest('generatePDF', postObject, callback);
-}
-
-function testRequest() {
-  let depths1 = generateTestingBores(245);
-  console.log(depths1);
-  let depths2 = generateTestingBores(354);
-  const testingInfo = {
-    crew_name: 'test_crew',
-    work_date: '2022-08-21',
-    job_name: 'P4745',
-    bore_number: 1,
-    client_name: 'Danella',
-    billing_code: 'A1',
-  }
-
-  const testingInfo2 = {
-    crew_name: 'Enerio',
-    work_date: '2022-08-20',
-    job_name: 'P4745',
-    bore_number: 2,
-    client_name: 'Danella',
-    billing_code: 'I9',
-  }
-  let postObject = {
-    boreInfo:
-      [{ info: testingInfo, depths: depths1 }, { info: testingInfo2, depths: depths2 }],
-  }
-
-  const callback = (res) => {
-    console.log(res);
-    let binary = '';
-    let bytes = new Uint8Array(res);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    const file = window.btoa(binary);
-    const mimType = "application/pdf";
-    const url = `data:${mimType};base64,` + res;
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'testing.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  }
-
-  sendPostRequest('generatePDF', postObject, callback);
-
 }
 
 initialization();

@@ -1,30 +1,9 @@
 import PDFDocument from 'pdfkit';
-import fs from 'fs';
 import { BoreDepth, BoreLogInfo, BoreLogSet } from '../interfaces';
 
 const firaRegular = '../final/fonts/FiraMono-Regular.ttf';
 const firaMedium = '../final/fonts/FiraMono-Medium.ttf';
 const firaBold = '../final/fonts/FiraMono-Bold.ttf';
-const testingBores = generateTestingBores(825);
-const testingBores2 = generateTestingBores(324);
-
-const testingInfo = {
-  crew_name: 'test_crew',
-  work_date: '2022-08-21',
-  job_name: 'P4745',
-  bore_number: 1,
-  client_name: 'Danella',
-  billing_code: 'A1',
-}
-
-const testingInfo2 = {
-  crew_name: 'Enerio',
-  work_date: '2022-08-20',
-  job_name: 'P4745',
-  bore_number: 2,
-  client_name: 'Danella',
-  billing_code: 'I9',
-}
 
 export function createFullDocument(bores : BoreLogSet[], res) {
   console.log(bores);
@@ -40,7 +19,6 @@ export function createFullDocument(bores : BoreLogSet[], res) {
   }
   doc.end();
 }
-
 
 function drawPage(bores : BoreDepth[], pageNumber : number, info : BoreLogInfo, doc : PDFKit.PDFDocument) {
   doc.addPage({ margin: 0 });
@@ -154,7 +132,7 @@ function writeEmptyHeader(doc : PDFKit.PDFDocument) {
   doc.text(' Job Name:', 50, 60);
   doc.text(' Client Name:', 300, 20);
   doc.text('Billing Code:', 300, 40);
-  doc.text(' Bore Number:', 300, 60);
+  doc.text('     Bore Id:', 300, 60);
 }
 
 function drawHeaderLines(doc : PDFKit.PDFDocument) {
@@ -180,7 +158,3 @@ function writeHeader(info : BoreLogInfo, doc : PDFKit.PDFDocument) {
   doc.text(String(info.bore_number), 440, 60);
   drawHeaderLines(doc);
 }
-
-
-// let test = [{ info: testingInfo, depths: testingBores }, { info: testingInfo2, depths: testingBores2 }];
-// createFullDocument(test);
