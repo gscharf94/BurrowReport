@@ -2,14 +2,31 @@ import PDFDocument from 'pdfkit';
 import fs from 'fs';
 
 const doc = new PDFDocument({ autoFirstPage: false });
-doc.addPage({ margin: 0 });
+doc.pipe(fs.createWriteStream('testing.pdf'));
 const firaRegular = 'final/fonts/FiraMono-Regular.ttf';
 const firaMedium = 'final/fonts/FiraMono-Medium.ttf';
 const firaBold = 'final/fonts/FiraMono-Bold.ttf';
-const testingBores = generateTestingBores(746);
-doc.pipe(fs.createWriteStream('testing.pdf'));
+const testingBores = generateTestingBores(825);
 
 type BoreDepth = { ft : number, inches : number };
+
+function drawPage(bores : BoreDepth[], pageNumber : number, info) {
+  doc.addPage({ margin: 0 });
+  drawGrayRectangles();
+  writeHeader(info);
+  writeBoreDepthHeaders();
+  writeBoresToPage(bores, pageNumber);
+}
+
+function createBoreLog(depths : BoreDepth[], info) {
+  let bores = splitArrayIntoSetsOf80(depths);
+  let i = 1;
+  for (const boreLogs of bores) {
+    drawPage(boreLogs, i++, info);
+  }
+}
+
+
 
 
 const info = {
@@ -57,7 +74,7 @@ function drawGrayRectangles() {
   doc.fillColor('black', 1);
 }
 
-function writeBoresToPage(bores : BoreDepth[]) {
+function writeBoresToPage(bores : BoreDepth[], pageNumber : number) {
   const xFirstColumn = 50;
   const xSecondColumn = 300;
   const startingY = 119;
@@ -65,6 +82,9 @@ function writeBoresToPage(bores : BoreDepth[]) {
   const fontSize = 14;
 
   let counter = 10;
+  if (pageNumber > 1) {
+    counter = 810;
+  }
   const formatCounter = (n : number) => {
     return String(n).padStart(3, "0");
   }
@@ -106,9 +126,12 @@ function generateTestingBores(ftg : number) : BoreDepth[] {
 }
 
 function splitArrayIntoSetsOf80(depths : BoreDepth[]) : BoreDepth[][] {
-  const n = 80;
-  let output = [];
-  return output;
+  if (depths.length > 80) {
+    return [depths.slice(0, 80), depths.slice(80,)];
+  }
+  else {
+    return [depths];
+  }
 }
 
 function writeText(text : string, font : string, size : number, x : number, y : number) {
@@ -152,16 +175,6 @@ function writeHeader(info) {
   drawHeaderLines();
 }
 
-drawGrayRectangles();
-writeHeader(info);
-writeBoreDepthHeaders();
-writeBoresToPage(testingBores);
-
-// let i = 0;
-// for (const row of rows) {
-//   doc.text(`${row.ft}' ${row.inches}"`, 10, 20 * i++);
-// }
-
-
+createBoreLog(testingBores, info);
 
 doc.end();
