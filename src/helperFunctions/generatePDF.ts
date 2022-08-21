@@ -133,6 +133,8 @@ function writeEmptyHeader(doc : PDFKit.PDFDocument) {
   doc.text(' Client Name:', 300, 20);
   doc.text('Billing Code:', 300, 40);
   doc.text('     Bore Id:', 300, 60);
+  doc.fontSize(16);
+  doc.text('Ftg:', 530, 30);
 }
 
 function drawHeaderLines(doc : PDFKit.PDFDocument) {
@@ -157,4 +159,7 @@ function writeHeader(info : BoreLogInfo, doc : PDFKit.PDFDocument) {
   doc.text(info.billing_code, 440, 40);
   doc.text(String(info.bore_number), 440, 60);
   drawHeaderLines(doc);
+
+  doc.fontSize(15);
+  doc.text(String(info.footage) + 'ft', 530, 50);
 }

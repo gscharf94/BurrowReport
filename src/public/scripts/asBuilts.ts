@@ -486,6 +486,7 @@ function sendPDFGenerationRequest() {
       bore_number: bore.id,
       client_name: getClientFromBillingCode(bore.billing_code),
       billing_code: bore.billing_code,
+      footage: bore.footage,
     }
     postObject.boreInfo.push({ info: info, depths: depths });
   }

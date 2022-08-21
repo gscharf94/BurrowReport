@@ -164,7 +164,9 @@
   border-radius: 0px;
 }
 
-.boreIdPopup {}
+.boreIdPopup {
+  cursor: pointer;
+}
 
 .boreId {
   font-size: 3ch;

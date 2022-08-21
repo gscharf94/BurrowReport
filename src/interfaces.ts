@@ -149,6 +149,7 @@ export interface BoreLogInfo {
   bore_number : number,
   client_name : string,
   billing_code : string,
+  footage : number,
 }
 
 export interface BoreLogSet {
