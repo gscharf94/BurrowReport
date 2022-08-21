@@ -228,6 +228,9 @@ export function formatTimestampToPsql(date : Date = new Date()) : string {
  * @returns {string} - string to input into psql INSERT
  */
 export function formatCoordsToPsql(coords : Coord[] | BoreLogRow[]) : string {
+  if (coords.length == 0) {
+    return '{}';
+  }
   let output = `{`;
   for (const coord of coords) {
     output += `{${coord[0]}, ${coord[1]}},`;

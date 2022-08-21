@@ -984,6 +984,12 @@ function updateAllFollowingRows(sourceElement : HTMLElement) {
 }
 
 function validateBoreLogValues() : boolean {
+
+  let ftgInput = <HTMLInputElement>document.getElementById('footageInput');
+  if (ftgInput.value === "0") {
+    return true;
+  }
+
   let feetInputs = document.querySelectorAll<HTMLInputElement>('.ftInput');
   let inchesInput = document.querySelectorAll<HTMLInputElement>('.inInput');
   if (feetInputs.length == 0) {

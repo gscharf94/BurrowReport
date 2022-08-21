@@ -226,6 +226,9 @@ exports.formatTimestampToPsql = formatTimestampToPsql;
  * @returns {string} - string to input into psql INSERT
  */
 function formatCoordsToPsql(coords) {
+    if (coords.length == 0) {
+        return '{}';
+    }
     let output = `{`;
     for (const coord of coords) {
         output += `{${coord[0]}, ${coord[1]}},`;

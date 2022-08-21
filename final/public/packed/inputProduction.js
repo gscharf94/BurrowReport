@@ -1586,6 +1586,10 @@ function updateAllFollowingRows(sourceElement) {
     }
 }
 function validateBoreLogValues() {
+    let ftgInput = document.getElementById('footageInput');
+    if (ftgInput.value === "0") {
+        return true;
+    }
     let feetInputs = document.querySelectorAll('.ftInput');
     let inchesInput = document.querySelectorAll('.inInput');
     if (feetInputs.length == 0) {
