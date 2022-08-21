@@ -27,6 +27,7 @@ const testingInfo2 = {
     billing_code: 'I9',
 };
 function createFullDocument(bores, res) {
+    console.log(bores);
     const doc = new pdfkit_1.default({ autoFirstPage: false });
     let buffers = [];
     doc.on('data', buffers.push.bind(buffers));

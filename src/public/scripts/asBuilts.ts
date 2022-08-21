@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { parseJSON, redirectToLoginPage, sendPostRequest } from '../../helperFunctions/website.js';
+import { parseJSON, redirectToLoginPage, sendPostRequest, convertArrayToBoreLog, formatDate } from '../../helperFunctions/website.js';
 import { DownloadBoreObject, DownloadVaultObject, ClientOptions } from '../../interfaces';
 import { MapLine, MapMarker, BoreObject, VaultObject } from '../../classes/leafletClasses.js';
 
@@ -16,6 +16,7 @@ declare global {
     generateBoreLabels : () => void;
     generateTotals : () => void;
     testRequest : () => void;
+    sendPDFGenerationRequest : () => void;
   }
 }
 
@@ -50,6 +51,7 @@ window.resetItems = resetItems;
 window.generateBoreLabels = generateBoreLabels;
 window.generateTotals = generateTotals;
 window.testRequest = testRequest;
+window.sendPDFGenerationRequest = sendPDFGenerationRequest;
 
 function generateBoreLabelPopup(footage : number, backgroundColor : string, pos : { lat : number, lng : number }) {
   return L.popup({
@@ -425,8 +427,48 @@ function generateTestingBores(ftg : number) {
   return output;
 }
 
+function getClientFromBillingCode(billingCode : string) : string {
+  for (const option of CLIENT_OPTIONS) {
+    if (option.billing_code == billingCode) {
+      return option.client_name;
+    }
+  }
+}
+
+function sendPDFGenerationRequest() {
+  let postObject = {
+    boreInfo: []
+  };
+  for (const bore of BORES) {
+    let depths = convertArrayToBoreLog(bore.bore_logs);
+    let info = {
+      crew_name: bore.crew_name,
+      work_date: formatDate(bore.work_date),
+      job_name: JOB_NAME,
+      bore_number: bore.id,
+      client_name: getClientFromBillingCode(bore.billing_code),
+      billing_code: bore.billing_code,
+    }
+    postObject.boreInfo.push({ info: info, depths: depths });
+  }
+  console.log(postObject);
+
+  const callback = (res : string) => {
+    const url = `data:application/pdf;base64,${res}`;
+    const tmpElement = document.createElement('a');
+    tmpElement.href = url;
+    tmpElement.download = `bore_logs_${JOB_NAME}_#${PAGE_NUMBER}.pdf`;
+    document.body.appendChild(tmpElement);
+    tmpElement.click();
+    document.body.removeChild(tmpElement);
+    window.URL.revokeObjectURL(url);
+  }
+  sendPostRequest('generatePDF', postObject, callback);
+}
+
 function testRequest() {
   let depths1 = generateTestingBores(245);
+  console.log(depths1);
   let depths2 = generateTestingBores(354);
   const testingInfo = {
     crew_name: 'test_crew',
@@ -446,7 +488,7 @@ function testRequest() {
     billing_code: 'I9',
   }
   let postObject = {
-    stuff:
+    boreInfo:
       [{ info: testingInfo, depths: depths1 }, { info: testingInfo2, depths: depths2 }],
   }
 

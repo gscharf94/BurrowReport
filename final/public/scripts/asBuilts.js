@@ -36,6 +36,7 @@ window.resetItems = resetItems;
 window.generateBoreLabels = generateBoreLabels;
 window.generateTotals = generateTotals;
 window.testRequest = testRequest;
+window.sendPDFGenerationRequest = sendPDFGenerationRequest;
 function generateBoreLabelPopup(footage, backgroundColor, pos) {
     return leaflet_1.default.popup({
         closeButton: false,
@@ -373,8 +374,45 @@ function generateTestingBores(ftg) {
     }
     return output;
 }
+function getClientFromBillingCode(billingCode) {
+    for (const option of CLIENT_OPTIONS) {
+        if (option.billing_code == billingCode) {
+            return option.client_name;
+        }
+    }
+}
+function sendPDFGenerationRequest() {
+    let postObject = {
+        boreInfo: []
+    };
+    for (const bore of BORES) {
+        let depths = (0, website_js_1.convertArrayToBoreLog)(bore.bore_logs);
+        let info = {
+            crew_name: bore.crew_name,
+            work_date: (0, website_js_1.formatDate)(bore.work_date),
+            job_name: JOB_NAME,
+            bore_number: bore.id,
+            client_name: getClientFromBillingCode(bore.billing_code),
+            billing_code: bore.billing_code,
+        };
+        postObject.boreInfo.push({ info: info, depths: depths });
+    }
+    console.log(postObject);
+    const callback = (res) => {
+        const url = `data:application/pdf;base64,${res}`;
+        const tmpElement = document.createElement('a');
+        tmpElement.href = url;
+        tmpElement.download = `bore_logs_${JOB_NAME}_#${PAGE_NUMBER}.pdf`;
+        document.body.appendChild(tmpElement);
+        tmpElement.click();
+        document.body.removeChild(tmpElement);
+        window.URL.revokeObjectURL(url);
+    };
+    (0, website_js_1.sendPostRequest)('generatePDF', postObject, callback);
+}
 function testRequest() {
     let depths1 = generateTestingBores(245);
+    console.log(depths1);
     let depths2 = generateTestingBores(354);
     const testingInfo = {
         crew_name: 'test_crew',
@@ -393,7 +431,7 @@ function testRequest() {
         billing_code: 'I9',
     };
     let postObject = {
-        stuff: [{ info: testingInfo, depths: depths1 }, { info: testingInfo2, depths: depths2 }],
+        boreInfo: [{ info: testingInfo, depths: depths1 }, { info: testingInfo2, depths: depths2 }],
     };
     const callback = (res) => {
         console.log(res);

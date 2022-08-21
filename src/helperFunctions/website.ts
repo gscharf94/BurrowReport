@@ -103,3 +103,7 @@ export function clearAllEventListeners(ids : string[]) : void {
     oldElement.parentNode.replaceChild(newElement, oldElement);
   }
 }
+
+export function convertArrayToBoreLog(depthsArray : [number, number][]) : { ft : number, inches : number }[] {
+  return depthsArray.map(val => { return { ft: val[0], inches: val[1] } });
+}

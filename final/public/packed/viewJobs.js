@@ -7,7 +7,7 @@
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.clearAllEventListeners = exports.sendPostRequest = exports.formatDate = exports.parseJSON = exports.redirectToLoginPage = exports.validUserLoggedIn = exports.getUserInfo = void 0;
+exports.convertArrayToBoreLog = exports.clearAllEventListeners = exports.sendPostRequest = exports.formatDate = exports.parseJSON = exports.redirectToLoginPage = exports.validUserLoggedIn = exports.getUserInfo = void 0;
 /**
  * gets the information for the current user
  * this doesn't validate to check if there is a valid cookie
@@ -111,6 +111,10 @@ function clearAllEventListeners(ids) {
     }
 }
 exports.clearAllEventListeners = clearAllEventListeners;
+function convertArrayToBoreLog(depthsArray) {
+    return depthsArray.map(val => { return { ft: val[0], inches: val[1] }; });
+}
+exports.convertArrayToBoreLog = convertArrayToBoreLog;
 
 
 /***/ })

@@ -10,5 +10,5 @@ exports.router = express_1.default.Router();
 exports.router.post('/', (req, res, next) => {
     console.log('generate PDF post');
     console.log(req.body);
-    (0, generatePDF_js_1.createFullDocument)(req.body.stuff, res);
+    (0, generatePDF_js_1.createFullDocument)(req.body.boreInfo, res);
 });

@@ -27,6 +27,7 @@ const testingInfo2 = {
 }
 
 export function createFullDocument(bores : BoreLogSet[], res) {
+  console.log(bores);
   const doc = new PDFDocument({ autoFirstPage: false });
   let buffers = [];
   doc.on('data', buffers.push.bind(buffers));
