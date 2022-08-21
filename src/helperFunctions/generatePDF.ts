@@ -2,9 +2,9 @@ import PDFDocument from 'pdfkit';
 import fs from 'fs';
 import { BoreDepth, BoreLogInfo, BoreLogSet } from '../interfaces';
 
-const firaRegular = 'final/fonts/FiraMono-Regular.ttf';
-const firaMedium = 'final/fonts/FiraMono-Medium.ttf';
-const firaBold = 'final/fonts/FiraMono-Bold.ttf';
+const firaRegular = '../final/fonts/FiraMono-Regular.ttf';
+const firaMedium = '../final/fonts/FiraMono-Medium.ttf';
+const firaBold = '../final/fonts/FiraMono-Bold.ttf';
 const testingBores = generateTestingBores(825);
 const testingBores2 = generateTestingBores(324);
 
@@ -26,9 +26,14 @@ const testingInfo2 = {
   billing_code: 'I9',
 }
 
-function createFullDocument(bores : BoreLogSet[]) {
+export function createFullDocument(bores : BoreLogSet[], res) {
   const doc = new PDFDocument({ autoFirstPage: false });
-  doc.pipe(fs.createWriteStream('testing.pdf'));
+  let buffers = [];
+  doc.on('data', buffers.push.bind(buffers));
+  doc.on('end', () => {
+    let pdfData = Buffer.concat(buffers);
+    res.send(pdfData.toString('base64'));
+  });
   for (const bore of bores) {
     createBoreLog(bore.depths, bore.info, doc);
   }
@@ -176,5 +181,5 @@ function writeHeader(info : BoreLogInfo, doc : PDFKit.PDFDocument) {
 }
 
 
-let test = [{ info: testingInfo, depths: testingBores }, { info: testingInfo2, depths: testingBores2 }];
-createFullDocument(test);
+// let test = [{ info: testingInfo, depths: testingBores }, { info: testingInfo2, depths: testingBores2 }];
+// createFullDocument(test);

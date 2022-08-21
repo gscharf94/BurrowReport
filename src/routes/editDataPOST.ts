@@ -3,7 +3,6 @@ import { updateBore, updateVault } from '../helperFunctions/database.js';
 
 export const router = express.Router();
 
-
 router.post('/', (req, res, next) => {
   console.log('update item post request');
   console.log(req.body);

@@ -19,6 +19,7 @@ const alterJobsPOST_js_1 = require("./routes/alterJobsPOST.js");
 const refreshTicketsPOST_js_1 = require("./routes/refreshTicketsPOST.js");
 const updateJobResponsesPOST_js_1 = require("./routes/updateJobResponsesPOST.js");
 const asBuilts_js_1 = require("./routes/asBuilts.js");
+const generatePdfPOST_js_1 = require("./routes/generatePdfPOST.js");
 const app = (0, express_1.default)();
 const PORT = 3000;
 app.locals.basedir = "/";
@@ -40,6 +41,7 @@ app.use('/alterJobs', alterJobsPOST_js_1.router);
 app.use('/refreshTickets', refreshTicketsPOST_js_1.router);
 app.use('/updateJobResponses', updateJobResponsesPOST_js_1.router);
 app.use('/asBuilts', asBuilts_js_1.router);
+app.use('/generatePDF', generatePdfPOST_js_1.router);
 app.listen(PORT, () => {
     console.log(`listening @ http://192.168.1.247:3000`);
 });

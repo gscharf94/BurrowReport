@@ -17,6 +17,9 @@ block content
     div#pageMovementContainer
       button#previousPageButton.controlChild << Prev 
       button#nextPageButton.controlChild Next >>
+    div#boreLogsContainer
+      button#showBoreNumbersButton.controlChild Show Numbers
+      button(onclick="window.testRequest()")#downloadPDFButton.controlChild Download PDF
     button(onclick="window.resetItems()")#resetButton.controlChild Reset
     h1(onclick="window.toggleControls()")#xButton.controlChild X
 

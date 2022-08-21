@@ -3,11 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createFullDocument = void 0;
 const pdfkit_1 = __importDefault(require("pdfkit"));
-const fs_1 = __importDefault(require("fs"));
-const firaRegular = 'final/fonts/FiraMono-Regular.ttf';
-const firaMedium = 'final/fonts/FiraMono-Medium.ttf';
-const firaBold = 'final/fonts/FiraMono-Bold.ttf';
+const firaRegular = '../final/fonts/FiraMono-Regular.ttf';
+const firaMedium = '../final/fonts/FiraMono-Medium.ttf';
+const firaBold = '../final/fonts/FiraMono-Bold.ttf';
 const testingBores = generateTestingBores(825);
 const testingBores2 = generateTestingBores(324);
 const testingInfo = {
@@ -26,14 +26,20 @@ const testingInfo2 = {
     client_name: 'Danella',
     billing_code: 'I9',
 };
-function createFullDocument(bores) {
+function createFullDocument(bores, res) {
     const doc = new pdfkit_1.default({ autoFirstPage: false });
-    doc.pipe(fs_1.default.createWriteStream('testing.pdf'));
+    let buffers = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => {
+        let pdfData = Buffer.concat(buffers);
+        res.send(pdfData.toString('base64'));
+    });
     for (const bore of bores) {
         createBoreLog(bore.depths, bore.info, doc);
     }
     doc.end();
 }
+exports.createFullDocument = createFullDocument;
 function drawPage(bores, pageNumber, info, doc) {
     doc.addPage({ margin: 0 });
     drawGrayRectangles(doc);
@@ -157,5 +163,5 @@ function writeHeader(info, doc) {
     doc.text(String(info.bore_number), 440, 60);
     drawHeaderLines(doc);
 }
-let test = [{ info: testingInfo, depths: testingBores }, { info: testingInfo2, depths: testingBores2 }];
-createFullDocument(test);
+// let test = [{ info: testingInfo, depths: testingBores }, { info: testingInfo2, depths: testingBores2 }];
+// createFullDocument(test);

@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { parseJSON, redirectToLoginPage } from '../../helperFunctions/website.js';
+import { parseJSON, redirectToLoginPage, sendPostRequest } from '../../helperFunctions/website.js';
 import { DownloadBoreObject, DownloadVaultObject, ClientOptions } from '../../interfaces';
 import { MapLine, MapMarker, BoreObject, VaultObject } from '../../classes/leafletClasses.js';
 
@@ -15,6 +15,7 @@ declare global {
     resetItems : () => void;
     generateBoreLabels : () => void;
     generateTotals : () => void;
+    testRequest : () => void;
   }
 }
 
@@ -48,6 +49,7 @@ window.filterByDate = filterByDate;
 window.resetItems = resetItems;
 window.generateBoreLabels = generateBoreLabels;
 window.generateTotals = generateTotals;
+window.testRequest = testRequest;
 
 function generateBoreLabelPopup(footage : number, backgroundColor : string, pos : { lat : number, lng : number }) {
   return L.popup({
@@ -403,6 +405,74 @@ function resetInputs() {
 
   startDate.value = "";
   endDate.value = "";
+}
+
+// delete this
+function generateTestingBores(ftg : number) {
+  let output = [];
+  let numOfRows = Math.floor(ftg / 10);
+  if (ftg % 10 !== 0) {
+    numOfRows++;
+  }
+  for (let i = 0; i < numOfRows; i++) {
+    let ftg = Math.floor((Math.random() * 3) + 2);
+    let inches = Math.floor((Math.random() * 12));
+    output.push({
+      ft: ftg,
+      inches: inches,
+    });
+  }
+  return output;
+}
+
+function testRequest() {
+  let depths1 = generateTestingBores(245);
+  let depths2 = generateTestingBores(354);
+  const testingInfo = {
+    crew_name: 'test_crew',
+    work_date: '2022-08-21',
+    job_name: 'P4745',
+    bore_number: 1,
+    client_name: 'Danella',
+    billing_code: 'A1',
+  }
+
+  const testingInfo2 = {
+    crew_name: 'Enerio',
+    work_date: '2022-08-20',
+    job_name: 'P4745',
+    bore_number: 2,
+    client_name: 'Danella',
+    billing_code: 'I9',
+  }
+  let postObject = {
+    stuff:
+      [{ info: testingInfo, depths: depths1 }, { info: testingInfo2, depths: depths2 }],
+  }
+
+  const callback = (res) => {
+    console.log(res);
+    let binary = '';
+    let bytes = new Uint8Array(res);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    const file = window.btoa(binary);
+    const mimType = "application/pdf";
+    const url = `data:${mimType};base64,` + res;
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'testing.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
+  sendPostRequest('generatePDF', postObject, callback);
+
 }
 
 initialization();
