@@ -5,35 +5,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const pdfkit_1 = __importDefault(require("pdfkit"));
 const fs_1 = __importDefault(require("fs"));
-const doc = new pdfkit_1.default({ autoFirstPage: false });
-doc.pipe(fs_1.default.createWriteStream('testing.pdf'));
 const firaRegular = 'final/fonts/FiraMono-Regular.ttf';
 const firaMedium = 'final/fonts/FiraMono-Medium.ttf';
 const firaBold = 'final/fonts/FiraMono-Bold.ttf';
 const testingBores = generateTestingBores(825);
-function drawPage(bores, pageNumber, info) {
-    doc.addPage({ margin: 0 });
-    drawGrayRectangles();
-    writeHeader(info);
-    writeBoreDepthHeaders();
-    writeBoresToPage(bores, pageNumber);
-}
-function createBoreLog(depths, info) {
-    let bores = splitArrayIntoSetsOf80(depths);
-    let i = 1;
-    for (const boreLogs of bores) {
-        drawPage(boreLogs, i++, info);
-    }
-}
-const info = {
+const testingBores2 = generateTestingBores(324);
+const testingInfo = {
     crew_name: 'test_crew',
     work_date: '2022-08-21',
     job_name: 'P4745',
-    bore_number: '1',
+    bore_number: 1,
     client_name: 'Danella',
     billing_code: 'A1',
 };
-function writeBoreDepthHeaders() {
+const testingInfo2 = {
+    crew_name: 'Enerio',
+    work_date: '2022-08-20',
+    job_name: 'P4745',
+    bore_number: 2,
+    client_name: 'Danella',
+    billing_code: 'I9',
+};
+function createFullDocument(bores) {
+    const doc = new pdfkit_1.default({ autoFirstPage: false });
+    doc.pipe(fs_1.default.createWriteStream('testing.pdf'));
+    for (const bore of bores) {
+        createBoreLog(bore.depths, bore.info, doc);
+    }
+    doc.end();
+}
+function drawPage(bores, pageNumber, info, doc) {
+    doc.addPage({ margin: 0 });
+    drawGrayRectangles(doc);
+    writeHeader(info, doc);
+    writeBoreDepthHeaders(doc);
+    writeBoresToPage(bores, pageNumber, doc);
+}
+function createBoreLog(depths, info, doc) {
+    let bores = splitArrayIntoSetsOf80(depths);
+    let i = 1;
+    for (const boreLogs of bores) {
+        drawPage(boreLogs, i++, info, doc);
+    }
+}
+function writeBoreDepthHeaders(doc) {
     doc.font(firaMedium).fontSize(15);
     doc.text('Rod', 50, 95);
     doc.text('Depth', 125, 95);
@@ -42,7 +57,7 @@ function writeBoreDepthHeaders() {
     doc.text('Depth', 375, 95);
     doc.text('EOP', 475, 95);
 }
-function drawGrayRectangles() {
+function drawGrayRectangles(doc) {
     const startingX = 40;
     const startingY = 119;
     const width = 500;
@@ -61,7 +76,7 @@ function drawGrayRectangles() {
     }
     doc.fillColor('black', 1);
 }
-function writeBoresToPage(bores, pageNumber) {
+function writeBoresToPage(bores, pageNumber, doc) {
     const xFirstColumn = 50;
     const xSecondColumn = 300;
     const startingY = 119;
@@ -112,13 +127,7 @@ function splitArrayIntoSetsOf80(depths) {
         return [depths];
     }
 }
-function writeText(text, font, size, x, y) {
-    doc
-        .font(font)
-        .fontSize(size)
-        .text(text, x, y);
-}
-function writeEmptyHeader() {
+function writeEmptyHeader(doc) {
     doc.font(firaBold).fontSize(15);
     doc.text('Crew Name:', 50, 20);
     doc.text('Work Date:', 50, 40);
@@ -127,7 +136,7 @@ function writeEmptyHeader() {
     doc.text('Billing Code:', 300, 40);
     doc.text(' Bore Number:', 300, 60);
 }
-function drawHeaderLines() {
+function drawHeaderLines(doc) {
     doc.moveTo(45, 85)
         .lineTo(510, 85)
         .lineWidth(3)
@@ -137,16 +146,16 @@ function drawHeaderLines() {
         .lineWidth(1)
         .stroke();
 }
-function writeHeader(info) {
-    writeEmptyHeader();
+function writeHeader(info, doc) {
+    writeEmptyHeader(doc);
     doc.font(firaRegular).fontSize(14);
     doc.text(info.crew_name, 165, 20);
     doc.text(info.work_date, 165, 40);
     doc.text(info.job_name, 165, 60);
     doc.text(info.client_name, 440, 20);
     doc.text(info.billing_code, 440, 40);
-    doc.text(info.bore_number, 440, 60);
-    drawHeaderLines();
+    doc.text(String(info.bore_number), 440, 60);
+    drawHeaderLines(doc);
 }
-createBoreLog(testingBores, info);
-doc.end();
+let test = [{ info: testingInfo, depths: testingBores }, { info: testingInfo2, depths: testingBores2 }];
+createFullDocument(test);

@@ -139,3 +139,19 @@ export interface CrewsJobsDownloadObject {
   job_id : number,
   crew_name ?: string,
 }
+
+export type BoreDepth = { ft : number, inches : number }
+
+export interface BoreLogInfo {
+  crew_name : string,
+  work_date : string,
+  job_name : string,
+  bore_number : number,
+  client_name : string,
+  billing_code : string,
+}
+
+export interface BoreLogSet {
+  info : BoreLogInfo,
+  depths : BoreDepth[],
+}
