@@ -1129,6 +1129,10 @@ function resetInputs() {
     let vaultSelect = document.getElementById('addVault');
     boreSelect.value = "-1";
     vaultSelect.value = "-1";
+    let startStationInput = document.getElementById('startInput');
+    let endStationInput = document.getElementById('endInput');
+    startStationInput.value = "";
+    endStationInput.value = "";
 }
 /**
  * makes sure there's a valid number in the footageInput element
@@ -1657,6 +1661,24 @@ function toggleBoreLog() {
     else {
         container.style.display = "none;";
     }
+}
+function validateStationNumber(text) {
+    let c = 0;
+    for (const char of text) {
+        if (char == "+") {
+            c++;
+        }
+    }
+    if (c !== 1) {
+        return false;
+    }
+    text = text.replace('+', '');
+    for (const char of text) {
+        if (isNaN(Number(char))) {
+            return false;
+        }
+    }
+    return true;
 }
 singleInitialization();
 

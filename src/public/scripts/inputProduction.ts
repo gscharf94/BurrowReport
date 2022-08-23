@@ -489,6 +489,11 @@ function resetInputs() {
   let vaultSelect = <HTMLSelectElement>document.getElementById('addVault');
   boreSelect.value = "-1";
   vaultSelect.value = "-1";
+
+  let startStationInput = <HTMLInputElement>document.getElementById('startInput');
+  let endStationInput = <HTMLInputElement>document.getElementById('endInput');
+  startStationInput.value = "";
+  endStationInput.value = "";
 }
 
 /**
@@ -1062,6 +1067,25 @@ function toggleBoreLog() : void {
   } else {
     container.style.display = "none;"
   }
+}
+
+function validateStationNumber(text : string) : boolean {
+  let c = 0;
+  for (const char of text) {
+    if (char == "+") {
+      c++;
+    }
+  }
+  if (c !== 1) {
+    return false;
+  }
+  text = text.replace('+', '');
+  for (const char of text) {
+    if (isNaN(Number(char))) {
+      return false;
+    }
+  }
+  return true;
 }
 
 singleInitialization();

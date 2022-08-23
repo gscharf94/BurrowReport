@@ -18,7 +18,10 @@
 .boreLogStationContainer {
   display: grid;
   margin: auto;
-  margin-top: 10px;
+  margin-top: 0px;
+  padding-bottom: 15px;
+  padding-top: 15px;
+  border-bottom: 5px solid;
 }
 
 .boreLogStationContainer input {
@@ -446,6 +449,7 @@ label {
   grid-column: 9;
   background-color: #ee7979;
   max-width: 100px;
+  margin-right: 10px !important;
 }
 
 .ftInput {
@@ -470,6 +474,7 @@ label {
   margin: auto;
   margin-top: 0px;
   font-size: 7ch;
+  margin-left: 10px !important;
 }
 
 .ftinContainer input {
