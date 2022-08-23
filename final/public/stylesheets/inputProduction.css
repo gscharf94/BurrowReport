@@ -17,6 +17,24 @@
 
 .boreLogStationContainer {
   display: grid;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.boreLogStationContainer input {
+  border: none;
+  font-size: 4.3ch;
+  text-align: center;
+  width: 80%;
+  background-color: #b2b2b2;
+}
+
+.boreLogStationContainer label {
+  font-size: 3ch;
+  font-weight: 600;
+  width: 80%;
+  text-align: right;
+  background-color: var(--color-4);
 }
 
 #startInput {
@@ -334,6 +352,7 @@ label {
   height: 100%;
   background-color: white;
 }
+
 
 #boreLogContainer {
   position: absolute;
