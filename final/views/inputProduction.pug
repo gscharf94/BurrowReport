@@ -24,19 +24,18 @@ block content
     button#submit.controlChild Submit
     input(id="dateInput", type="date", class="controlChild")
     input(id="footageInput", type="number", class="controlChild")
-    // select(id="vaultSelect", class="controlChild")
-    //   option(value="-1") ---
-    //   option(value="0") DT20
-    //   option(value="1") DT30
-    //   option(value="2") DT36
     label(for="dateInput", id="dateLabel") Date
     label(for="footageInput", id="footageLabel") Ftg
-    // label(for="vaultSelect", id="vaultLabel") Size
   div#adminControls.control
     img(src="/images/icons/forward_gray_copy.svg")#forward.movementArrow.controlChild
     img(src="/images/icons/backward_gray_copy.svg")#backward.movementArrow.controlChild
     h1#movementHeader SH#{pageNumber} 
   div#boreLogContainer
+    div.boreLogStationContainer
+      input(id="startInput", name="startInput")
+      input(id="endInput", name="endInput")
+      label(id="startInputLabel", for="startInput") START STA#
+      label(id="endInputLabel", for="endInput") END STA#
     div#inputs
     button#boreLogSubmit Save
     button#boreLogCancel Delete

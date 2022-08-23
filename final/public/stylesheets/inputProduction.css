@@ -15,6 +15,31 @@
   pointer-events: auto;
 }
 
+.boreLogStationContainer {
+  display: grid;
+}
+
+#startInput {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#endInput {
+  grid-column: 4;
+  grid-row: 1;
+}
+
+#startInputLabel {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#endInputLabel {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+
 #controls {
   display: grid;
   grid-template-rows: 1fr 1fr 1fr;
@@ -312,12 +337,12 @@ label {
 
 #boreLogContainer {
   position: absolute;
-  width: 57%;
-  height: 75%;
-  z-index: 1002;
+  width: 75%;
+  height: 82%;
+  z-index: 2000;
   background-color: var(--color-4);
-  top: 10%;
-  right: 15%;
+  top: 2%;
+  right: 10%;
   display: none;
   flex-direction: column;
   grid-template-columns: 50% 50%;
@@ -332,8 +357,11 @@ label {
 }
 
 .ftinContainer {
-  display: grid;
-  grid-template-columns: 23% 20% 5% 20% 5% 13.5% 13.5%;
+  /* display: grid; */
+  display: flex;
+  column-gap: 15px;
+  /* grid-template-columns: 23% 20% 5% 20% 5% 13.5% 13.5%; */
+  grid-template-columns: 15% 12% 2% 12% 2% 6% 6%;
   margin: auto;
   padding-top: var(--borelog-gap);
   padding-bottom: var(--borelog-gap);
@@ -381,14 +409,24 @@ label {
   color: white;
 }
 
-.incrementButton {
+.EOPInput {
   grid-column: 6;
+}
+
+.EOPText {
+  grid-column: 7;
+}
+
+.incrementButton {
+  grid-column: 8;
   background-color: #79d679;
+  max-width: 100px;
 }
 
 .decrementButton {
-  grid-column: 7;
+  grid-column: 9;
   background-color: #ee7979;
+  max-width: 100px;
 }
 
 .ftInput {
@@ -436,6 +474,12 @@ label {
   /* margin-bottom: var(--borelog-gap); */
   display: inline-flex;
   align-items: center;
+  font-family: mono !important;
+  font-weight: 500;
+}
+
+.hiddenEOP {
+  visibility: hidden !important;
 }
 
 #boreLogSubmit {

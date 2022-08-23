@@ -890,15 +890,17 @@ function generateBoreLogHTML(footage : number) : string {
     numberOfRows++;
   }
 
-  let html = "";
+  let html = ``;
   for (let i = 0; i < numberOfRows; i++) {
     html += `
       <div class="ftinContainer">
-        <h1 class="rowCounter"> ${(i + 1) * 10}-</h1>
+        <h1 class="rowCounter"> ${(i < 9) ? '&nbsp;' : ''}${(i + 1) * 10}-</h1>
         <input class="ftInput" type="number"></input>
         <p class="ftText">'</p>
         <input class="inInput" type="number"></input>
         <p class="inText">"</p>
+        <input class="EOPInput ${(i % 5 !== 0) ? 'hiddenEOP' : ''}" type="number"></input>
+        <p class="EOPText ${(i % 5 !== 0) ? 'hiddenEOP' : ''}">'</p>
         <button onclick="incrementBoreLogRow(this)" class="incrementButton">+</button>
         <button onclick="decrementBoreLogRow(this)" class="decrementButton">-</button>
       </div>
