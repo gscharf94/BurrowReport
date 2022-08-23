@@ -417,7 +417,7 @@ function sendPDFGenerationRequest() {
         boreInfo: []
     };
     for (const bore of window.bores) {
-        if (bore.line.hidden) {
+        if (bore.line.hidden || bore.footage == 0) {
             continue;
         }
         let depths = (0, website_js_1.convertArrayToBoreLog)(bore.bore_logs);
