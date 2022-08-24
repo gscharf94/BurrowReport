@@ -124,6 +124,7 @@ export async function insertVault(vaultData : UploadVaultObject) : Promise<[numb
  */
 export async function insertBore(boreData : UploadBoreObject) : Promise<[number, number]> {
   console.log(boreData);
+  console.log('this happens....');
   let tableName = (boreData.rock) ? "rocks" : "bores";
   let pageId = await getPageId(boreData.job_name, boreData.page_number);
   let query = `
@@ -137,7 +138,10 @@ export async function insertBore(boreData : UploadBoreObject) : Promise<[number,
         coordinates,
         crew_name,
         bore_logs,
-        billing_code
+        billing_code,
+        start_station,
+        end_station,
+        eops
       )
     VALUES
       (
@@ -149,13 +153,25 @@ export async function insertBore(boreData : UploadBoreObject) : Promise<[number,
       '${formatCoordsToPsql(boreData.coordinates)}',
       '${boreData.crew_name}',
       '${formatCoordsToPsql(boreData.bore_log)}',
-      '${boreData.billing_code}'
+      '${boreData.billing_code}',
+      '${boreData.start_station}',
+      '${boreData.end_station}',
+      '${formatNumberArrayToPsql(boreData.eops)}'
       )
       RETURNING id;
-  `
-
+  `;
   let queryResults = await pool.query(query);
   return [queryResults.rows[0].id, pageId];
+}
+
+function formatNumberArrayToPsql(nums : number[]) : string {
+  let output = `{`;
+  for (const num of nums) {
+    output += `${num},`;
+  }
+  output = output.slice(0, -1);
+  output += `}`;
+  return output;
 }
 
 /**

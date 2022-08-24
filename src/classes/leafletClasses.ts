@@ -337,8 +337,8 @@ export class MapLine extends MapObject<L.Polyline> {
       bore_log: info.boreLogs,
       billing_code: info.billingCode,
       eops: info.eops,
-      startStation: info.stationStart,
-      endStation: info.stationEnd,
+      start_station: info.stationStart,
+      end_station: info.stationEnd,
     };
     this.sendSelfPostRequest(updateType, postObject, callback);
   }
@@ -490,6 +490,9 @@ export class BoreObject {
   id : number;
   bore_logs : BoreLogRow[];
   showId : boolean;
+  eops : number[];
+  startStation : string;
+  endStation : string;
 
   constructor(boreInfo : DownloadBoreObject, line : MapLine, showId : boolean = false) {
     this.job_name = boreInfo.job_name;
@@ -504,6 +507,9 @@ export class BoreObject {
     this.bore_logs = boreInfo.bore_logs;
     this.line = line;
     this.showId = showId;
+    this.eops = boreInfo.eops;
+    this.startStation = boreInfo.startStation;
+    this.endStation = boreInfo.endStation;
 
     this.bindPopup();
   }
@@ -527,7 +533,7 @@ export class BoreObject {
     this.line.mapObject.bindPopup(this.generatePopupHTML());
   }
 
-  editSelf(info : { footage : number, workDate : Date, boreLogs : BoreLogRow[] }) {
+  editSelf(info : { footage : number, workDate : Date, boreLogs : BoreLogRow[], eops : number[], startStation : string, endStation : string }) {
     let postObject = {
       work_date: info.workDate,
       bore_log: info.boreLogs,
@@ -535,6 +541,9 @@ export class BoreObject {
       object_type: "bore",
       coordinates: this.coordinates,
       id: this.id,
+      eops: info.eops,
+      start_station: info.startStation,
+      end_station: info.endStation,
     }
     this.line.sendSelfPostRequest("edit", postObject, (res : string) => { console.log('updated bore...') })
   }

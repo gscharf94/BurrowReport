@@ -356,6 +356,9 @@ function newBoreSubmitCallback(line : MapLine, billingCode : string) {
         bore_logs: boreLogs,
         billing_code: billingCode,
         coordinates: [...line.points],
+        eops: [...eops],
+        startStation: stations.start,
+        endStation: stations.end,
       }, line));
     },
     "new");
@@ -680,10 +683,15 @@ function editBoreCallback(bore : BoreObject) {
   let footage = getFootageValue();
   let date = getDateValue();
   let boreLogs = parseBoreLogValues();
+  let stations = getStationNumbers();
+  let eops = getEOPs();
   bore.editSelf({
     footage: footage,
     workDate: date,
     boreLogs: boreLogs,
+    startStation: stations.start,
+    endStation: stations.end,
+    eops: eops,
   });
 }
 
@@ -1118,6 +1126,9 @@ function toggleBoreLog() : void {
 }
 
 function validateStationNumber(text : string) : boolean {
+  if (text == "") {
+    return true;
+  }
   let c = 0;
   for (const char of text) {
     if (char == "+") {

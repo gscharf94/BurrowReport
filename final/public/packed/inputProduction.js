@@ -306,8 +306,8 @@ class MapLine extends MapObject {
             bore_log: info.boreLogs,
             billing_code: info.billingCode,
             eops: info.eops,
-            startStation: info.stationStart,
-            endStation: info.stationEnd,
+            start_station: info.stationStart,
+            end_station: info.stationEnd,
         };
         this.sendSelfPostRequest(updateType, postObject, callback);
     }
@@ -441,6 +441,9 @@ class BoreObject {
     id;
     bore_logs;
     showId;
+    eops;
+    startStation;
+    endStation;
     constructor(boreInfo, line, showId = false) {
         this.job_name = boreInfo.job_name;
         this.page_number = boreInfo.page_number;
@@ -454,6 +457,9 @@ class BoreObject {
         this.bore_logs = boreInfo.bore_logs;
         this.line = line;
         this.showId = showId;
+        this.eops = boreInfo.eops;
+        this.startStation = boreInfo.startStation;
+        this.endStation = boreInfo.endStation;
         this.bindPopup();
     }
     generatePopupHTML() {
@@ -481,6 +487,9 @@ class BoreObject {
             object_type: "bore",
             coordinates: this.coordinates,
             id: this.id,
+            eops: info.eops,
+            start_station: info.startStation,
+            end_station: info.endStation,
         };
         this.line.sendSelfPostRequest("edit", postObject, (res) => { console.log('updated bore...'); });
     }
@@ -1016,6 +1025,9 @@ function newBoreSubmitCallback(line, billingCode) {
             bore_logs: boreLogs,
             billing_code: billingCode,
             coordinates: [...line.points],
+            eops: [...eops],
+            startStation: stations.start,
+            endStation: stations.end,
         }, line));
     }, "new");
     line.removeAllLineMarkers();
@@ -1311,10 +1323,15 @@ function editBoreCallback(bore) {
     let footage = getFootageValue();
     let date = getDateValue();
     let boreLogs = parseBoreLogValues();
+    let stations = getStationNumbers();
+    let eops = getEOPs();
     bore.editSelf({
         footage: footage,
         workDate: date,
         boreLogs: boreLogs,
+        startStation: stations.start,
+        endStation: stations.end,
+        eops: eops,
     });
 }
 /**
@@ -1708,6 +1725,9 @@ function toggleBoreLog() {
     }
 }
 function validateStationNumber(text) {
+    if (text == "") {
+        return true;
+    }
     let c = 0;
     for (const char of text) {
         if (char == "+") {

@@ -124,6 +124,7 @@ exports.insertVault = insertVault;
  */
 async function insertBore(boreData) {
     console.log(boreData);
+    console.log('this happens....');
     let tableName = (boreData.rock) ? "rocks" : "bores";
     let pageId = await getPageId(boreData.job_name, boreData.page_number);
     let query = `
@@ -137,7 +138,10 @@ async function insertBore(boreData) {
         coordinates,
         crew_name,
         bore_logs,
-        billing_code
+        billing_code,
+        start_station,
+        end_station,
+        eops
       )
     VALUES
       (
@@ -149,7 +153,10 @@ async function insertBore(boreData) {
       '${formatCoordsToPsql(boreData.coordinates)}',
       '${boreData.crew_name}',
       '${formatCoordsToPsql(boreData.bore_log)}',
-      '${boreData.billing_code}'
+      '${boreData.billing_code}',
+      '${boreData.start_station}',
+      '${boreData.end_station}',
+      '${formatNumberArrayToPsql(boreData.eops)}'
       )
       RETURNING id;
   `;
@@ -157,6 +164,15 @@ async function insertBore(boreData) {
     return [queryResults.rows[0].id, pageId];
 }
 exports.insertBore = insertBore;
+function formatNumberArrayToPsql(nums) {
+    let output = `{`;
+    for (const num of nums) {
+        output += `${num},`;
+    }
+    output = output.slice(0, -1);
+    output += `}`;
+    return output;
+}
 /**
  * psql accepts date in YYYY-MM-DD format
  * so this function takes in a javascript date object

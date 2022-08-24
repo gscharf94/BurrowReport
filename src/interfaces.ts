@@ -30,6 +30,9 @@ export interface UploadBoreObject extends UploadObject {
   footage : number,
   rock : boolean,
   bore_log : BoreLogRow[],
+  start_station : string,
+  end_station : string,
+  eops : number[],
 }
 
 export interface UploadVaultObject extends UploadObject {
@@ -52,6 +55,9 @@ export interface DownloadBoreObject extends DownloadObject {
   footage : number,
   coordinates : Coord[],
   bore_logs : BoreLogRow[],
+  eops : number[],
+  startStation : string,
+  endStation : string,
 }
 
 export interface DownloadVaultObject extends DownloadObject {
