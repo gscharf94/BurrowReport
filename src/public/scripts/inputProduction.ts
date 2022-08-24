@@ -20,6 +20,9 @@ declare global {
     boresAndRocks : BoreObject[],
     vaults : VaultObject[],
     map : L.Map;
+
+
+    getEOPs : () => number[];
   }
 }
 
@@ -80,6 +83,9 @@ window.decrementBoreLogRow = decrementBoreLogRow;
 window.toggleBoreLog = toggleBoreLog;
 window.boresAndRocks = [];
 window.vaults = [];
+
+
+window.getEOPs = getEOPs;
 
 let renderer = L.canvas({ tolerance: 20 });
 let map = L.map('map').setView([58.8, -4.08], 3);
@@ -1055,6 +1061,39 @@ function configureBoreLogContainer(footage : number) {
   cancel.addEventListener('click', closeContainerAndClear);
 }
 
+function getEOPs() : number[] {
+  let nums = [];
+  let inputs = document.querySelectorAll('.EOPInput');
+  for (const input of inputs) {
+    if (input.classList.contains('hiddenEOP')) {
+      continue;
+    }
+    //@ts-ignore
+    if (input.value == "") {
+      nums.push(-1);
+    }
+    else {
+      //@ts-ignore
+      nums.push(Number(input.value));
+    }
+  }
+  return nums;
+}
+
+function validateEOPs() : boolean {
+  let inputs = document.querySelectorAll('.EOPInput');
+  for (const input of inputs) {
+    if (input.classList.contains('hiddenEOP')) {
+      continue;
+    }
+    //@ts-ignore
+    if (isNaN(Number(input.value))) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function toggleBoreLog() : void {
   let container = document.getElementById('boreLogContainer');
   if (container.style.display == "none") {
@@ -1086,6 +1125,23 @@ function validateStationNumber(text : string) : boolean {
     }
   }
   return true;
+}
+
+function validateStationNumbers() : boolean {
+  let vals = getStationNumbers();
+  if (validateStationNumber(vals.start) && validateStationNumber(vals.end)) {
+    return true;
+  }
+  return false;
+}
+
+function getStationNumbers() : { start : string, end : string } {
+  let startStationInput = <HTMLInputElement>document.getElementById('startInput');
+  let endStationInput = <HTMLInputElement>document.getElementById('endInput');
+  return {
+    start: startStationInput.value,
+    end: endStationInput.value,
+  };
 }
 
 singleInitialization();

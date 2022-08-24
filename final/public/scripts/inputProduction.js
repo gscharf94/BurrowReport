@@ -56,6 +56,7 @@ window.decrementBoreLogRow = decrementBoreLogRow;
 window.toggleBoreLog = toggleBoreLog;
 window.boresAndRocks = [];
 window.vaults = [];
+window.getEOPs = getEOPs;
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 3);
 leaflet_1.default.tileLayer('http://192.168.1.247:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
@@ -932,6 +933,37 @@ function configureBoreLogContainer(footage) {
     submit.addEventListener('click', closeContainer);
     cancel.addEventListener('click', closeContainerAndClear);
 }
+function getEOPs() {
+    let nums = [];
+    let inputs = document.querySelectorAll('.EOPInput');
+    for (const input of inputs) {
+        if (input.classList.contains('hiddenEOP')) {
+            continue;
+        }
+        //@ts-ignore
+        if (input.value == "") {
+            nums.push(-1);
+        }
+        else {
+            //@ts-ignore
+            nums.push(Number(input.value));
+        }
+    }
+    return nums;
+}
+function validateEOPs() {
+    let inputs = document.querySelectorAll('.EOPInput');
+    for (const input of inputs) {
+        if (input.classList.contains('hiddenEOP')) {
+            continue;
+        }
+        //@ts-ignore
+        if (isNaN(Number(input.value))) {
+            return false;
+        }
+    }
+    return true;
+}
 function toggleBoreLog() {
     let container = document.getElementById('boreLogContainer');
     if (container.style.display == "none") {
@@ -963,5 +995,20 @@ function validateStationNumber(text) {
         }
     }
     return true;
+}
+function validateStationNumbers() {
+    let vals = getStationNumbers();
+    if (validateStationNumber(vals.start) && validateStationNumber(vals.end)) {
+        return true;
+    }
+    return false;
+}
+function getStationNumbers() {
+    let startStationInput = document.getElementById('startInput');
+    let endStationInput = document.getElementById('endInput');
+    return {
+        start: startStationInput.value,
+        end: endStationInput.value,
+    };
 }
 singleInitialization();
