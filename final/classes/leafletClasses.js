@@ -298,6 +298,9 @@ class MapLine extends MapObject {
             object_type: "bore",
             bore_log: info.boreLogs,
             billing_code: info.billingCode,
+            eops: info.eops,
+            startStation: info.stationStart,
+            endStation: info.stationEnd,
         };
         this.sendSelfPostRequest(updateType, postObject, callback);
     }

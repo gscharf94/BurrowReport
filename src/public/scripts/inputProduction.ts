@@ -20,9 +20,6 @@ declare global {
     boresAndRocks : BoreObject[],
     vaults : VaultObject[],
     map : L.Map;
-
-
-    getEOPs : () => number[];
   }
 }
 
@@ -83,9 +80,6 @@ window.decrementBoreLogRow = decrementBoreLogRow;
 window.toggleBoreLog = toggleBoreLog;
 window.boresAndRocks = [];
 window.vaults = [];
-
-
-window.getEOPs = getEOPs;
 
 let renderer = L.canvas({ tolerance: 20 });
 let map = L.map('map').setView([58.8, -4.08], 3);
@@ -333,6 +327,9 @@ function newBoreSubmitCallback(line : MapLine, billingCode : string) {
   let footage = getFootageValue();
   let date = getDateValue();
   let boreLogs = parseBoreLogValues();
+  let stations = getStationNumbers();
+  let eops = getEOPs();
+
   line.submitSelf({
     footage: footage,
     workDate: date,
@@ -341,6 +338,9 @@ function newBoreSubmitCallback(line : MapLine, billingCode : string) {
     crewName: USERINFO.username,
     pageNumber: PAGE_NUMBER,
     billingCode: billingCode,
+    stationStart: stations.start,
+    stationEnd: stations.end,
+    eops: eops,
   },
     (res : string) => {
       let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])]
@@ -1013,6 +1013,15 @@ function validateBoreLogValues() : boolean {
       return false;
     }
   }
+
+  if (!validateEOPs()) {
+    return false;
+  }
+
+  if (!validateStationNumbers()) {
+    return false;
+  }
+
   return true;
 }
 

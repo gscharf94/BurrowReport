@@ -323,7 +323,7 @@ export class MapLine extends MapObject<L.Polyline> {
     this.updateLine();
   }
 
-  submitSelf(info : { footage : number, workDate : Date, jobName : string, crewName : string, pageNumber : number, boreLogs : BoreLogRow[], billingCode : string }, callback : (res : string) => void, updateType : 'new' | 'edit') {
+  submitSelf(info : { footage : number, workDate : Date, jobName : string, crewName : string, pageNumber : number, boreLogs : BoreLogRow[], billingCode : string, eops : number[], stationStart : string, stationEnd : string }, callback : (res : string) => void, updateType : 'new' | 'edit') {
     // let postObject: UploadBoreObject = {
     // TODO rework interfaces for Upload and Download objects to have CODE
     let postObject = {
@@ -336,6 +336,9 @@ export class MapLine extends MapObject<L.Polyline> {
       object_type: "bore",
       bore_log: info.boreLogs,
       billing_code: info.billingCode,
+      eops: info.eops,
+      startStation: info.stationStart,
+      endStation: info.stationEnd,
     };
     this.sendSelfPostRequest(updateType, postObject, callback);
   }

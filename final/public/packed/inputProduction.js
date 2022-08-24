@@ -305,6 +305,9 @@ class MapLine extends MapObject {
             object_type: "bore",
             bore_log: info.boreLogs,
             billing_code: info.billingCode,
+            eops: info.eops,
+            startStation: info.stationStart,
+            endStation: info.stationEnd,
         };
         this.sendSelfPostRequest(updateType, postObject, callback);
     }
@@ -772,7 +775,6 @@ window.decrementBoreLogRow = decrementBoreLogRow;
 window.toggleBoreLog = toggleBoreLog;
 window.boresAndRocks = [];
 window.vaults = [];
-window.getEOPs = getEOPs;
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 3);
 leaflet_1.default.tileLayer('http://192.168.1.247:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
@@ -987,6 +989,8 @@ function newBoreSubmitCallback(line, billingCode) {
     let footage = getFootageValue();
     let date = getDateValue();
     let boreLogs = parseBoreLogValues();
+    let stations = getStationNumbers();
+    let eops = getEOPs();
     line.submitSelf({
         footage: footage,
         workDate: date,
@@ -995,6 +999,9 @@ function newBoreSubmitCallback(line, billingCode) {
         crewName: USERINFO.username,
         pageNumber: PAGE_NUMBER,
         billingCode: billingCode,
+        stationStart: stations.start,
+        stationEnd: stations.end,
+        eops: eops,
     }, (res) => {
         let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
         let options = getOptionsFromBillingCode(billingCode);
@@ -1606,6 +1613,12 @@ function validateBoreLogValues() {
         if (!checkIfInputIsNumber(feetInputs[i].value) || !checkIfInputIsNumber(inchesInput[i].value)) {
             return false;
         }
+    }
+    if (!validateEOPs()) {
+        return false;
+    }
+    if (!validateStationNumbers()) {
+        return false;
     }
     return true;
 }
