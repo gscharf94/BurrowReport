@@ -56,8 +56,8 @@ export interface DownloadBoreObject extends DownloadObject {
   coordinates : Coord[],
   bore_logs : BoreLogRow[],
   eops : number[],
-  startStation : string,
-  endStation : string,
+  start_station : string,
+  end_station : string,
 }
 
 export interface DownloadVaultObject extends DownloadObject {

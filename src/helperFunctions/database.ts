@@ -45,7 +45,10 @@ export function updateBore(boreInfo : UploadBoreObject) : void {
       coordinates='${formatCoordsToPsql(boreInfo.coordinates)}',
       footage=${boreInfo.footage},
       work_date='${formatDateToPsql(new Date(boreInfo.work_date))}',
-      bore_logs='${formatCoordsToPsql(boreInfo.bore_log)}'
+      bore_logs='${formatCoordsToPsql(boreInfo.bore_log)}',
+      eops='${formatNumberArrayToPsql(boreInfo.eops)}',
+      start_station='${boreInfo.start_station}',
+      end_station='${boreInfo.end_station}'
     WHERE
       id=${boreInfo.id};
   `;

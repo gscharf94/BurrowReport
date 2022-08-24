@@ -451,8 +451,8 @@ class BoreObject {
         this.line = line;
         this.showId = showId;
         this.eops = boreInfo.eops;
-        this.startStation = boreInfo.startStation;
-        this.endStation = boreInfo.endStation;
+        this.startStation = boreInfo.start_station;
+        this.endStation = boreInfo.end_station;
         this.bindPopup();
     }
     generatePopupHTML() {

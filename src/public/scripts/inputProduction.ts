@@ -357,8 +357,8 @@ function newBoreSubmitCallback(line : MapLine, billingCode : string) {
         billing_code: billingCode,
         coordinates: [...line.points],
         eops: [...eops],
-        startStation: stations.start,
-        endStation: stations.end,
+        start_station: stations.start,
+        end_station: stations.end,
       }, line));
     },
     "new");
@@ -696,6 +696,27 @@ function editBoreCallback(bore : BoreObject) {
 }
 
 
+function setStationNumbers(start : string, end : string) {
+  let startStationInput = <HTMLInputElement>document.getElementById('startInput');
+  let endStationInput = <HTMLInputElement>document.getElementById('endInput');
+  startStationInput.value = start;
+  endStationInput.value = end;
+}
+
+function setEOPs(eops : number[]) {
+  let i = 0;
+  let inputs = document.querySelectorAll('.EOPInput');
+  for (const input of inputs) {
+    if (input.classList.contains('hiddenEOP')) {
+      continue;
+    } else {
+      //@ts-ignore
+      input.value = eops[i];
+      i++;
+    }
+  }
+}
+
 /**
  * takes in an object type and an id.. makes that specific item editable
  * so that the user can change it. pops up the submit/cancel buttons
@@ -713,6 +734,8 @@ function editObject(objectType : 'vault' | 'bore', id : number, billingCode : st
         bore.editLine();
         startBoreSetup();
         applyBoreLog(bore.bore_logs);
+        setStationNumbers(bore.startStation, bore.endStation);
+        setEOPs(bore.eops);
 
         let footageInput = <HTMLInputElement>document.getElementById('footageInput');
         let dateInput = <HTMLInputElement>document.getElementById('dateInput');

@@ -458,8 +458,8 @@ class BoreObject {
         this.line = line;
         this.showId = showId;
         this.eops = boreInfo.eops;
-        this.startStation = boreInfo.startStation;
-        this.endStation = boreInfo.endStation;
+        this.startStation = boreInfo.start_station;
+        this.endStation = boreInfo.end_station;
         this.bindPopup();
     }
     generatePopupHTML() {
@@ -1026,8 +1026,8 @@ function newBoreSubmitCallback(line, billingCode) {
             billing_code: billingCode,
             coordinates: [...line.points],
             eops: [...eops],
-            startStation: stations.start,
-            endStation: stations.end,
+            start_station: stations.start,
+            end_station: stations.end,
         }, line));
     }, "new");
     line.removeAllLineMarkers();
@@ -1334,6 +1334,26 @@ function editBoreCallback(bore) {
         eops: eops,
     });
 }
+function setStationNumbers(start, end) {
+    let startStationInput = document.getElementById('startInput');
+    let endStationInput = document.getElementById('endInput');
+    startStationInput.value = start;
+    endStationInput.value = end;
+}
+function setEOPs(eops) {
+    let i = 0;
+    let inputs = document.querySelectorAll('.EOPInput');
+    for (const input of inputs) {
+        if (input.classList.contains('hiddenEOP')) {
+            continue;
+        }
+        else {
+            //@ts-ignore
+            input.value = eops[i];
+            i++;
+        }
+    }
+}
 /**
  * takes in an object type and an id.. makes that specific item editable
  * so that the user can change it. pops up the submit/cancel buttons
@@ -1351,6 +1371,8 @@ function editObject(objectType, id, billingCode) {
                 bore.editLine();
                 startBoreSetup();
                 applyBoreLog(bore.bore_logs);
+                setStationNumbers(bore.startStation, bore.endStation);
+                setEOPs(bore.eops);
                 let footageInput = document.getElementById('footageInput');
                 let dateInput = document.getElementById('dateInput');
                 footageInput.value = String(bore.footage);
