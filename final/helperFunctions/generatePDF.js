@@ -5,9 +5,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createFullDocument = void 0;
 const pdfkit_1 = __importDefault(require("pdfkit"));
-const firaRegular = '../final/fonts/FiraMono-Regular.ttf';
-const firaMedium = '../final/fonts/FiraMono-Medium.ttf';
-const firaBold = '../final/fonts/FiraMono-Bold.ttf';
+const fs_1 = __importDefault(require("fs"));
+const firaRegular = './final/fonts/FiraMono-Regular.ttf';
+const firaMedium = './final/fonts/FiraMono-Medium.ttf';
+const firaBold = './final/fonts/FiraMono-Bold.ttf';
+// const firaRegular = '../final/fonts/FiraMono-Regular.ttf';
+// const firaMedium = '../final/fonts/FiraMono-Medium.ttf';
+// const firaBold = '../final/fonts/FiraMono-Bold.ttf';
+function createFullDocumentTest(bores) {
+    const doc = new pdfkit_1.default({ autoFirstPage: false });
+    doc.pipe(fs_1.default.createWriteStream('testing.pdf'));
+    for (const bore of bores) {
+        createBoreLogTest(bore.depths, bore.info, doc, bore.eops, bore.stations);
+    }
+    doc.end();
+}
 function createFullDocument(bores, res) {
     console.log(bores);
     const doc = new pdfkit_1.default({ autoFirstPage: false });
@@ -30,11 +42,25 @@ function drawPage(bores, pageNumber, info, doc) {
     writeBoreDepthHeaders(doc);
     writeBoresToPage(bores, pageNumber, doc);
 }
+function drawPageTest(bores, pageNumber, info, doc, eops, stations) {
+    doc.addPage({ margin: 0 });
+    // drawGrayRectangles(doc);
+    writeHeaderTest(info, doc, stations);
+    // writeBoreDepthHeaders(doc);
+    // writeBoresToPage(bores, pageNumber, doc);
+}
 function createBoreLog(depths, info, doc) {
     let bores = splitArrayIntoSetsOf80(depths);
     let i = 1;
     for (const boreLogs of bores) {
         drawPage(boreLogs, i++, info, doc);
+    }
+}
+function createBoreLogTest(depths, info, doc, eops, stations) {
+    let bores = splitArrayIntoSetsOf80(depths);
+    let i = 1;
+    for (const boreLogs of bores) {
+        drawPageTest(boreLogs, i++, info, doc, eops, stations);
     }
 }
 function writeBoreDepthHeaders(doc) {
@@ -108,6 +134,19 @@ function generateTestingBores(ftg) {
     }
     return output;
 }
+function generateTestingEOPS(ftg) {
+    let output = [];
+    let numOfRows = Math.floor(ftg / 10);
+    if (ftg % 10 !== 0) {
+        numOfRows++;
+    }
+    for (let i = 0; i < numOfRows; i++) {
+        if (i % 5 == 0) {
+            output.push(Math.floor((Math.random() * 12)));
+        }
+    }
+    return output;
+}
 function splitArrayIntoSetsOf80(depths) {
     if (depths.length > 80) {
         return [depths.slice(0, 80), depths.slice(80)];
@@ -127,6 +166,27 @@ function writeEmptyHeader(doc) {
     doc.fontSize(16);
     doc.text('Ftg:', 530, 30);
 }
+function writeEmptyHeaderTest(doc) {
+    doc.font(firaBold).fontSize(14);
+    doc.text('Job Name:', 10, 10);
+    doc.text('Job Number:', 220, 10);
+    doc.text('Client:', 450, 10);
+    doc.text('Date:', 10, 30);
+    doc.text('Street:', 220, 30);
+    doc.text('Ftg:', 450, 70);
+    doc.text('Crew:', 10, 50);
+    doc.text('City:', 220, 50);
+    doc.text('Side of Road:', 220, 70);
+    doc.text('Direction:', 220, 90);
+    doc.text('Start:', 10, 70);
+    doc.text('End:', 10, 90);
+    doc.text('Billing Code:', 450, 30);
+    doc.text('Bore ID:', 450, 50);
+    doc.text('Shot#   of  ', 450, 90);
+    doc.font(firaBold).fontSize(16);
+    doc.text('E  W  N  S ', 330, 70);
+    doc.text('E  W  N  S ', 330, 90);
+}
 function drawHeaderLines(doc) {
     doc.moveTo(45, 85)
         .lineTo(510, 85)
@@ -136,6 +196,22 @@ function drawHeaderLines(doc) {
         .lineTo(275, 762)
         .lineWidth(1)
         .stroke();
+}
+function writeHeaderTest(info, doc, stations) {
+    writeEmptyHeaderTest(doc);
+    doc.font(firaRegular).fontSize(14);
+    doc.text(info.crew_name, 100, 50);
+    doc.text(info.work_date, 100, 30);
+    doc.text(info.job_name, 100, 10);
+    doc.text(info.client_name, 520, 10);
+    doc.text(info.billing_code, 575, 30);
+    doc.text(String(info.bore_number), 530, 50);
+    doc.text(String(info.footage) + "ft", 530, 70);
+    doc.text(stations.start, 100, 70);
+    doc.text(stations.end, 100, 90);
+    // drawHeaderLines(doc);
+    // doc.fontSize(15);
+    // doc.text(String(info.footage) + 'ft', 530, 50);
 }
 function writeHeader(info, doc) {
     writeEmptyHeader(doc);
@@ -150,3 +226,46 @@ function writeHeader(info, doc) {
     doc.fontSize(15);
     doc.text(String(info.footage) + 'ft', 530, 50);
 }
+let testingInfo1 = {
+    crew_name: 'test_crew',
+    work_date: '2022-04-12',
+    job_name: 'P1552',
+    bore_number: 156,
+    client_name: 'Danella',
+    billing_code: 'I9',
+    footage: 475,
+};
+let testingBores1 = generateTestingBores(475);
+let testingEOPS1 = generateTestingEOPS(475);
+let testingStations1 = {
+    start: '111+111',
+    end: '222+222',
+};
+let testBoreInfo1 = {
+    info: testingInfo1,
+    depths: testingBores1,
+    eops: testingEOPS1,
+    stations: testingStations1,
+};
+let testingInfo2 = {
+    crew_name: 'test_crew',
+    work_date: '2022-04-12',
+    job_name: 'P1552',
+    bore_number: 157,
+    client_name: 'Danella',
+    billing_code: 'I9',
+    footage: 743,
+};
+let testingBores2 = generateTestingBores(743);
+let testingEOPS2 = generateTestingEOPS(743);
+let testingStations2 = {
+    start: '222+222',
+    end: '333+333',
+};
+let testBoreInfo2 = {
+    info: testingInfo2,
+    depths: testingBores2,
+    eops: testingEOPS2,
+    stations: testingStations2,
+};
+createFullDocumentTest([testBoreInfo1, testBoreInfo2]);

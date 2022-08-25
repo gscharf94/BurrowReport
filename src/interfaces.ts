@@ -162,3 +162,10 @@ export interface BoreLogSet {
   info : BoreLogInfo,
   depths : BoreDepth[],
 }
+
+export interface BoreLogSetTest {
+  info : BoreLogInfo,
+  depths : BoreDepth[],
+  eops : number[],
+  stations : { start : string, end : string },
+}

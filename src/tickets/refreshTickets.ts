@@ -4,7 +4,7 @@ import { typeAndWaitSelector, clickAndWaitSelector } from '../helperFunctions/we
 import { updateTicketRefresh } from '../helperFunctions/database.js';
 import { getJobTickets } from '../helperFunctions/database.js';
 
-const HEADLESS = false;
+const HEADLESS = true;
 const GLOBALDELAY = 50;
 
 const KENTUCKYLOGINURL = "https://811.kentucky811.org/login";
@@ -53,7 +53,8 @@ async function refreshTicketKentucky(ticket : string, page : puppeteer.Page) : P
 
   const confirmMapSelectSelector = "#mat-select-value-21 > span";
   const yesButtonSelector = "#mat-option-3 > span";
-  const saveContinueSelector = "#mat-tab-content-0-0 > div > div > div.iq-ticket-entry-left-side > ng-component > form > div > div:nth-child(3) > iq-icon-button.ng-star-inserted > button > div";
+  // const saveContinueSelector = "#mat-tab-content-0-0 > div > div > div.iq-ticket-entry-left-side > ng-component > form > div > div:nth-child(3) > iq-icon-button.ng-star-inserted > button > div";
+  const saveContinueSelector = "#mat-tab-content-0-0 > div > div > div.iq-ticket-entry-left-side.reactive-width > div:nth-child(2) > ng-component > form > div > div:nth-child(3) > iq-icon-button.ng-star-inserted > button";
   const confirmTicketSelector = "#mat-dialog-0 > ng-component > div > mat-dialog-actions > iq-icon-button:nth-child(2) > button > div";
   const sendTicketSelector = "#mat-dialog-1 > ng-component > div > mat-dialog-actions > iq-icon-button:nth-child(2) > button > div";
 
