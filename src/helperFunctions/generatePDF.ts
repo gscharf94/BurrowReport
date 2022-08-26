@@ -176,7 +176,9 @@ function writeBoresToPageTest(bores : BoreDepth[], pageNumber : number, doc : PD
       y = startingY;
     }
     if (i % 5 == 0) {
-      doc.text(String(eops[eopCounter++]) + "'", x + 185, y);
+      if (eops[eopCounter] !== 0) {
+        doc.text(String(eops[eopCounter++]) + "'", x + 185, y);
+      }
     }
     let ftg = String(bores[i].ft).padStart(2, "0");
     let inches = String(bores[i].inches).padStart(2, "0");
@@ -314,6 +316,28 @@ function drawHeaderLines(doc : PDFKit.PDFDocument) {
     .stroke();
 }
 
+function drawHeaderLinesTest(doc : PDFKit.PDFDocument) {
+  doc.moveTo(175, 10)
+    .lineTo(175, 110)
+    .lineWidth(1)
+    .stroke();
+
+  doc.moveTo(400, 10)
+    .lineTo(400, 110)
+    .lineWidth(1)
+    .stroke();
+
+  doc.moveTo(30, 110)
+    .lineTo(550, 110)
+    .lineWidth(3)
+    .stroke();
+
+  doc.moveTo(275, 115)
+    .lineTo(275, 750)
+    .lineWidth(1)
+    .stroke();
+}
+
 function writeHeaderTest(info : BoreLogInfo, doc : PDFKit.PDFDocument, stations : { start : string, end : string }) {
   writeEmptyHeaderTest(doc);
 
@@ -329,7 +353,7 @@ function writeHeaderTest(info : BoreLogInfo, doc : PDFKit.PDFDocument, stations 
   doc.text(stations.end, 75, 90);
 
 
-  // drawHeaderLines(doc);
+  drawHeaderLinesTest(doc);
 
   // doc.fontSize(15);
   // doc.text(String(info.footage) + 'ft', 530, 50);
