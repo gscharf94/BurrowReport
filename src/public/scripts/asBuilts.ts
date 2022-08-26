@@ -488,7 +488,7 @@ function sendPDFGenerationRequest() {
       billing_code: bore.billing_code,
       footage: bore.footage,
     }
-    postObject.boreInfo.push({ info: info, depths: depths });
+    postObject.boreInfo.push({ info: info, depths: depths, eops: bore.eops, stations: { start: bore.startStation, end: bore.endStation } });
   }
   console.log(postObject);
 
