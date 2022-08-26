@@ -47,10 +47,10 @@ function drawPage(bores : BoreDepth[], pageNumber : number, info : BoreLogInfo, 
 
 function drawPageTest(bores : BoreDepth[], pageNumber : number, info : BoreLogInfo, doc : PDFKit.PDFDocument, eops : number[], stations : { start : string, end : string }) {
   doc.addPage({ margin: 0 });
-  // drawGrayRectangles(doc);
+  drawGrayRectanglesTest(doc);
   writeHeaderTest(info, doc, stations);
-  // writeBoreDepthHeaders(doc);
-  // writeBoresToPage(bores, pageNumber, doc);
+  writeBoreDepthHeadersTest(doc);
+  writeBoresToPageTest(bores, pageNumber, doc, eops);
 }
 
 
@@ -81,6 +81,17 @@ function writeBoreDepthHeaders(doc : PDFKit.PDFDocument) {
   doc.text('EOP', 475, 95);
 }
 
+function writeBoreDepthHeadersTest(doc : PDFKit.PDFDocument) {
+  doc.font(firaMedium).fontSize(15);
+  doc.text('Rod', 50, 115);
+  doc.text('Depth', 125, 115);
+  doc.text('EOP', 225, 115);
+  doc.text('Rod', 300, 115);
+  doc.text('Depth', 375, 115);
+  doc.text('EOP', 480, 115);
+}
+
+
 function drawGrayRectangles(doc : PDFKit.PDFDocument) {
   const startingX = 40;
   const startingY = 119;
@@ -101,6 +112,79 @@ function drawGrayRectangles(doc : PDFKit.PDFDocument) {
     doc.rect(startingX, y, width, height).fill();
   }
   doc.fillColor('black', 1);
+}
+
+function drawGrayRectanglesTest(doc : PDFKit.PDFDocument) {
+  const startingX = 40;
+  const startingY = 141;
+  const width = 500;
+  const height = 15;
+  const color = {
+    r: 210,
+    g: 210,
+    b: 210,
+  }
+  const opacity = 1;
+  const rowHeight = 30;
+
+
+  const headerColor = {
+    r: 170,
+    g: 170,
+    b: 170,
+  }
+
+  const depthHeaderX = 40;
+  const depthHeaderWidth = 500;
+  const depthHeaderY = 115;
+  const depthHeaderHeight = 18;
+
+  doc.fillColor([headerColor.r, headerColor.g, headerColor.b], opacity);
+
+  doc.rect(depthHeaderX, depthHeaderY, depthHeaderWidth, depthHeaderHeight).fill();
+
+  doc.fillColor([color.r, color.g, color.b], opacity);
+
+  for (let i = 0; i < 20; i++) {
+    let y = startingY + (rowHeight * i);
+    doc.rect(startingX, y, width, height).fill();
+  }
+  doc.fillColor('black', 1);
+}
+
+function writeBoresToPageTest(bores : BoreDepth[], pageNumber : number, doc : PDFKit.PDFDocument, eops : number[]) {
+  const xFirstColumn = 50;
+  const xSecondColumn = 300;
+  const startingY = 140;
+  const rowGap = 15;
+  const fontSize = 14;
+
+  let counter = 10;
+  if (pageNumber > 1) {
+    counter = 810;
+  }
+  const formatCounter = (n : number) => {
+    return String(n).padStart(3, "0");
+  }
+
+  let [x, y] = [xFirstColumn, startingY];
+  let eopCounter = 0;
+  doc.font(firaRegular).fontSize(fontSize);
+  for (let i = 0; i < bores.length; i++) {
+    if (i % 40 == 0 && i != 0) {
+      x = xSecondColumn;
+      y = startingY;
+    }
+    if (i % 5 == 0) {
+      doc.text(String(eops[eopCounter++]) + "'", x + 185, y);
+    }
+    let ftg = String(bores[i].ft).padStart(2, "0");
+    let inches = String(bores[i].inches).padStart(2, "0");
+    doc.text(`${formatCounter(counter)}      ${ftg}'${inches}"`, x, y);
+    y += rowGap;
+    counter += 10;
+  }
+
 }
 
 function writeBoresToPage(bores : BoreDepth[], pageNumber : number, doc : PDFKit.PDFDocument) {
@@ -188,32 +272,32 @@ function writeEmptyHeader(doc : PDFKit.PDFDocument) {
 function writeEmptyHeaderTest(doc : PDFKit.PDFDocument) {
   doc.font(firaBold).fontSize(14);
 
-  doc.text('Job Name:', 10, 10);
-  doc.text('Job Number:', 220, 10);
-  doc.text('Client:', 450, 10);
+  doc.text('  Job:', 10, 10);
+  doc.text('Job Number:', 200, 10);
+  doc.text(' Client:', 405, 10);
 
-  doc.text('Date:', 10, 30);
-  doc.text('Street:', 220, 30);
-  doc.text('Ftg:', 450, 70)
+  doc.text(' Date:', 10, 30);
+  doc.text('    Street:', 200, 30);
+  doc.text('    Ftg:', 405, 70)
 
-  doc.text('Crew:', 10, 50);
-  doc.text('City:', 220, 50);
+  doc.text(' Crew:', 10, 50);
+  doc.text('      City:', 200, 50);
 
-  doc.text('Side of Road:', 220, 70);
-  doc.text('Direction:', 220, 90);
+  doc.text('Side of Road:', 182, 70);
+  doc.text('   Direction:', 182, 90);
 
   doc.text('Start:', 10, 70);
-  doc.text('End:', 10, 90);
+  doc.text('  End:', 10, 90);
 
-  doc.text('Billing Code:', 450, 30);
-  doc.text('Bore ID:', 450, 50);
+  doc.text('   Code:', 405, 30);
+  doc.text('Bore ID:', 405, 50);
 
-  doc.text('Shot#   of  ', 450, 90);
+  doc.text('   Shot#       of    ', 405, 90);
 
 
-  doc.font(firaBold).fontSize(16);
-  doc.text('E  W  N  S ', 330, 70);
-  doc.text('E  W  N  S ', 330, 90);
+  doc.font(firaBold).fontSize(13);
+  doc.text('E  W  N  S ', 310, 72);
+  doc.text('E  W  N  S ', 310, 92);
 
 
 }
@@ -234,15 +318,15 @@ function writeHeaderTest(info : BoreLogInfo, doc : PDFKit.PDFDocument, stations 
   writeEmptyHeaderTest(doc);
 
   doc.font(firaRegular).fontSize(14);
-  doc.text(info.crew_name, 100, 50);
-  doc.text(info.work_date, 100, 30);
-  doc.text(info.job_name, 100, 10);
-  doc.text(info.client_name, 520, 10);
-  doc.text(info.billing_code, 575, 30);
-  doc.text(String(info.bore_number), 530, 50);
-  doc.text(String(info.footage) + "ft", 530, 70);
-  doc.text(stations.start, 100, 70);
-  doc.text(stations.end, 100, 90);
+  doc.text(info.crew_name, 75, 50);
+  doc.text(info.work_date, 75, 30);
+  doc.text(info.job_name, 75, 10);
+  doc.text(info.client_name, 490, 10);
+  doc.text(info.billing_code, 490, 30);
+  doc.text(String(info.bore_number), 490, 50);
+  doc.text(String(info.footage) + "ft", 490, 70);
+  doc.text(stations.start, 75, 70);
+  doc.text(stations.end, 75, 90);
 
 
   // drawHeaderLines(doc);

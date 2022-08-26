@@ -158,6 +158,7 @@ export interface BoreLogInfo {
   footage : number,
 }
 
+
 export interface BoreLogSet {
   info : BoreLogInfo,
   depths : BoreDepth[],
