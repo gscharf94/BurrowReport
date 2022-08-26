@@ -2,6 +2,20 @@ import { TicketResponse, Coord, UploadBoreObject, UploadVaultObject, BoreLogRow,
 import { pool } from '../db.js';
 
 /**
+ * the idea is to go through all the bores for a specific date range on a job
+ * then we can populate the bore logs with shot X of Y using this translation
+ * dictionary in generatePdf
+ *
+ * @param {Date} startDate - start date of filter
+ * @param {Date} endDate - end date of filter
+ * @param {string} jobName - the job name
+ * @returns {Promise<{ [key : string] : number }>} {boreId: xxx -> shot# 5}
+ */
+export async function getShotNumbers(startDate : Date, endDate : Date, jobName : string) : Promise<{ [key : string] : number }> {
+  return { 'something': 5 }
+}
+
+/**
  * takes a job name and a page number and returns a page id
  * which is unique for each page. page numbers aren't unique
  * because each job can have a page 2 or page 3

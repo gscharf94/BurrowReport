@@ -1,7 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeJobFromCrew = exports.assignJobToCrew = exports.getJobState = exports.getJobTickets = exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.updateVault = exports.updateBore = exports.deleteObject = exports.getPageId = void 0;
+exports.removeJobFromCrew = exports.assignJobToCrew = exports.getJobState = exports.getJobTickets = exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.updateVault = exports.updateBore = exports.deleteObject = exports.getPageId = exports.getShotNumbers = void 0;
 const db_js_1 = require("../db.js");
+/**
+ * the idea is to go through all the bores for a specific date range on a job
+ * then we can populate the bore logs with shot X of Y using this translation
+ * dictionary in generatePdf
+ *
+ * @param {Date} startDate - start date of filter
+ * @param {Date} endDate - end date of filter
+ * @param {string} jobName - the job name
+ * @returns {Promise<{ [key : string] : number }>} {boreId: xxx -> shot# 5}
+ */
+async function getShotNumbers(startDate, endDate, jobName) {
+    return { 'something': 5 };
+}
+exports.getShotNumbers = getShotNumbers;
 /**
  * takes a job name and a page number and returns a page id
  * which is unique for each page. page numbers aren't unique
