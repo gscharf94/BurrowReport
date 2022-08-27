@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const db_js_1 = require("../db.js");
-const CLIENT = "Future";
+const CLIENT = "Light";
 const STATE = "Florida";
-const JOB = "MMP-10016262";
+const JOB = "BIG_HOUSE";
 let filesPath = `${process.cwd()}/final/public/maps/originals/${JOB}`;
 let files = fs_1.default.readdirSync(filesPath);
 (async () => {

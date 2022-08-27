@@ -13,7 +13,29 @@ const db_js_1 = require("../db.js");
  * @returns {Promise<{ [key : string] : number }>} {boreId: xxx -> shot# 5}
  */
 async function getShotNumbers(startDate, endDate, jobName) {
-    return { 'something': 5 };
+    let jobBoresQuery = `
+    SELECT * FROM bores
+    WHERE
+      job_name='${jobName}';
+  `;
+    const result = await db_js_1.pool.query(jobBoresQuery);
+    const boreIds = result.rows.filter((val) => {
+        let workDate = new Date(val.work_date);
+        if (workDate.valueOf() >= startDate.valueOf() && workDate.valueOf() <= endDate.valueOf()) {
+            return true;
+        }
+    })
+        .map(val => val.id)
+        .sort((a, b) => a - b);
+    if (result.rows.length == 0) {
+        return {};
+    }
+    let c = 1;
+    let output = {};
+    for (const bore of boreIds) {
+        output[String(bore)] = c++;
+    }
+    return output;
 }
 exports.getShotNumbers = getShotNumbers;
 /**

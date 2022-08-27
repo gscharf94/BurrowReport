@@ -12,7 +12,31 @@ import { pool } from '../db.js';
  * @returns {Promise<{ [key : string] : number }>} {boreId: xxx -> shot# 5}
  */
 export async function getShotNumbers(startDate : Date, endDate : Date, jobName : string) : Promise<{ [key : string] : number }> {
-  return { 'something': 5 }
+  let jobBoresQuery = `
+    SELECT * FROM bores
+    WHERE
+      job_name='${jobName}';
+  `;
+  const result = await pool.query(jobBoresQuery);
+  const boreIds = result.rows.filter((val) => {
+    let workDate = new Date(val.work_date);
+    if (workDate.valueOf() >= startDate.valueOf() && workDate.valueOf() <= endDate.valueOf()) {
+      return true;
+    }
+  })
+    .map(val => val.id)
+    .sort((a, b) => a - b);
+
+  if (result.rows.length == 0) {
+    return {};
+  }
+
+  let c = 1;
+  let output = {};
+  for (const bore of boreIds) {
+    output[String(bore)] = c++;
+  }
+  return output;
 }
 
 /**
