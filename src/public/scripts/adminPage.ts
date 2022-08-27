@@ -223,7 +223,21 @@ function populateJobSelect() {
     .innerHTML = html;
 }
 
+function validateAsBuiltJobSelect() : boolean {
+  let jobSelect = <HTMLSelectElement>document.getElementById('jobSelect');
+  if (jobSelect.value == '-1') {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 function goToAsBuilt() {
+  console.log('this happens');
+  if (!validateAsBuiltJobSelect()) {
+    alert('please select a job');
+    return;
+  }
   let jobSelect = <HTMLSelectElement>document.getElementById('jobSelect');
   let jobId = Number(jobSelect.value);
   window.location.href = `http://192.168.1.247:3000/asBuilts/${jobId}/-1`;
