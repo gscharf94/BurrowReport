@@ -11,8 +11,7 @@ const pdfkit_1 = __importDefault(require("pdfkit"));
 const firaRegular = '../final/fonts/FiraMono-Regular.ttf';
 const firaMedium = '../final/fonts/FiraMono-Medium.ttf';
 const firaBold = '../final/fonts/FiraMono-Bold.ttf';
-function createFullDocument(bores, res) {
-    console.log(bores);
+function createFullDocument(bores, shotNumbers, res) {
     const doc = new pdfkit_1.default({ autoFirstPage: false });
     let buffers = [];
     doc.on('data', buffers.push.bind(buffers));
@@ -21,23 +20,28 @@ function createFullDocument(bores, res) {
         res.send(pdfData.toString('base64'));
     });
     for (const bore of bores) {
-        createBoreLog(bore.depths, bore.info, doc, bore.eops, bore.stations);
+        createBoreLog(bore.depths, bore.info, doc, bore.eops, bore.stations, shotNumbers);
     }
     doc.end();
 }
 exports.createFullDocument = createFullDocument;
-function drawPage(bores, pageNumber, info, doc, eops, stations) {
+function drawPage(bores, pageNumber, info, doc, eops, stations, shotNumbers, totalBores) {
     doc.addPage({ margin: 0 });
     drawGrayRectangles(doc);
     writeHeader(info, doc, stations);
     writeBoreDepthHeaders(doc);
     writeBoresToPage(bores, pageNumber, doc, eops);
+    let shotNumber = shotNumbers[info.bore_number];
+    fillInShotNumbers(shotNumber, totalBores, doc);
 }
-function createBoreLog(depths, info, doc, eops, stations) {
+function fillInShotNumbers(current, total, doc) {
+    console.log(`shot ${current} / ${total}`);
+}
+function createBoreLog(depths, info, doc, eops, stations, shotNumbers) {
     let bores = splitArrayIntoSetsOf80(depths);
     let i = 1;
     for (const boreLogs of bores) {
-        drawPage(boreLogs, i++, info, doc, eops, stations);
+        drawPage(boreLogs, i++, info, doc, eops, stations, shotNumbers, bores.length);
     }
 }
 function writeBoreDepthHeaders(doc) {
@@ -101,7 +105,7 @@ function writeBoresToPage(bores, pageNumber, doc, eops) {
             y = startingY;
         }
         if (i % 5 == 0) {
-            if (eops[eopCounter] !== 0) {
+            if (eops[eopCounter] !== 0 && eops[eopCounter] !== undefined) {
                 doc.text(String(eops[eopCounter++]) + "'", x + 185, y);
             }
         }

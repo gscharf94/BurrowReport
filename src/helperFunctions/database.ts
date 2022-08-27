@@ -12,6 +12,9 @@ import { pool } from '../db.js';
  * @returns {Promise<{ [key : string] : number }>} {boreId: xxx -> shot# 5}
  */
 export async function getShotNumbers(startDate : Date, endDate : Date, jobName : string) : Promise<{ [key : string] : number }> {
+  console.log(`start: ${startDate}`);
+  console.log(`end:   ${endDate}`);
+  console.log(`job:   ${jobName}`);
   let jobBoresQuery = `
     SELECT * FROM bores
     WHERE

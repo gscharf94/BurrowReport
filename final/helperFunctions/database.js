@@ -13,6 +13,9 @@ const db_js_1 = require("../db.js");
  * @returns {Promise<{ [key : string] : number }>} {boreId: xxx -> shot# 5}
  */
 async function getShotNumbers(startDate, endDate, jobName) {
+    console.log(`start: ${startDate}`);
+    console.log(`end:   ${endDate}`);
+    console.log(`job:   ${jobName}`);
     let jobBoresQuery = `
     SELECT * FROM bores
     WHERE

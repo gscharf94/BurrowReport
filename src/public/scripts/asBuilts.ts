@@ -474,8 +474,22 @@ function sendPDFGenerationRequest() {
   let postObject = {
     boreInfo: []
   };
+
+  let dates : { start : Date, end : Date };
+  if (!validateDateInputs()) {
+    dates = { start: new Date('1970-01-01'), end: new Date('2050-01-01') }
+  } else {
+    dates = getDateValues();
+  }
+
   for (const bore of window.bores) {
     if (bore.line.hidden || bore.footage == 0) {
+      continue;
+    }
+    if (
+      bore.work_date.valueOf() <= dates.start.valueOf() &&
+      bore.work_date.valueOf() >= dates.end.valueOf()
+    ) {
       continue;
     }
     let depths = convertArrayToBoreLog(bore.bore_logs);
@@ -488,7 +502,15 @@ function sendPDFGenerationRequest() {
       billing_code: bore.billing_code,
       footage: bore.footage,
     }
-    postObject.boreInfo.push({ info: info, depths: depths, eops: bore.eops, stations: { start: bore.startStation, end: bore.endStation } });
+    postObject.boreInfo.push({
+      info: info,
+      depths: depths,
+      eops: bore.eops,
+      stations: { start: bore.startStation, end: bore.endStation },
+      startDate: dates.start,
+      endDate: dates.end,
+      jobName: JOB_NAME,
+    });
   }
   console.log(postObject);
 
