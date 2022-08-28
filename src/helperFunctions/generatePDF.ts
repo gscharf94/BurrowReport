@@ -19,6 +19,9 @@ export function createFullDocument(bores : BoreLogSet[], shotNumbers : { [key : 
     let pdfData = Buffer.concat(buffers);
     res.send(pdfData.toString('base64'));
   });
+  bores = bores.sort((a, b) => {
+    return shotNumbers[a.info.bore_number] - shotNumbers[b.info.bore_number];
+  });
   for (const bore of bores) {
     createBoreLog(bore.depths, bore.info, doc, bore.eops, bore.stations, shotNumbers);
   }
@@ -26,7 +29,7 @@ export function createFullDocument(bores : BoreLogSet[], shotNumbers : { [key : 
 }
 
 
-function drawPage(bores : BoreDepth[], pageNumber : number, info : BoreLogInfo, doc : PDFKit.PDFDocument, eops : number[], stations : { start : string, end : string }, shotNumbers : { [key : string] : number }, totalBores : number) {
+function drawPage(bores : BoreDepth[], pageNumber : number, info : BoreLogInfo, doc : PDFKit.PDFDocument, eops : number[], stations : { start : string, end : string }, shotNumbers : { [key : string] : number }) {
   doc.addPage({ margin: 0 });
   drawGrayRectangles(doc);
   writeHeader(info, doc, stations);
@@ -34,7 +37,7 @@ function drawPage(bores : BoreDepth[], pageNumber : number, info : BoreLogInfo, 
   writeBoresToPage(bores, pageNumber, doc, eops);
 
   let shotNumber = shotNumbers[info.bore_number];
-  fillInShotNumbers(shotNumber, totalBores, doc);
+  fillInShotNumbers(shotNumber, Object.keys(shotNumbers).length, doc);
 }
 
 function fillInShotNumbers(current : number, total : number, doc : PDFKit.PDFDocument) {
@@ -46,7 +49,7 @@ function createBoreLog(depths : BoreDepth[], info : BoreLogInfo, doc : PDFKit.PD
   let bores = splitArrayIntoSetsOf80(depths);
   let i = 1;
   for (const boreLogs of bores) {
-    drawPage(boreLogs, i++, info, doc, eops, stations, shotNumbers, bores.length);
+    drawPage(boreLogs, i++, info, doc, eops, stations, shotNumbers);
   }
 }
 

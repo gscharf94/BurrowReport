@@ -19,20 +19,23 @@ function createFullDocument(bores, shotNumbers, res) {
         let pdfData = Buffer.concat(buffers);
         res.send(pdfData.toString('base64'));
     });
+    bores = bores.sort((a, b) => {
+        return shotNumbers[a.info.bore_number] - shotNumbers[b.info.bore_number];
+    });
     for (const bore of bores) {
         createBoreLog(bore.depths, bore.info, doc, bore.eops, bore.stations, shotNumbers);
     }
     doc.end();
 }
 exports.createFullDocument = createFullDocument;
-function drawPage(bores, pageNumber, info, doc, eops, stations, shotNumbers, totalBores) {
+function drawPage(bores, pageNumber, info, doc, eops, stations, shotNumbers) {
     doc.addPage({ margin: 0 });
     drawGrayRectangles(doc);
     writeHeader(info, doc, stations);
     writeBoreDepthHeaders(doc);
     writeBoresToPage(bores, pageNumber, doc, eops);
     let shotNumber = shotNumbers[info.bore_number];
-    fillInShotNumbers(shotNumber, totalBores, doc);
+    fillInShotNumbers(shotNumber, Object.keys(shotNumbers).length, doc);
 }
 function fillInShotNumbers(current, total, doc) {
     console.log(`shot ${current} / ${total}`);
@@ -41,7 +44,7 @@ function createBoreLog(depths, info, doc, eops, stations, shotNumbers) {
     let bores = splitArrayIntoSetsOf80(depths);
     let i = 1;
     for (const boreLogs of bores) {
-        drawPage(boreLogs, i++, info, doc, eops, stations, shotNumbers, bores.length);
+        drawPage(boreLogs, i++, info, doc, eops, stations, shotNumbers);
     }
 }
 function writeBoreDepthHeaders(doc) {
