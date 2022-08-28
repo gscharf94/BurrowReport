@@ -18,6 +18,9 @@ router.post('/', (req, res, next) => {
 
     const boresInfo : BoreLogSet[] = []
     for (const bore of bores) {
+      if (bore.footage == 0) {
+        continue;
+      }
       let boreDepths = [];
       for (const row of bore.bore_logs) {
         boreDepths.push({ ft: row[0], inches: row[1] });

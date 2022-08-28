@@ -19,6 +19,9 @@ exports.router.post('/', (req, res, next) => {
         const shotNumbers = await (0, database_js_1.getShotNumbers)(start, end, req.body.jobName);
         const boresInfo = [];
         for (const bore of bores) {
+            if (bore.footage == 0) {
+                continue;
+            }
             let boreDepths = [];
             for (const row of bore.bore_logs) {
                 boreDepths.push({ ft: row[0], inches: row[1] });

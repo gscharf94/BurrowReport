@@ -43,7 +43,7 @@ async function getShotNumbers(startDate, endDate, jobName) {
     const result = await db_js_1.pool.query(jobBoresQuery);
     const boreIds = result.rows.filter((val) => {
         let workDate = new Date(val.work_date);
-        if (workDate.valueOf() >= startDate.valueOf() && workDate.valueOf() <= endDate.valueOf()) {
+        if (workDate.valueOf() >= startDate.valueOf() && workDate.valueOf() <= endDate.valueOf() && val.footage !== 0) {
             return true;
         }
     })
@@ -226,6 +226,9 @@ async function insertBore(boreData) {
 }
 exports.insertBore = insertBore;
 function formatNumberArrayToPsql(nums) {
+    if (nums.length == 0) {
+        return '{}';
+    }
     let output = `{`;
     for (const num of nums) {
         output += `${num},`;
