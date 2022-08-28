@@ -28,6 +28,8 @@ const VAULTS : DownloadVaultObject[] = parseJSON(VAULTS_JSON);
 //@ts-ignore
 const JOB_NAME : string = JOB_NAME_PUG;
 //@ts-ignore
+const CLIENT_NAME : string = CLIENT_NAME_PUG;
+//@ts-ignore
 const JOB_ID : number = Number(JOB_ID_PUG);
 //@ts-ignore
 const PAGE_NUMBER : number = Number(PAGE_NUMBER_PUG);
@@ -39,6 +41,7 @@ const PAGES : number[] = parseJSON(PAGES_JSON);
 console.log(BORES);
 console.log(VAULTS);
 console.log(JOB_NAME);
+console.log(CLIENT_NAME);
 console.log(PAGE_NUMBER);
 console.log(CLIENT_OPTIONS);
 console.log(PAGES);
