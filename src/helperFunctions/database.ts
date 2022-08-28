@@ -1,5 +1,30 @@
-import { TicketResponse, Coord, UploadBoreObject, UploadVaultObject, BoreLogRow, States } from '../interfaces';
+import { TicketResponse, Coord, UploadBoreObject, UploadVaultObject, DownloadBoreObject, BoreLogRow, States } from '../interfaces';
 import { pool } from '../db.js';
+
+export function filterBoresByDate(bores : DownloadBoreObject[], start : Date, end : Date) : DownloadBoreObject[] {
+  return bores.filter((val) => {
+    let boreDate = new Date(val.work_date);
+    if (
+      boreDate.valueOf() <= end.valueOf() &&
+      boreDate.valueOf() >= start.valueOf()
+    ) {
+      return true;
+    }
+  });
+}
+
+export async function getJobBores(jobName : string) : Promise<DownloadBoreObject[]> {
+  if (jobName == '') {
+    return [];
+  }
+
+  let query = `
+    SELECT * FROM bores
+    WHERE job_name='${jobName}'
+  `;
+  let bores = await pool.query(query);
+  return bores.rows;
+}
 
 /**
  * the idea is to go through all the bores for a specific date range on a job
@@ -12,9 +37,6 @@ import { pool } from '../db.js';
  * @returns {Promise<{ [key : string] : number }>} {boreId: xxx -> shot# 5}
  */
 export async function getShotNumbers(startDate : Date, endDate : Date, jobName : string) : Promise<{ [key : string] : number }> {
-  console.log(`start: ${startDate}`);
-  console.log(`end:   ${endDate}`);
-  console.log(`job:   ${jobName}`);
   let jobBoresQuery = `
     SELECT * FROM bores
     WHERE

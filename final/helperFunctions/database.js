@@ -1,7 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeJobFromCrew = exports.assignJobToCrew = exports.getJobState = exports.getJobTickets = exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.updateVault = exports.updateBore = exports.deleteObject = exports.getPageId = exports.getShotNumbers = void 0;
+exports.removeJobFromCrew = exports.assignJobToCrew = exports.getJobState = exports.getJobTickets = exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.updateVault = exports.updateBore = exports.deleteObject = exports.getPageId = exports.getShotNumbers = exports.getJobBores = exports.filterBoresByDate = void 0;
 const db_js_1 = require("../db.js");
+function filterBoresByDate(bores, start, end) {
+    return bores.filter((val) => {
+        let boreDate = new Date(val.work_date);
+        if (boreDate.valueOf() <= end.valueOf() &&
+            boreDate.valueOf() >= start.valueOf()) {
+            return true;
+        }
+    });
+}
+exports.filterBoresByDate = filterBoresByDate;
+async function getJobBores(jobName) {
+    if (jobName == '') {
+        return [];
+    }
+    let query = `
+    SELECT * FROM bores
+    WHERE job_name='${jobName}'
+  `;
+    let bores = await db_js_1.pool.query(query);
+    return bores.rows;
+}
+exports.getJobBores = getJobBores;
 /**
  * the idea is to go through all the bores for a specific date range on a job
  * then we can populate the bore logs with shot X of Y using this translation
@@ -13,9 +35,6 @@ const db_js_1 = require("../db.js");
  * @returns {Promise<{ [key : string] : number }>} {boreId: xxx -> shot# 5}
  */
 async function getShotNumbers(startDate, endDate, jobName) {
-    console.log(`start: ${startDate}`);
-    console.log(`end:   ${endDate}`);
-    console.log(`job:   ${jobName}`);
     let jobBoresQuery = `
     SELECT * FROM bores
     WHERE
