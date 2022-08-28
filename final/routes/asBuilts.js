@@ -10,8 +10,9 @@ exports.router = express_1.default.Router();
 exports.router.get('/:jobId/:pageNumber', (req, res) => {
     const [jobId, pageNumber] = [req.params.jobId, req.params.pageNumber];
     (async () => {
-        let jobQuery = await db_js_1.pool.query(`SELECT job_name FROM jobs WHERE id=${jobId}`);
+        let jobQuery = await db_js_1.pool.query(`SELECT job_name, client FROM jobs WHERE id=${jobId}`);
         let jobName = jobQuery.rows[0].job_name;
+        let clientName = jobQuery.rows[0].client;
         let finalPageNumber;
         if (pageNumber == "-1") {
             let pagesQuery = await db_js_1.pool.query(`SELECT * FROM pages where job_name='${jobName}'`);
@@ -44,6 +45,7 @@ exports.router.get('/:jobId/:pageNumber', (req, res) => {
             pagesJSON: JSON.stringify(pages),
             jobId: jobId,
             jobName: jobName,
+            clientName: clientName,
             pageNumber: finalPageNumber,
             clientOptionsJSON: JSON.stringify(clientOptionsQuery.rows),
         });

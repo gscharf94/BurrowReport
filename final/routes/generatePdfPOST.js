@@ -33,7 +33,7 @@ exports.router.post('/', (req, res, next) => {
                     work_date: (0, website_js_1.formatDate)(bore.work_date),
                     job_name: bore.job_name,
                     bore_number: bore.id,
-                    client_name: 'TODO',
+                    client_name: req.body.clientName,
                     billing_code: bore.billing_code,
                     footage: bore.footage,
                 },
@@ -43,10 +43,5 @@ exports.router.post('/', (req, res, next) => {
             });
         }
         (0, generatePDF_js_1.createFullDocument)(boresInfo, shotNumbers, res);
-        // const start = new Date(req.body.boreInfo[0].startDate);
-        // const end = new Date(req.body.boreInfo[0].endDate);
-        // let shotNumbers = await getShotNumbers(start, end, req.body.boreInfo[0].jobName);
-        // console.log(shotNumbers);
-        // createFullDocument(req.body.boreInfo, shotNumbers, res);
     })();
 });

@@ -33,7 +33,7 @@ router.post('/', (req, res, next) => {
           work_date: formatDate(bore.work_date),
           job_name: bore.job_name,
           bore_number: bore.id,
-          client_name: 'TODO',
+          client_name: req.body.clientName,
           billing_code: bore.billing_code,
           footage: bore.footage,
         },
@@ -43,11 +43,5 @@ router.post('/', (req, res, next) => {
       });
     }
     createFullDocument(boresInfo, shotNumbers, res);
-
-    // const start = new Date(req.body.boreInfo[0].startDate);
-    // const end = new Date(req.body.boreInfo[0].endDate);
-    // let shotNumbers = await getShotNumbers(start, end, req.body.boreInfo[0].jobName);
-    // console.log(shotNumbers);
-    // createFullDocument(req.body.boreInfo, shotNumbers, res);
   })();
 });

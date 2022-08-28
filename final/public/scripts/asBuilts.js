@@ -14,6 +14,8 @@ const VAULTS = (0, website_js_1.parseJSON)(VAULTS_JSON);
 //@ts-ignore
 const JOB_NAME = JOB_NAME_PUG;
 //@ts-ignore
+const CLIENT_NAME = CLIENT_NAME_PUG;
+//@ts-ignore
 const JOB_ID = Number(JOB_ID_PUG);
 //@ts-ignore
 const PAGE_NUMBER = Number(PAGE_NUMBER_PUG);
@@ -24,6 +26,7 @@ const PAGES = (0, website_js_1.parseJSON)(PAGES_JSON);
 console.log(BORES);
 console.log(VAULTS);
 console.log(JOB_NAME);
+console.log(CLIENT_NAME);
 console.log(PAGE_NUMBER);
 console.log(CLIENT_OPTIONS);
 console.log(PAGES);
@@ -435,6 +438,7 @@ function sendPDFGenerationRequest() {
         jobName: JOB_NAME,
         startDate: dates.start,
         endDate: dates.end,
+        clientName: CLIENT_NAME,
     };
     (0, website_js_1.sendPostRequest)('generatePDF', postObject, callback);
 }

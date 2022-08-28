@@ -497,6 +497,7 @@ function sendPDFGenerationRequest() {
     jobName: JOB_NAME,
     startDate: dates.start,
     endDate: dates.end,
+    clientName: CLIENT_NAME,
   }
   sendPostRequest('generatePDF', postObject, callback);
 }
