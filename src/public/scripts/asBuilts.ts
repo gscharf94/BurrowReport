@@ -366,6 +366,7 @@ function filterByDate() : void {
 }
 
 function resetItems() {
+  resetInputs();
   deleteBoreLabels();
   deleteBoreIdLabels();
   for (const item of [...window.bores, ...window.vaults]) {
@@ -471,48 +472,12 @@ function getClientFromBillingCode(billingCode : string) : string {
 }
 
 function sendPDFGenerationRequest() {
-  let postObject = {
-    boreInfo: []
-  };
-
   let dates : { start : Date, end : Date };
   if (!validateDateInputs()) {
     dates = { start: new Date('1970-01-01'), end: new Date('2050-01-01') }
   } else {
     dates = getDateValues();
   }
-
-  for (const bore of window.bores) {
-    if (bore.line.hidden || bore.footage == 0) {
-      continue;
-    }
-    if (
-      bore.work_date.valueOf() <= dates.start.valueOf() &&
-      bore.work_date.valueOf() >= dates.end.valueOf()
-    ) {
-      continue;
-    }
-    let depths = convertArrayToBoreLog(bore.bore_logs);
-    let info = {
-      crew_name: bore.crew_name,
-      work_date: formatDate(bore.work_date),
-      job_name: JOB_NAME,
-      bore_number: bore.id,
-      client_name: getClientFromBillingCode(bore.billing_code),
-      billing_code: bore.billing_code,
-      footage: bore.footage,
-    }
-    postObject.boreInfo.push({
-      info: info,
-      depths: depths,
-      eops: bore.eops,
-      stations: { start: bore.startStation, end: bore.endStation },
-      startDate: dates.start,
-      endDate: dates.end,
-      jobName: JOB_NAME,
-    });
-  }
-  console.log(postObject);
 
   const callback = (res : string) => {
     const url = `data:application/pdf;base64,${res}`;
@@ -523,6 +488,12 @@ function sendPDFGenerationRequest() {
     tmpElement.click();
     document.body.removeChild(tmpElement);
     window.URL.revokeObjectURL(url);
+  }
+
+  const postObject = {
+    jobName: JOB_NAME,
+    startDate: dates.start,
+    endDate: dates.end,
   }
   sendPostRequest('generatePDF', postObject, callback);
 }
