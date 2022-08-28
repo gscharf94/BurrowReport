@@ -17,10 +17,6 @@ exports.router.post('/', (req, res, next) => {
         const end = new Date(req.body.endDate);
         const bores = (0, database_js_1.filterBoresByDate)(await (0, database_js_1.getJobBores)(req.body.jobName), start, end);
         const shotNumbers = await (0, database_js_1.getShotNumbers)(start, end, req.body.jobName);
-        console.log(start);
-        console.log(end);
-        console.log(bores);
-        console.log(shotNumbers);
         const boresInfo = [];
         for (const bore of bores) {
             let boreDepths = [];

@@ -38,7 +38,8 @@ function drawPage(bores, pageNumber, info, doc, eops, stations, shotNumbers) {
     fillInShotNumbers(shotNumber, Object.keys(shotNumbers).length, doc);
 }
 function fillInShotNumbers(current, total, doc) {
-    console.log(`shot ${current} / ${total}`);
+    doc.text(String(current), 480, 90);
+    doc.text(String(total), 530, 90);
 }
 function createBoreLog(depths, info, doc, eops, stations, shotNumbers) {
     let bores = splitArrayIntoSetsOf80(depths);
@@ -183,7 +184,7 @@ function writeEmptyHeaderTest(doc) {
     doc.text('  End:', 10, 90);
     doc.text('   Code:', 405, 30);
     doc.text('Bore ID:', 405, 50);
-    doc.text('   Shot#       of    ', 405, 90);
+    doc.text('   Shot#    of    ', 405, 90);
     doc.font(firaBold).fontSize(13);
     doc.text('E  W  N  S ', 310, 72);
     doc.text('E  W  N  S ', 310, 92);

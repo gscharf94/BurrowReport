@@ -16,11 +16,6 @@ router.post('/', (req, res, next) => {
     const bores = filterBoresByDate(await getJobBores(req.body.jobName), start, end);
     const shotNumbers = await getShotNumbers(start, end, req.body.jobName);
 
-    console.log(start);
-    console.log(end);
-    console.log(bores);
-    console.log(shotNumbers);
-
     const boresInfo : BoreLogSet[] = []
     for (const bore of bores) {
       let boreDepths = [];

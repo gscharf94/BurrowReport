@@ -41,7 +41,8 @@ function drawPage(bores : BoreDepth[], pageNumber : number, info : BoreLogInfo, 
 }
 
 function fillInShotNumbers(current : number, total : number, doc : PDFKit.PDFDocument) {
-  console.log(`shot ${current} / ${total}`);
+  doc.text(String(current), 480, 90);
+  doc.text(String(total), 530, 90);
 }
 
 
@@ -215,7 +216,7 @@ function writeEmptyHeaderTest(doc : PDFKit.PDFDocument) {
   doc.text('   Code:', 405, 30);
   doc.text('Bore ID:', 405, 50);
 
-  doc.text('   Shot#       of    ', 405, 90);
+  doc.text('   Shot#    of    ', 405, 90);
 
 
   doc.font(firaBold).fontSize(13);
