@@ -40,6 +40,24 @@ export interface UploadVaultObject extends UploadObject {
   size : number,
 }
 
+export interface TicketDownloadObject {
+  id : number,
+  ticket_number : string,
+  city : string,
+  street : string,
+  cross_street : string,
+  input_date : Date,
+  expiration_date : Date,
+  description : string,
+  active : boolean,
+  old_tickets : string[],
+  job_name : string,
+  coordinates : Coord[],
+  state : string,
+  responses : string[],
+  last_update : Date,
+}
+
 export interface DownloadObject {
   job_name : string,
   page_number : number,

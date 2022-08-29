@@ -21,7 +21,7 @@ exports.router.post('/', (req, res, next) => {
             else {
                 return true;
             }
-        }).map(val => val.ticket_number);
+        }).map((val) => { return val.ticket_number; });
         (0, refreshTickets_js_1.refreshTickets)(tickets, req.body.tickets[0].state);
         res.send('refreshing tickets...');
     })();

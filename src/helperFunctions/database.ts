@@ -1,5 +1,6 @@
 import { TicketResponse, Coord, UploadBoreObject, UploadVaultObject, DownloadBoreObject, BoreLogRow, States } from '../interfaces';
 import { pool } from '../db.js';
+import { checkResponses } from '../helperFunctions/tickets.js';
 
 export function filterBoresByDate(bores : DownloadBoreObject[], start : Date, end : Date) : DownloadBoreObject[] {
   return bores.filter((val) => {
@@ -385,6 +386,48 @@ export async function getJobTickets(jobName : string) : Promise<string[]> {
   let result = await pool.query(query);
   return result.rows.map(val => val.ticket_number);
 }
+
+export function convertPsqlResponseArrayToResponseObject(responses : string[]) : TicketResponse[] {
+  let output = [];
+  let template = [
+    'utility_name', 'utility_type',
+    'response', 'contact',
+    'alternate_contact', 'emergency_contact',
+    'notes'
+  ];
+  for (const response of responses) {
+    let row = {};
+    for (let i = 0; i < response.length; i++) {
+      row[template[i]] = response[i];
+    }
+    output.push(row);
+  }
+  return output;
+}
+
+export async function getJobTicketsNotClear(jobName : string) : Promise<{ ticket_number : string, responses : TicketResponse[] }[]> {
+  let query = `
+    SELECT ticket_number, responses FROM tickets
+    WHERE
+      job_name='${jobName}';
+  `;
+  let result = await pool.query(query);
+
+  return result.rows.map((val) => {
+    return {
+      ticket_number: val.ticket_number,
+      responses: convertPsqlResponseArrayToResponseObject(val.responses),
+    }
+  })
+    .filter((val) => {
+      let [_, pending] = checkResponses(val.responses);
+      if (pending !== 0) {
+        return true;
+      }
+
+    });
+}
+
 /**
  * does a query to the database to figure out which state the
  * job is associated with, so that we can add it to the tickets

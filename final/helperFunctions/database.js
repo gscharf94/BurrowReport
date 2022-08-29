@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeJobFromCrew = exports.assignJobToCrew = exports.getJobState = exports.getJobTickets = exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.updateVault = exports.updateBore = exports.deleteObject = exports.getPageId = exports.getShotNumbers = exports.getJobBores = exports.filterBoresByDate = void 0;
+exports.removeJobFromCrew = exports.assignJobToCrew = exports.getJobState = exports.getJobTicketsNotClear = exports.convertPsqlResponseArrayToResponseObject = exports.getJobTickets = exports.updateTicketRefresh = exports.formatOldTicketsToPsql = exports.formatCoordsToPsql = exports.formatTimestampToPsql = exports.formatResponsesToPsql = exports.formatDateToPsql = exports.insertBore = exports.insertVault = exports.updateVault = exports.updateBore = exports.deleteObject = exports.getPageId = exports.getShotNumbers = exports.getJobBores = exports.filterBoresByDate = void 0;
 const db_js_1 = require("../db.js");
+const tickets_js_1 = require("../helperFunctions/tickets.js");
 function filterBoresByDate(bores, start, end) {
     return bores.filter((val) => {
         let boreDate = new Date(val.work_date);
@@ -376,6 +377,45 @@ async function getJobTickets(jobName) {
     return result.rows.map(val => val.ticket_number);
 }
 exports.getJobTickets = getJobTickets;
+function convertPsqlResponseArrayToResponseObject(responses) {
+    let output = [];
+    let template = [
+        'utility_name', 'utility_type',
+        'response', 'contact',
+        'alternate_contact', 'emergency_contact',
+        'notes'
+    ];
+    for (const response of responses) {
+        let row = {};
+        for (let i = 0; i < response.length; i++) {
+            row[template[i]] = response[i];
+        }
+        output.push(row);
+    }
+    return output;
+}
+exports.convertPsqlResponseArrayToResponseObject = convertPsqlResponseArrayToResponseObject;
+async function getJobTicketsNotClear(jobName) {
+    let query = `
+    SELECT ticket_number, responses FROM tickets
+    WHERE
+      job_name='${jobName}';
+  `;
+    let result = await db_js_1.pool.query(query);
+    return result.rows.map((val) => {
+        return {
+            ticket_number: val.ticket_number,
+            responses: convertPsqlResponseArrayToResponseObject(val.responses),
+        };
+    })
+        .filter((val) => {
+        let [_, pending] = (0, tickets_js_1.checkResponses)(val.responses);
+        if (pending !== 0) {
+            return true;
+        }
+    });
+}
+exports.getJobTicketsNotClear = getJobTicketsNotClear;
 /**
  * does a query to the database to figure out which state the
  * job is associated with, so that we can add it to the tickets

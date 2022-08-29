@@ -96,7 +96,8 @@ JOBS = [
     # "JB4",
     # "VERM2",
     # "BIG_HOUSE",
-    "WO12",
+    # "WO12",
+    # "CRAN-RTFL_SAR03-004-1.5",
     # "VERM",
     # "BAYSIDE",
     # "U51091-STRATUM-HEALTH-5955-RAND-BLVD",
@@ -106,7 +107,7 @@ JOBS = [
     # "MMP-10016234-1.3",
     # "MMP-10016292-1.3",
     # "T413W",
-    # "MMP-10069517-1.1",
+    "MMP-10069517-1.1",
 ]
 
 for job in JOBS:
