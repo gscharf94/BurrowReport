@@ -23,9 +23,9 @@ block content
             each page in job.pages
               a(href=`/inputProduction/${job.client}/${job.job_name}/${page}`).pageLink SH#{page}
         a(href=`/viewTickets/${job.job_name}`).viewTickets Tickets
-        img(src="/images/icons/ticket.png").viewTicketsIcon
+        img(src="/images/icons/ticket.png", onclick=`window.location.href="/viewTickets/${job.job_name}"`).viewTicketsIcon
         a(href=`/prints/${job.job_name}.pdf`).downloadPrints Prints
-        img(src="/images/icons/download.png").downloadPrintsIcon
+        img(src="/images/icons/download.png", onclick=`window.location.href="/prints/${job.job_name}.pdf"`).downloadPrintsIcon
 
 
 block scripts
