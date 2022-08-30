@@ -36,7 +36,7 @@ const PAGE_NUMBER : number = Number(PAGE_NUMBER_PUG);
 //@ts-ignore
 const CLIENT_OPTIONS : ClientOptions[] = parseJSON(CLIENT_OPTIONS_JSON);
 //@ts-ignore
-const PAGES : number[] = parseJSON(PAGES_JSON);
+const PAGES : number[] = parseJSON(PAGES_JSON).sort((a : number, b : number) => { return a - b; });
 
 console.log(BORES);
 console.log(VAULTS);

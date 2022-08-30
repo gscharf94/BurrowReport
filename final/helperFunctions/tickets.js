@@ -24,6 +24,9 @@ function checkResponse(response) {
 }
 exports.checkResponse = checkResponse;
 function checkResponses(responses) {
+    if (responses.length == 0) {
+        return [-1, -1];
+    }
     let [clear, pending] = [0, 0];
     for (const response of responses) {
         if (checkResponse(response)) {

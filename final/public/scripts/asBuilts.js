@@ -22,7 +22,7 @@ const PAGE_NUMBER = Number(PAGE_NUMBER_PUG);
 //@ts-ignore
 const CLIENT_OPTIONS = (0, website_js_1.parseJSON)(CLIENT_OPTIONS_JSON);
 //@ts-ignore
-const PAGES = (0, website_js_1.parseJSON)(PAGES_JSON);
+const PAGES = (0, website_js_1.parseJSON)(PAGES_JSON).sort((a, b) => { return a - b; });
 console.log(BORES);
 console.log(VAULTS);
 console.log(JOB_NAME);

@@ -12,7 +12,7 @@ const KENTUCKYPHONE = "5615018160";
 const KENTUCKYURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
 const FLORIDAPHONE = "5615018160";
 const FLORIDAURL = "https://exactix.sunshine811.com/findTicketByNumberAndPhone";
-const HEADLESS = true;
+const HEADLESS = false;
 const GLOBAL_DELAY = 50;
 /**
  * takes in the info grabbed by web scraper
