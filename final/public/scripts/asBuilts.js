@@ -126,6 +126,12 @@ function checkDateEquality() {
         return false;
     }
 }
+function getNWCorner() {
+    let topLeft = map.getPixelOrigin();
+    topLeft.x += 300;
+    topLeft.y += 300;
+    return map.layerPointToLatLng(topLeft);
+}
 function generateTotalsPopup(items) {
     return leaflet_1.default.popup({
         closeButton: false,
@@ -134,7 +140,8 @@ function generateTotalsPopup(items) {
         autoPan: false,
         closeOnClick: false,
     })
-        .setLatLng([0, 0])
+        //@ts-ignore
+        .setLatLng(getNWCorner())
         .setContent(generateTotalsHTML(items));
 }
 function getTotals(startDate, endDate) {

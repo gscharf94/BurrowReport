@@ -147,6 +147,13 @@ function checkDateEquality() : boolean {
   }
 }
 
+function getNWCorner() : { lat : number, lng : number } {
+  let topLeft = map.getPixelOrigin();
+  topLeft.x += 300;
+  topLeft.y += 300;
+  return map.layerPointToLatLng(topLeft);
+}
+
 function generateTotalsPopup(items : { billingCode : string, quantity : number }[]) {
   return L.popup({
     closeButton: false,
@@ -155,7 +162,8 @@ function generateTotalsPopup(items : { billingCode : string, quantity : number }
     autoPan: false,
     closeOnClick: false,
   })
-    .setLatLng([0, 0])
+    //@ts-ignore
+    .setLatLng(getNWCorner())
     .setContent(generateTotalsHTML(items));
 }
 
