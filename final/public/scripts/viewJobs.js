@@ -12,6 +12,12 @@ function initialization() {
     let checkbox = document.getElementById('oldJobCheckbox');
     checkbox.checked = false;
     hideJobs(USERINFO.username, CREWS_JOBS);
+    document.body.addEventListener('click', (ev) => {
+        //@ts-ignore
+        if (ev.target.id == "content" || ev.target.classList.contains('jobContainer') || ev.target.classList.contains('jobName') || ev.target.classList.contains('jobClient')) {
+            hidePageLinks();
+        }
+    });
 }
 function hideJobs(username, crewsJobs) {
     let jobContainers = document.querySelectorAll('.jobContainer');
@@ -26,6 +32,12 @@ function hideJobs(username, crewsJobs) {
         if (!userJobs.includes(jobId)) {
             element.classList.add('hiddenContainer');
         }
+    }
+}
+function hidePageLinks() {
+    let pageLinks = document.querySelectorAll('.dropdownPageLinks');
+    for (const item of pageLinks) {
+        item.classList.remove('showPageLinks');
     }
 }
 function togglePageLinks(jobId) {
