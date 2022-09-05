@@ -127,7 +127,7 @@ function writeBoresToPage(bores : BoreDepth[], pageNumber : number, doc : PDFKit
       y = startingY;
     }
     if (i % 5 == 0) {
-      if (eops[eopCounter] !== 0 && eops[eopCounter] !== undefined) {
+      if (eops[eopCounter] !== 0 && eops[eopCounter] !== undefined && eops[eopCounter] !== -1) {
         doc.text(String(eops[eopCounter++]) + "'", x + 185, y);
       }
     }
