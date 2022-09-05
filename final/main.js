@@ -42,6 +42,6 @@ app.use('/refreshTickets', refreshTicketsPOST_js_1.router);
 app.use('/updateJobResponses', updateJobResponsesPOST_js_1.router);
 app.use('/asBuilts', asBuilts_js_1.router);
 app.use('/generatePDF', generatePdfPOST_js_1.router);
-app.listen(PORT, () => {
-    console.log(`listening @ http://192.168.1.247:3000`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`listening @ http://burrowreport.com`);
 });

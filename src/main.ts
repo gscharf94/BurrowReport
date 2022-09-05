@@ -43,6 +43,6 @@ app.use('/updateJobResponses', updateJobResponsesPOST);
 app.use('/asBuilts', asBuilts);
 app.use('/generatePDF', generatePdfPOST);
 
-app.listen(PORT, () => {
-  console.log(`listening @ http://192.168.1.247:3000`);
+app.listen(PORT,'0.0.0.0', () => {
+  console.log(`listening @ http://burrowreport.com`);
 });

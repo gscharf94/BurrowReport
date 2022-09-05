@@ -648,7 +648,7 @@ exports.validUserLoggedIn = validUserLoggedIn;
 function redirectToLoginPage() {
     if (!validUserLoggedIn()) {
         alert('Please log in.. redirecting page..');
-        window.location.href = "http://192.168.1.247:3000";
+        window.location.href = "http://burrowreport.com";
     }
 }
 exports.redirectToLoginPage = redirectToLoginPage;
@@ -691,7 +691,7 @@ exports.formatDate = formatDate;
  */
 function sendPostRequest(url, body, callback) {
     let req = new XMLHttpRequest();
-    req.open('POST', `http://192.168.1.247:3000/${url}`);
+    req.open('POST', `http://burrowreport.com/${url}`);
     req.setRequestHeader("Content-type", "application/json");
     req.send(JSON.stringify(body));
     req.onreadystatechange = function () {
@@ -789,7 +789,7 @@ window.boresAndRocks = [];
 window.vaults = [];
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 3);
-leaflet_1.default.tileLayer('http://192.168.1.247:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
+leaflet_1.default.tileLayer('http://burrowreport.com/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
     attribution: `${JOB_NAME} - PAGE# ${PAGE_NUMBER}`,
     minZoom: 2,
     maxZoom: 7,
@@ -1503,7 +1503,7 @@ function toggleMovementLinks() {
         forwardLink.classList.add('movementActive');
         forwardLink.src = "/images/icons/forward_green_copy.svg";
         forwardLink.addEventListener('click', () => {
-            window.location.href = `http://192.168.1.247:3000/inputProduction/${CLIENT}/${JOB_NAME}/${PAGE_NUMBER + 1}`;
+            window.location.href = `http://burrowreport.com/inputProduction/${CLIENT}/${JOB_NAME}/${PAGE_NUMBER + 1}`;
         });
     }
     else {
@@ -1514,7 +1514,7 @@ function toggleMovementLinks() {
         backwardLink.classList.add('movementActive');
         backwardLink.src = "/images/icons/backward_green_copy.svg";
         backwardLink.addEventListener('click', () => {
-            window.location.href = `http://192.168.1.247:3000/inputProduction/${CLIENT}/${JOB_NAME}/${PAGE_NUMBER - 1}`;
+            window.location.href = `http://burrowreport.com/inputProduction/${CLIENT}/${JOB_NAME}/${PAGE_NUMBER - 1}`;
         });
     }
     else {

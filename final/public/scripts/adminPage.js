@@ -205,7 +205,7 @@ function goToAsBuilt() {
     }
     let jobSelect = document.getElementById('jobSelect');
     let jobId = Number(jobSelect.value);
-    window.location.href = `http://192.168.1.247:3000/asBuilts/${jobId}/-1`;
+    window.location.href = `http://burrowreport.com/asBuilts/${jobId}/-1`;
 }
 populateSelectElement();
 populateJobSelect();

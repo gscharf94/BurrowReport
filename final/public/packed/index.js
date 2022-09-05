@@ -42,7 +42,7 @@ exports.validUserLoggedIn = validUserLoggedIn;
 function redirectToLoginPage() {
     if (!validUserLoggedIn()) {
         alert('Please log in.. redirecting page..');
-        window.location.href = "http://192.168.1.247:3000";
+        window.location.href = "http://burrowreport.com";
     }
 }
 exports.redirectToLoginPage = redirectToLoginPage;
@@ -85,7 +85,7 @@ exports.formatDate = formatDate;
  */
 function sendPostRequest(url, body, callback) {
     let req = new XMLHttpRequest();
-    req.open('POST', `http://192.168.1.247:3000/${url}`);
+    req.open('POST', `http://burrowreport.com/${url}`);
     req.setRequestHeader("Content-type", "application/json");
     req.send(JSON.stringify(body));
     req.onreadystatechange = function () {
@@ -199,7 +199,7 @@ function checkCredentials() {
     if (correctCredentials) {
         document.cookie = `username=${username};path=/`;
         document.cookie = `admin=${admin};path=/`;
-        window.location.replace('http://192.168.1.247:3000/viewJobs');
+        window.location.replace('http://burrowreport.com/viewJobs');
     }
     else {
         alert('incorrect username or password');
@@ -210,7 +210,7 @@ function checkCredentials() {
  */
 function redirectLoggedInUser() {
     if ((0, website_js_1.validUserLoggedIn)()) {
-        window.location.replace('http://192.168.1.247:3000/viewJobs');
+        window.location.replace('http://burrowreport.com/viewJobs');
     }
 }
 /**

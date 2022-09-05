@@ -267,7 +267,7 @@ const generateIcon = (markerType, color, size) => {
 };
 let renderer = leaflet_1.default.canvas({ tolerance: 10 });
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 3);
-leaflet_1.default.tileLayer('http://192.168.1.247:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
+leaflet_1.default.tileLayer('http://burrowreport.com/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
     attribution: `${JOB_NAME} - PAGE# ${PAGE_NUMBER}`,
     minZoom: 2,
     maxZoom: 7,
@@ -379,13 +379,13 @@ function formatPageMovementLinks() {
     if (prev != -1) {
         previousButton.classList.toggle('activeLink');
         previousButton.addEventListener('click', () => {
-            window.location.href = `http://192.168.1.247:3000/asBuilts/${JOB_ID}/${prev}`;
+            window.location.href = `http://burrowreport.com/asBuilts/${JOB_ID}/${prev}`;
         });
     }
     if (next != -1) {
         nextButton.classList.toggle('activeLink');
         nextButton.addEventListener('click', () => {
-            window.location.href = `http://192.168.1.247:3000/asBuilts/${JOB_ID}/${next}`;
+            window.location.href = `http://burrowreport.com/asBuilts/${JOB_ID}/${next}`;
         });
     }
 }
