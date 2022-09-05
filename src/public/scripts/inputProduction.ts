@@ -15,9 +15,9 @@ declare global {
     incrementBoreLogRow : (sourceElement : HTMLElement) => void;
     decrementBoreLogRow : (sourceElement : HTMLElement) => void;
     toggleBoreLog : () => void;
-    deleteObject : (table : 'vaults' | 'bores' | 'rocks', id : number) => void,
+    deleteObject : (table : 'vaults' | 'bores', id : number) => void,
     editObject : (objectType : 'vault' | 'bore', id : number, billingCode : string) => void;
-    boresAndRocks : BoreObject[],
+    bores : BoreObject[],
     vaults : VaultObject[],
     map : L.Map;
   }
@@ -64,7 +64,7 @@ const CLIENT : string = clientPug;
 
 
 //@ts-ignore
-let boresAndRocks : DownloadBoreObject[] = parseJSON(boresAndRocksJSON);
+let bores : DownloadBoreObject[] = parseJSON(boresJSON);
 //@ts-ignore
 let vaults : DownloadVaultObject[] = parseJSON(vaultsJSON);
 
@@ -78,7 +78,7 @@ window.editObject = editObject;
 window.incrementBoreLogRow = incrementBoreLogRow;
 window.decrementBoreLogRow = decrementBoreLogRow;
 window.toggleBoreLog = toggleBoreLog;
-window.boresAndRocks = [];
+window.bores = [];
 window.vaults = [];
 
 let renderer = L.canvas({ tolerance: 20 });
@@ -127,8 +127,8 @@ function getOptionsFromBillingCode(code : string) : ClientOptions {
   }
 }
 
-function drawSavedBoresAndRocks() : void {
-  for (const bore of boresAndRocks) {
+function drawSavedBores() : void {
+  for (const bore of bores) {
     let options = getOptionsFromBillingCode(bore.billing_code);
     let boreLine = new MapLine(map, renderer,
       {
@@ -142,7 +142,7 @@ function drawSavedBoresAndRocks() : void {
     if (!options.dashed) {
       boreLine.mapObject.bringToBack();
     }
-    window.boresAndRocks.push(new BoreObject(bore, boreLine));
+    window.bores.push(new BoreObject(bore, boreLine));
   }
 }
 
@@ -208,7 +208,7 @@ function initialization() : void {
  * @returns {void}
  */
 function singleInitialization() : void {
-  drawSavedBoresAndRocks();
+  drawSavedBores();
   drawSavedVaults();
   toggleMovementLinks();
   initialization();
@@ -345,7 +345,7 @@ function newBoreSubmitCallback(line : MapLine, billingCode : string) {
     (res : string) => {
       let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])]
       let options = getOptionsFromBillingCode(billingCode);
-      window.boresAndRocks.push(new BoreObject({
+      window.bores.push(new BoreObject({
         job_name: JOB_NAME,
         crew_name: USERINFO.username,
         page_number: PAGE_NUMBER,
@@ -647,7 +647,7 @@ function formatDate(date : Date) : string {
  * in addition, will search the list of either vaults or bores to remove
  * it from the map for the user
  *
- * @param {'vaults' | 'bores' | 'rocks'} table - string of table name
+ * @param {'vaults' | 'bores' } table - string of table name
  * @param {number} id - number - the id of the object to be deleted
  * @returns {void}
  */
@@ -663,7 +663,7 @@ function deleteObject(table : 'vaults' | 'bores', id : number) : void {
       }
     }
   } else {
-    for (const bore of window.boresAndRocks) {
+    for (const bore of window.bores) {
       if (bore.id == id) {
         bore.line.removeSelf();
       }
@@ -729,7 +729,7 @@ function setEOPs(eops : number[]) {
 function editObject(objectType : 'vault' | 'bore', id : number, billingCode : string) : void {
   map.closePopup();
   if (objectType == "bore") {
-    for (const bore of window.boresAndRocks) {
+    for (const bore of window.bores) {
       if (id == bore.id && bore.billing_code == billingCode) {
         bore.editLine();
         startBoreSetup();

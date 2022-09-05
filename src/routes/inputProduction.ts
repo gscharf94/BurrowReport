@@ -14,14 +14,6 @@ router.get('/:clientName/:jobName/:pageNumber', (req, res) => {
     `;
     let boresResult = await pool.query(boreQuery);
 
-    let rockQuery = `
-      SELECT * FROM rocks
-      WHERE
-        job_name='${jobName}' AND
-        page_number=${pageNumber};
-    `;
-    let rocksResult = await pool.query(rockQuery);
-
     let vaultQuery = `
       SELECT * FROM vaults
       WHERE
@@ -29,16 +21,6 @@ router.get('/:clientName/:jobName/:pageNumber', (req, res) => {
         page_number=${pageNumber};
     `;
     let vaultsResult = await pool.query(vaultQuery);
-
-    let boresAndRocks = [];
-    for (const bore of boresResult.rows) {
-      bore.rock = false;
-      boresAndRocks.push(bore);
-    }
-    for (const rock of rocksResult.rows) {
-      rock.rock = true;
-      boresAndRocks.push(rock);
-    }
 
     let pagesQuery = `
       SELECT page_number FROM pages
@@ -59,7 +41,7 @@ router.get('/:clientName/:jobName/:pageNumber', (req, res) => {
       pageNumber: pageNumber,
       client: clientName,
       vaults: JSON.stringify(vaultsResult.rows),
-      boresAndRocks: JSON.stringify(boresAndRocks),
+      bores: JSON.stringify(boresResult.rows),
       totalPagesForJob: JSON.stringify(pagesResult.rows),
       clientOptions: JSON.stringify(optionsResult.rows),
       clientOptionsPug: optionsResult.rows,

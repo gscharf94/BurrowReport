@@ -774,7 +774,7 @@ const CLIENT_OPTIONS = parseJSON(clientOptionsJSON);
 //@ts-ignore
 const CLIENT = clientPug;
 //@ts-ignore
-let boresAndRocks = parseJSON(boresAndRocksJSON);
+let bores = parseJSON(boresJSON);
 //@ts-ignore
 let vaults = parseJSON(vaultsJSON);
 const USERINFO = (0, website_js_1.getUserInfo)();
@@ -785,7 +785,7 @@ window.editObject = editObject;
 window.incrementBoreLogRow = incrementBoreLogRow;
 window.decrementBoreLogRow = decrementBoreLogRow;
 window.toggleBoreLog = toggleBoreLog;
-window.boresAndRocks = [];
+window.bores = [];
 window.vaults = [];
 let renderer = leaflet_1.default.canvas({ tolerance: 20 });
 let map = leaflet_1.default.map('map').setView([58.8, -4.08], 3);
@@ -826,8 +826,8 @@ function getOptionsFromBillingCode(code) {
         }
     }
 }
-function drawSavedBoresAndRocks() {
-    for (const bore of boresAndRocks) {
+function drawSavedBores() {
+    for (const bore of bores) {
         let options = getOptionsFromBillingCode(bore.billing_code);
         let boreLine = new leafletClasses_js_1.MapLine(map, renderer, {
             points: [...bore.coordinates],
@@ -839,7 +839,7 @@ function drawSavedBoresAndRocks() {
         if (!options.dashed) {
             boreLine.mapObject.bringToBack();
         }
-        window.boresAndRocks.push(new leafletClasses_js_1.BoreObject(bore, boreLine));
+        window.bores.push(new leafletClasses_js_1.BoreObject(bore, boreLine));
     }
 }
 function drawSavedVaults() {
@@ -894,7 +894,7 @@ function initialization() {
  * @returns {void}
  */
 function singleInitialization() {
-    drawSavedBoresAndRocks();
+    drawSavedBores();
     drawSavedVaults();
     toggleMovementLinks();
     initialization();
@@ -1017,7 +1017,7 @@ function newBoreSubmitCallback(line, billingCode) {
     }, (res) => {
         let [boreId, pageId] = [Number(res.split(",")[0]), Number(res.split(",")[1])];
         let options = getOptionsFromBillingCode(billingCode);
-        window.boresAndRocks.push(new leafletClasses_js_1.BoreObject({
+        window.bores.push(new leafletClasses_js_1.BoreObject({
             job_name: JOB_NAME,
             crew_name: USERINFO.username,
             page_number: PAGE_NUMBER,
@@ -1292,7 +1292,7 @@ function formatDate(date) {
  * in addition, will search the list of either vaults or bores to remove
  * it from the map for the user
  *
- * @param {'vaults' | 'bores' | 'rocks'} table - string of table name
+ * @param {'vaults' | 'bores' } table - string of table name
  * @param {number} id - number - the id of the object to be deleted
  * @returns {void}
  */
@@ -1309,7 +1309,7 @@ function deleteObject(table, id) {
         }
     }
     else {
-        for (const bore of window.boresAndRocks) {
+        for (const bore of window.bores) {
             if (bore.id == id) {
                 bore.line.removeSelf();
             }
@@ -1369,7 +1369,7 @@ function setEOPs(eops) {
 function editObject(objectType, id, billingCode) {
     map.closePopup();
     if (objectType == "bore") {
-        for (const bore of window.boresAndRocks) {
+        for (const bore of window.bores) {
             if (id == bore.id && bore.billing_code == billingCode) {
                 bore.editLine();
                 startBoreSetup();

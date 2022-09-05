@@ -9,7 +9,7 @@ const KENTUCKYURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
 const FLORIDAPHONE = "5615018160";
 const FLORIDAURL = "https://exactix.sunshine811.com/findTicketByNumberAndPhone";
 
-const HEADLESS = false;
+const HEADLESS = true;
 const GLOBAL_DELAY = 50;
 
 /**
