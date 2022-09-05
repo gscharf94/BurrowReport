@@ -13,7 +13,7 @@ let query = `
     billing_code, billing_description, dashed
   )
   VALUES (
-    '${clientName}', ${mapObjectType},
+    '${clientName}', '${mapObjectType}',
     '${primaryColor}','${billingCode}' ,
     '${billingDescription}', ${dashed}
   );
