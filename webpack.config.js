@@ -10,6 +10,7 @@ module.exports = {
     viewProduction: __dirname + "/final/public/scripts/viewProduction.js",
     adminPage: __dirname + "/final/public/scripts/adminPage.js",
     asBuilts: __dirname + "/final/public/scripts/asBuilts.js",
+    maintenance: __dirname + "/final/public/scripts/maintenance.js",
   },
   output: {
     path: __dirname + "/final/public/packed/"

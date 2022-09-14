@@ -31,11 +31,16 @@ def count_down(n):
         print(f'{n-i}...')
         time.sleep(1)
 
+# def move_down():
+#     pg.press('n')
+#     pg.press('right')
+#     pg.press('down')
+#     time.sleep(1.5)
+
 def move_down():
     pg.press('n')
-    pg.press('right')
     pg.press('down')
-    time.sleep(1.5)
+    time.sleep(1)
 
 # def move_down():
 #     pg.press('n')

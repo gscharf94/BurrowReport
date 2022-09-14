@@ -659,12 +659,20 @@ function deleteObject(table : 'vaults' | 'bores', id : number) : void {
   if (table == 'vaults') {
     for (const vault of window.vaults) {
       if (vault.id == id) {
+        if (USERINFO.username !== vault.crew_name && !USERINFO.admin) {
+          alert(`only ${vault.crew_name} or an admin can delete this vault`);
+          return;
+        }
         vault.marker.removeSelf();
       }
     }
   } else {
     for (const bore of window.bores) {
       if (bore.id == id) {
+        if (USERINFO.username !== bore.crew_name && !USERINFO.admin) {
+          alert(`only ${bore.crew_name} or an admin can delete this bore`);
+          return;
+        }
         bore.line.removeSelf();
       }
     }
@@ -731,6 +739,10 @@ function editObject(objectType : 'vault' | 'bore', id : number, billingCode : st
   if (objectType == "bore") {
     for (const bore of window.bores) {
       if (id == bore.id && bore.billing_code == billingCode) {
+        if (USERINFO.username !== bore.crew_name && !USERINFO.admin) {
+          alert(`Only ${bore.crew_name} or an admin can edit this bore`);
+          return;
+        }
         bore.editLine();
         startBoreSetup();
         applyBoreLog(bore.bore_logs);
@@ -767,6 +779,10 @@ function editObject(objectType : 'vault' | 'bore', id : number, billingCode : st
   } else if (objectType == "vault") {
     for (const vault of window.vaults) {
       if (id == vault.id) {
+        if (USERINFO.username !== vault.crew_name && !USERINFO.admin) {
+          alert(`Only ${vault.crew_name} or an admin can edit this vault`);
+          return;
+        }
         vault.marker.toggleDraggable();
         startVaultSetup();
 
