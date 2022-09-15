@@ -107,3 +107,11 @@ export function clearAllEventListeners(ids : string[]) : void {
 export function convertArrayToBoreLog(depthsArray : [number, number][]) : { ft : number, inches : number }[] {
   return depthsArray.map(val => { return { ft: val[0], inches: val[1] } });
 }
+
+export function getThisMonday() : Date {
+  let date = new Date();
+  while (date.getDay() !== 1) {
+    date.setDate(date.getDate() - 1);
+  }
+  return date;
+}

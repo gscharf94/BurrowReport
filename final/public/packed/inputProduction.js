@@ -613,7 +613,7 @@ exports.checkResponses = checkResponses;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.convertArrayToBoreLog = exports.clearAllEventListeners = exports.sendPostRequest = exports.formatDate = exports.parseJSON = exports.redirectToLoginPage = exports.validUserLoggedIn = exports.getUserInfo = void 0;
+exports.getThisMonday = exports.convertArrayToBoreLog = exports.clearAllEventListeners = exports.sendPostRequest = exports.formatDate = exports.parseJSON = exports.redirectToLoginPage = exports.validUserLoggedIn = exports.getUserInfo = void 0;
 /**
  * gets the information for the current user
  * this doesn't validate to check if there is a valid cookie
@@ -721,6 +721,14 @@ function convertArrayToBoreLog(depthsArray) {
     return depthsArray.map(val => { return { ft: val[0], inches: val[1] }; });
 }
 exports.convertArrayToBoreLog = convertArrayToBoreLog;
+function getThisMonday() {
+    let date = new Date();
+    while (date.getDay() !== 1) {
+        date.setDate(date.getDate() - 1);
+    }
+    return date;
+}
+exports.getThisMonday = getThisMonday;
 
 
 /***/ }),
@@ -1308,6 +1316,10 @@ function deleteObject(table, id) {
                     alert(`only ${vault.crew_name} or an admin can delete this vault`);
                     return;
                 }
+                if (!checkItemDateForEditOrDeleting(vault.work_date) && !USERINFO.admin) {
+                    alert(`You can only edit vaults during the current week. Please ask an admin to edit.`);
+                    return;
+                }
                 vault.marker.removeSelf();
             }
         }
@@ -1317,6 +1329,10 @@ function deleteObject(table, id) {
             if (bore.id == id) {
                 if (USERINFO.username !== bore.crew_name && !USERINFO.admin) {
                     alert(`only ${bore.crew_name} or an admin can delete this bore`);
+                    return;
+                }
+                if (!checkItemDateForEditOrDeleting(bore.work_date) && !USERINFO.admin) {
+                    alert(`You can only edit bores during the current week. Please ask an admin to edit.`);
                     return;
                 }
                 bore.line.removeSelf();
@@ -1365,6 +1381,17 @@ function setEOPs(eops) {
         }
     }
 }
+function checkItemDateForEditOrDeleting(workDate) {
+    let monday = (0, website_js_1.getThisMonday)();
+    console.log(`monday: ${monday}`);
+    console.log(`work:   ${workDate}`);
+    if (workDate.valueOf() < monday.valueOf()) {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
 /**
  * takes in an object type and an id.. makes that specific item editable
  * so that the user can change it. pops up the submit/cancel buttons
@@ -1379,6 +1406,10 @@ function editObject(objectType, id, billingCode) {
     if (objectType == "bore") {
         for (const bore of window.bores) {
             if (id == bore.id && bore.billing_code == billingCode) {
+                if (!checkItemDateForEditOrDeleting(bore.work_date) && !USERINFO.admin) {
+                    alert(`You can only edit bores during the current week. Please ask an admin to edit.`);
+                    return;
+                }
                 if (USERINFO.username !== bore.crew_name && !USERINFO.admin) {
                     alert(`Only ${bore.crew_name} or an admin can edit this bore`);
                     return;
@@ -1417,6 +1448,10 @@ function editObject(objectType, id, billingCode) {
     else if (objectType == "vault") {
         for (const vault of window.vaults) {
             if (id == vault.id) {
+                if (!checkItemDateForEditOrDeleting(vault.work_date) && !USERINFO.admin) {
+                    alert(`You can only edit vaults during the current week. Please ask an admin to edit.`);
+                    return;
+                }
                 if (USERINFO.username !== vault.crew_name && !USERINFO.admin) {
                     alert(`Only ${vault.crew_name} or an admin can edit this vault`);
                     return;

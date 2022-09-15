@@ -3,7 +3,7 @@ import {
   Coord, UploadBoreObject, UploadVaultObject,
   DownloadBoreObject, DownloadVaultObject, BoreLogRow, ClientOptions
 } from '../../interfaces';
-import { getUserInfo, redirectToLoginPage, clearAllEventListeners, sendPostRequest } from '../../helperFunctions/website.js';
+import { getUserInfo, redirectToLoginPage, clearAllEventListeners, sendPostRequest, getThisMonday } from '../../helperFunctions/website.js';
 import { MapLine, MapMarker, MapObject, BoreObject, VaultObject } from '../../classes/leafletClasses.js';
 
 redirectToLoginPage();
@@ -663,6 +663,10 @@ function deleteObject(table : 'vaults' | 'bores', id : number) : void {
           alert(`only ${vault.crew_name} or an admin can delete this vault`);
           return;
         }
+        if (!checkItemDateForEditOrDeleting(vault.work_date) && !USERINFO.admin) {
+          alert(`You can only edit vaults during the current week. Please ask an admin to edit.`);
+          return;
+        }
         vault.marker.removeSelf();
       }
     }
@@ -671,6 +675,10 @@ function deleteObject(table : 'vaults' | 'bores', id : number) : void {
       if (bore.id == id) {
         if (USERINFO.username !== bore.crew_name && !USERINFO.admin) {
           alert(`only ${bore.crew_name} or an admin can delete this bore`);
+          return;
+        }
+        if (!checkItemDateForEditOrDeleting(bore.work_date) && !USERINFO.admin) {
+          alert(`You can only edit bores during the current week. Please ask an admin to edit.`);
           return;
         }
         bore.line.removeSelf();
@@ -725,6 +733,17 @@ function setEOPs(eops : number[]) {
   }
 }
 
+function checkItemDateForEditOrDeleting(workDate : Date) : boolean {
+  let monday = getThisMonday();
+  console.log(`monday: ${monday}`);
+  console.log(`work:   ${workDate}`);
+  if (workDate.valueOf() < monday.valueOf()) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 /**
  * takes in an object type and an id.. makes that specific item editable
  * so that the user can change it. pops up the submit/cancel buttons
@@ -739,6 +758,10 @@ function editObject(objectType : 'vault' | 'bore', id : number, billingCode : st
   if (objectType == "bore") {
     for (const bore of window.bores) {
       if (id == bore.id && bore.billing_code == billingCode) {
+        if (!checkItemDateForEditOrDeleting(bore.work_date) && !USERINFO.admin) {
+          alert(`You can only edit bores during the current week. Please ask an admin to edit.`);
+          return;
+        }
         if (USERINFO.username !== bore.crew_name && !USERINFO.admin) {
           alert(`Only ${bore.crew_name} or an admin can edit this bore`);
           return;
@@ -779,6 +802,10 @@ function editObject(objectType : 'vault' | 'bore', id : number, billingCode : st
   } else if (objectType == "vault") {
     for (const vault of window.vaults) {
       if (id == vault.id) {
+        if (!checkItemDateForEditOrDeleting(vault.work_date) && !USERINFO.admin) {
+          alert(`You can only edit vaults during the current week. Please ask an admin to edit.`);
+          return;
+        }
         if (USERINFO.username !== vault.crew_name && !USERINFO.admin) {
           alert(`Only ${vault.crew_name} or an admin can edit this vault`);
           return;
