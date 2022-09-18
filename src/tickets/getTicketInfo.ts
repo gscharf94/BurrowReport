@@ -8,8 +8,9 @@ const KENTUCKYPHONE = "5615018160";
 const KENTUCKYURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
 const FLORIDAPHONE = "5615018160";
 const FLORIDAURL = "https://exactix.sunshine811.com/findTicketByNumberAndPhone";
+const OHIOURL = "https://newtina.oups.org/newtinweb/ResponseDisplay.nas";
 
-const HEADLESS = true;
+const HEADLESS = false;
 const GLOBAL_DELAY = 50;
 
 /**
@@ -88,7 +89,7 @@ async function getTicketInfoFlorida(ticket : string) : Promise<TicketInfo> {
   const findButtonSelector = ".mat-button > span:nth-child(1)";
 
   await typeAndWaitSelector(page, ticketNumberInputSelector, 0, ticket);
-  await typeAndWaitSelector(page, phoneNumberInputSelector, 0, KENTUCKYPHONE);
+  await typeAndWaitSelector(page, phoneNumberInputSelector, 0, FLORIDAPHONE);
   await clickAndWaitSelector(page, findButtonSelector, 0);
 
   const ticketTextSelector = "ticket-details-printing-text-and-service-areas.ng-star-inserted > pre:nth-child(2)";
@@ -151,6 +152,46 @@ async function getTicketInfoFlorida(ticket : string) : Promise<TicketInfo> {
   }
 
   browser.close()
+  return ticketInfo;
+}
+
+async function getTicketInfoOhio(ticket : string) : Promise<TicketInfo> {
+  const [browser, page] = await setupPage(OHIOURL);
+  let ticketNumberInputSelector = "body > form > pre > input[type=text]:nth-child(1)";
+  let submitSearchButtonSelector = "body > form > pre > input[type=submit]:nth-child(2)";
+  await typeAndWaitSelector(page, ticketNumberInputSelector, 0, ticket);
+  await clickAndWaitSelector(page, submitSearchButtonSelector, 0);
+
+
+
+  let responses : TicketResponse[] = await page.evaluate(() => {
+    let responses : TicketResponse[] = [];
+    let tableSelector = "body > form > pre > table:nth-child(7)";
+    let tableElement = document.querySelector(tableSelector);
+    let rows = tableElement.querySelectorAll('tr');
+    for (let i = 1; i < rows.length; i++) {
+      let cells = rows[i].querySelectorAll('td');
+      let response : TicketResponse = {
+        utility_type: 'Ohio',
+        utility_name: cells[1].textContent.trim(),
+        response: cells[3].textContent.trim(),
+      }
+      responses.push(response);
+    }
+    return responses;
+  });
+
+  let ticketInfo : TicketInfo = {
+    ticket_number: ticket,
+    city: 'Ohio',
+    street: 'Ohio',
+    cross_street: 'Ohio',
+    input_date: new Date('1970-01-01'),
+    expiration_date: new Date('1970-01-01'),
+    description: 'Ohio',
+    responses: responses,
+  };
+  browser.close();
   return ticketInfo;
 }
 
@@ -254,5 +295,7 @@ export async function getTicketInfo(ticket : string, state : States) : Promise<T
     return await getTicketInfoKentucky(ticket);
   } else if (state == "Florida") {
     return await getTicketInfoFlorida(ticket);
+  } else if (state == "Ohio") {
+    return await getTicketInfoOhio(ticket);
   }
 }

@@ -37,16 +37,16 @@ def count_down(n):
 #     pg.press('down')
 #     time.sleep(1.5)
 
-def move_down():
-    pg.press('n')
-    pg.press('down')
-    time.sleep(1)
-
 # def move_down():
 #     pg.press('n')
-#     time.sleep(0.3)
-#     pg.press('n')
-#     time.sleep(1.5)
+#     pg.press('down')
+#     time.sleep(1)
+
+def move_down():
+    pg.press('n')
+    time.sleep(0.3)
+    pg.press('n')
+    time.sleep(1.5)
 
 def get_pos():
     input('put mouse over NW corner')

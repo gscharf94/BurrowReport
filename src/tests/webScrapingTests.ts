@@ -1,8 +1,8 @@
 import { getTicketInfo } from '../tickets/getTicketInfo.js';
 
 
-const ticketToTest = "2208252004";
-const state = "Kentucky";
+const ticketToTest = "A225604573";
+const state = "Ohio";
 
 (async () => {
   let info = await getTicketInfo(ticketToTest, state);
