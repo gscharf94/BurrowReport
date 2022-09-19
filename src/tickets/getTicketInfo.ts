@@ -8,7 +8,9 @@ const KENTUCKYPHONE = "5615018160";
 const KENTUCKYURL = "https://811.kentucky811.org/findTicketByNumberAndPhone";
 const FLORIDAPHONE = "5615018160";
 const FLORIDAURL = "https://exactix.sunshine811.com/findTicketByNumberAndPhone";
-const OHIOURL = "https://newtina.oups.org/newtinweb/ResponseDisplay.nas";
+const OHIOURL = "https://longterm.oups.org/newtinweb/OUPS_TicketSearch.html";
+const OHIOLOGIN = "fiber1comms";
+const OHIOPASSWORD = "ZDyHkssvk7yNE5G123#";
 
 const HEADLESS = false;
 const GLOBAL_DELAY = 50;
@@ -39,13 +41,19 @@ export function updateTicketInfo(info : TicketInfo) : void {
   pool.query(query);
 }
 
-async function setupPage(url : string) : Promise<[puppeteer.Browser, puppeteer.Page]> {
+async function setupPage(url : string, loginInfo = { login: 'null', pass: 'null' }) : Promise<[puppeteer.Browser, puppeteer.Page]> {
   const browser = await puppeteer.launch({
     headless: HEADLESS,
     slowMo: GLOBAL_DELAY,
   });
 
   const page = await browser.newPage();
+  if (loginInfo.login !== "null") {
+    await page.authenticate({
+      'username': loginInfo.login,
+      'password': loginInfo.pass,
+    });
+  }
   await page.goto(url);
   return [browser, page];
 }
@@ -156,27 +164,46 @@ async function getTicketInfoFlorida(ticket : string) : Promise<TicketInfo> {
 }
 
 async function getTicketInfoOhio(ticket : string) : Promise<TicketInfo> {
-  const [browser, page] = await setupPage(OHIOURL);
-  let ticketNumberInputSelector = "body > form > pre > input[type=text]:nth-child(1)";
-  let submitSearchButtonSelector = "body > form > pre > input[type=submit]:nth-child(2)";
-  await typeAndWaitSelector(page, ticketNumberInputSelector, 0, ticket);
-  await clickAndWaitSelector(page, submitSearchButtonSelector, 0);
+  const [browser, page] = await setupPage(OHIOURL, { login: OHIOLOGIN, pass: OHIOPASSWORD });
 
+  let ticketSearchInputSelector = "#txtTicketNumber";
+  await typeAndWaitSelector(page, ticketSearchInputSelector, 0, ticket);
 
+  let searchButtonSelector = "#btnSearch";
+  await clickAndWaitSelector(page, searchButtonSelector, 0);
+
+  let tableSelector = "#resultsTable";
+  await page.waitForSelector(tableSelector);
+
+  await page.evaluate(() => {
+    let table = document.getElementById('resultsTable');
+    let rows = table.querySelectorAll('tr');
+    rows[1].click();
+  });
+
+  await page.waitForSelector('#ticket');
+
+  let ticketText = await page.evaluate(() => {
+    let text = document.getElementById('ticket');
+    return text.textContent;
+  });
+
+  // PARSE TICKET TEXT HERE
+
+  let checkResponsesButtonSelector = "#btnMemberDeliveries";
+  await clickAndWaitSelector(page, checkResponsesButtonSelector, 0);
 
   let responses : TicketResponse[] = await page.evaluate(() => {
-    let responses : TicketResponse[] = [];
-    let tableSelector = "body > form > pre > table:nth-child(7)";
-    let tableElement = document.querySelector(tableSelector);
-    let rows = tableElement.querySelectorAll('tr');
+    let responseTable = document.getElementById('memberResponses');
+    let rows = responseTable.querySelectorAll('tr');
+    let responses = [];
     for (let i = 1; i < rows.length; i++) {
       let cells = rows[i].querySelectorAll('td');
-      let response : TicketResponse = {
-        utility_type: 'Ohio',
+      responses.push({
+        utility_type: 'Unknown',
         utility_name: cells[1].textContent.trim(),
-        response: cells[3].textContent.trim(),
-      }
-      responses.push(response);
+        response: cells[5].textContent.trim(),
+      });
     }
     return responses;
   });
@@ -191,8 +218,15 @@ async function getTicketInfoOhio(ticket : string) : Promise<TicketInfo> {
     description: 'Ohio',
     responses: responses,
   };
-  browser.close();
+
+
+  setTimeout(() => {
+    browser.close();
+  }, 10000);
   return ticketInfo;
+
+  // browser.close();
+  // return ticketInfo;
 }
 
 /**
