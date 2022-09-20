@@ -64,6 +64,11 @@ function trimDescription(description) {
     description = description.slice(0, -2);
     description = description.replace(/\n/g, " ");
     description = description.replace(/'/g, "''");
+    description = description.replace(/\040\040\040\040\040\040/g, " ");
+    description = description.replace(/\040\040\040\040\040/g, " ");
+    description = description.replace(/\040\040\040\040/g, " ");
+    description = description.replace(/\040\040\040/g, " ");
+    description = description.replace(/\040\040/g, " ");
     return description;
 }
 exports.trimDescription = trimDescription;

@@ -188,7 +188,7 @@ async function getTicketInfoOhio(ticket : string) : Promise<TicketInfo> {
     return text.textContent;
   });
 
-  // PARSE TICKET TEXT HERE
+  let parsedInfo = parseTicketTextOhio(ticketText);
 
   let checkResponsesButtonSelector = "#btnMemberDeliveries";
   await clickAndWaitSelector(page, checkResponsesButtonSelector, 0);
@@ -210,15 +210,14 @@ async function getTicketInfoOhio(ticket : string) : Promise<TicketInfo> {
 
   let ticketInfo : TicketInfo = {
     ticket_number: ticket,
-    city: 'Ohio',
-    street: 'Ohio',
-    cross_street: 'Ohio',
-    input_date: new Date('1970-01-01'),
-    expiration_date: new Date('1970-01-01'),
-    description: 'Ohio',
+    city: parsedInfo.city,
+    street: parsedInfo.street,
+    cross_street: parsedInfo.cross_street,
+    input_date: parsedInfo.input_date,
+    expiration_date: new Date('2050-01-01'),
+    description: parsedInfo.description,
     responses: responses,
   };
-
 
   setTimeout(() => {
     browser.close();
@@ -284,6 +283,34 @@ async function getTicketInfoKentucky(ticket : string) : Promise<TicketInfo> {
 
   browser.close();
   return ticketInfo;
+}
+
+function parseTicketTextOhio(text : string) : { city : string, street : string, cross_street : string, input_date : Date, expiration_date : Date, description : string } {
+
+  let streetRegex = /Name: (.*)Cross1/;
+  let streetResult = text.match(streetRegex);
+
+  let crossStreetRegex = /Cross1 : (.*)Cross2/;
+  let crossStreetResult = text.match(crossStreetRegex);
+
+  let cityRegex = /Place: (.*)Addr/;
+  let cityResult = text.match(cityRegex);
+
+  let descriptionRegex = /Where: ([.\s\w\d-:]*)Subdivision/;
+  let descriptionResult = text.match(descriptionRegex);
+
+  let inputDateRegex = /OUPS (\d{2}\/\d{2}\/\d{2})/;
+  let inputDateResult = text.match(inputDateRegex);
+
+
+  return {
+    city: cityResult[1],
+    street: streetResult[1],
+    cross_street: crossStreetResult[1],
+    input_date: new Date(inputDateResult[1]),
+    expiration_date: new Date(), // ohio tickets dont expire
+    description: trimDescription(descriptionResult[1]),
+  };
 }
 
 function parseTicketTextKentucky(text : string) : { city : string, street : string, cross_street : string, input_date : Date, expiration_date : Date, description : string } {

@@ -162,7 +162,7 @@ async function getTicketInfoOhio(ticket) {
         let text = document.getElementById('ticket');
         return text.textContent;
     });
-    // PARSE TICKET TEXT HERE
+    let parsedInfo = parseTicketTextOhio(ticketText);
     let checkResponsesButtonSelector = "#btnMemberDeliveries";
     await (0, webScraping_js_1.clickAndWaitSelector)(page, checkResponsesButtonSelector, 0);
     let responses = await page.evaluate(() => {
@@ -181,12 +181,12 @@ async function getTicketInfoOhio(ticket) {
     });
     let ticketInfo = {
         ticket_number: ticket,
-        city: 'Ohio',
-        street: 'Ohio',
-        cross_street: 'Ohio',
-        input_date: new Date('1970-01-01'),
-        expiration_date: new Date('1970-01-01'),
-        description: 'Ohio',
+        city: parsedInfo.city,
+        street: parsedInfo.street,
+        cross_street: parsedInfo.cross_street,
+        input_date: parsedInfo.input_date,
+        expiration_date: new Date('2050-01-01'),
+        description: parsedInfo.description,
         responses: responses,
     };
     setTimeout(() => {
@@ -244,6 +244,26 @@ async function getTicketInfoKentucky(ticket) {
     };
     browser.close();
     return ticketInfo;
+}
+function parseTicketTextOhio(text) {
+    let streetRegex = /Name: (.*)Cross1/;
+    let streetResult = text.match(streetRegex);
+    let crossStreetRegex = /Cross1 : (.*)Cross2/;
+    let crossStreetResult = text.match(crossStreetRegex);
+    let cityRegex = /Place: (.*)Addr/;
+    let cityResult = text.match(cityRegex);
+    let descriptionRegex = /Where: ([.\s\w\d-:]*)Subdivision/;
+    let descriptionResult = text.match(descriptionRegex);
+    let inputDateRegex = /OUPS (\d{2}\/\d{2}\/\d{2})/;
+    let inputDateResult = text.match(inputDateRegex);
+    return {
+        city: cityResult[1],
+        street: streetResult[1],
+        cross_street: crossStreetResult[1],
+        input_date: new Date(inputDateResult[1]),
+        expiration_date: new Date(),
+        description: (0, webScraping_js_1.trimDescription)(descriptionResult[1]),
+    };
 }
 function parseTicketTextKentucky(text) {
     let streetRegex = /Street  : (.*)/;
