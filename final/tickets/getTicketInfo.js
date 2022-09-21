@@ -246,14 +246,16 @@ async function getTicketInfoKentucky(ticket) {
     return ticketInfo;
 }
 function parseTicketTextOhio(text) {
+    console.log(text);
     let streetRegex = /Name: (.*)Cross1/;
     let streetResult = text.match(streetRegex);
     let crossStreetRegex = /Cross1 : (.*)Cross2/;
     let crossStreetResult = text.match(crossStreetRegex);
     let cityRegex = /Place: (.*)Addr/;
     let cityResult = text.match(cityRegex);
-    let descriptionRegex = /Where: ([.\s\w\d-:]*)Subdivision/;
+    let descriptionRegex = /Where: ([.\s\w\d-:&,]*)Subdivision/;
     let descriptionResult = text.match(descriptionRegex);
+    console.log(descriptionResult);
     let inputDateRegex = /OUPS (\d{2}\/\d{2}\/\d{2})/;
     let inputDateResult = text.match(inputDateRegex);
     return {
