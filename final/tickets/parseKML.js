@@ -76,9 +76,17 @@ async function parseKml(jobName) {
     let coordinateRegex = /<coordinates>([\s.\d,-]*)/g;
     let coordinateResult = text.matchAll(coordinateRegex);
     let coords = [...coordinateResult].map(val => parseCoords(val[1]));
-    let ticketRegex = /<name>(\d*)<\/name>/g;
+    console.log(coords);
+    let ticketRegex = /<name>(.*)<\/name>/g;
     let ticketResult = text.matchAll(ticketRegex);
-    let tickets = [...ticketResult].map(val => val[1]);
+    let tickets = [...ticketResult].map(val => val[1]).filter((val) => {
+        if (isNaN(Number(val[1]))) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    });
     let state = await (0, database_js_1.getJobState)(jobName);
     for (let i = 0; i < tickets.length; i++) {
         if (!await checkIfTicketExists(tickets[i])) {
@@ -87,5 +95,5 @@ async function parseKml(jobName) {
     }
 }
 // parseKml('JB3');
-// parseKml('JB4');
-parseKml('P4824');
+parseKml('JB4');
+// parseKml('P1200');

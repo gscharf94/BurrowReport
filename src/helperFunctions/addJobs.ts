@@ -1,9 +1,9 @@
 import fs from 'fs';
 import { pool } from '../db.js';
 
-const CLIENT = "Fibertech";
-const STATE = "Florida";
-const JOB = "BASEBALL";
+const CLIENT = "Danella";
+const STATE = "Ohio";
+const JOB = "P1200";
 
 let filesPath = `${process.cwd()}/final/public/maps/originals/${JOB}`;
 let files = fs.readdirSync(filesPath);
