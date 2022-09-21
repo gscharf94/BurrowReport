@@ -286,8 +286,6 @@ async function getTicketInfoKentucky(ticket : string) : Promise<TicketInfo> {
 }
 
 function parseTicketTextOhio(text : string) : { city : string, street : string, cross_street : string, input_date : Date, expiration_date : Date, description : string } {
-  console.log(text);
-
   let streetRegex = /Name: (.*)Cross1/;
   let streetResult = text.match(streetRegex);
 
@@ -299,7 +297,6 @@ function parseTicketTextOhio(text : string) : { city : string, street : string, 
 
   let descriptionRegex = /Where: ([.\s\w\d-:&,]*)Subdivision/;
   let descriptionResult = text.match(descriptionRegex);
-  console.log(descriptionResult);
 
   let inputDateRegex = /OUPS (\d{2}\/\d{2}\/\d{2})/;
   let inputDateResult = text.match(inputDateRegex);
