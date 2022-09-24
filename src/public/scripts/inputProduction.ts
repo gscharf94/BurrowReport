@@ -483,13 +483,13 @@ function addVaultStart() {
  * but better safe than sorry, right?
  */
 function resetInputs() {
-  let dateInput = <HTMLInputElement>document.getElementById('dateInput');
-  let today = new Date();
-  let year = String(today.getFullYear()).padStart(2, "0");
-  let month = String(today.getMonth() + 1).padStart(2, "0");
-  let day = today.getDate();
-  let dateString = `${year}-${month}-${day}`;
-  dateInput.value = dateString;
+  // let dateInput = <HTMLInputElement>document.getElementById('dateInput');
+  // let today = new Date();
+  // let year = String(today.getFullYear()).padStart(2, "0");
+  // let month = String(today.getMonth() + 1).padStart(2, "0");
+  // let day = today.getDate();
+  // let dateString = `${year}-${month}-${day}`;
+  // dateInput.value = dateString;
 
   let footageInput = <HTMLInputElement>document.getElementById('footageInput');
   footageInput.value = '';
