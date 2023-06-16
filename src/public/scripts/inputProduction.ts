@@ -83,7 +83,7 @@ window.vaults = [];
 
 let renderer = L.canvas({ tolerance: 20 });
 let map = L.map('map').setView([58.8, -4.08], 3);
-L.tileLayer('http://192.168.1.247:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
+L.tileLayer('http://10.0.0.234:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
   attribution: `${JOB_NAME} - PAGE# ${PAGE_NUMBER}`,
   minZoom: 2,
   maxZoom: 7,
@@ -916,7 +916,7 @@ function toggleMovementLinks() : void {
     forwardLink.classList.add('movementActive');
     forwardLink.src = "/images/icons/forward_green_copy.svg";
     forwardLink.addEventListener('click', () => {
-      window.location.href = `http://192.168.1.247:3000/inputProduction/${CLIENT}/${JOB_NAME}/${PAGE_NUMBER + 1}`;
+      window.location.href = `http://10.0.0.234:3000/inputProduction/${CLIENT}/${JOB_NAME}/${PAGE_NUMBER + 1}`;
     });
   } else {
     forwardLink.src = "/images/icons/forward_gray_copy.svg";
@@ -926,7 +926,7 @@ function toggleMovementLinks() : void {
     backwardLink.classList.add('movementActive');
     backwardLink.src = "/images/icons/backward_green_copy.svg";
     backwardLink.addEventListener('click', () => {
-      window.location.href = `http://192.168.1.247:3000/inputProduction/${CLIENT}/${JOB_NAME}/${PAGE_NUMBER - 1}`;
+      window.location.href = `http://10.0.0.234:3000/inputProduction/${CLIENT}/${JOB_NAME}/${PAGE_NUMBER - 1}`;
     });
   } else {
     backwardLink.src = "/images/icons/backward_gray_copy.svg";

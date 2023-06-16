@@ -240,7 +240,7 @@ function goToAsBuilt() {
   }
   let jobSelect = <HTMLSelectElement>document.getElementById('jobSelect');
   let jobId = Number(jobSelect.value);
-  window.location.href = `http://192.168.1.247:3000/asBuilts/${jobId}/-1`;
+  window.location.href = `http://10.0.0.234:3000/asBuilts/${jobId}/-1`;
 }
 
 populateSelectElement();

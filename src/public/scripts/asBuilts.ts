@@ -299,7 +299,7 @@ const generateIcon = (markerType : 'line' | 'marker', color : string, size : [nu
 
 let renderer = L.canvas({ tolerance: 10 });
 let map = L.map('map').setView([58.8, -4.08], 3);
-L.tileLayer('http://192.168.1.247:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
+L.tileLayer('http://10.0.0.234:3000/maps/tiled/{job}/{page}/{z}/{x}/{y}.jpg', {
   attribution: `${JOB_NAME} - PAGE# ${PAGE_NUMBER}`,
   minZoom: 2,
   maxZoom: 7,
@@ -429,14 +429,14 @@ function formatPageMovementLinks() {
   if (prev != -1) {
     previousButton.classList.toggle('activeLink');
     previousButton.addEventListener('click', () => {
-      window.location.href = `http://192.168.1.247:3000/asBuilts/${JOB_ID}/${prev}`;
+      window.location.href = `http://10.0.0.234:3000/asBuilts/${JOB_ID}/${prev}`;
     });
   }
 
   if (next != -1) {
     nextButton.classList.toggle('activeLink');
     nextButton.addEventListener('click', () => {
-      window.location.href = `http://192.168.1.247:3000/asBuilts/${JOB_ID}/${next}`;
+      window.location.href = `http://10.0.0.234:3000/asBuilts/${JOB_ID}/${next}`;
     });
   }
 

@@ -45,5 +45,5 @@ app.use('/asBuilts', asBuilts_js_1.router);
 app.use('/generatePDF', generatePdfPOST_js_1.router);
 app.use('/maintenance', maintenance_js_1.router);
 app.listen(PORT, () => {
-    console.log(`listening @ http://192.168.1.247:3000`);
+    console.log(`listening @ http://10.0.0.234:3000`);
 });
